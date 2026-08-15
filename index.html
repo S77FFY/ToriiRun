@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d1117">
+<title>TORII RUN — 鳥居駆</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vermilion:#D9401F;
+    --vermilion-deep:#8E2411;
+    --washi:#F2E9D8;
+    --sumi:#14100E;
+    --gold:#D9A441;
+    --frost:#9FD8E8;
+    --safe-t:env(safe-area-inset-top,0px);
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:#0b0f14;color:var(--washi);
+    font-family:'Zen Kaku Gothic New',system-ui,-apple-system,sans-serif;
+    touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
+  canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
+
+  #ui{position:fixed;inset:0;pointer-events:none;z-index:10}
+
+  /* ---------- HUD ---------- */
+  #hud{position:absolute;inset:0;opacity:0;transition:opacity .4s}
+  #hud.on{opacity:1}
+
+  .plaque{
+    position:absolute;top:calc(var(--safe-t) + 10px);left:12px;
+    padding:8px 14px 9px;
+    background:linear-gradient(#3a2a1d,#241a12);
+    border:1px solid rgba(217,164,65,.55);
+    border-radius:3px 3px 10px 10px;
+    box-shadow:0 6px 18px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  .plaque:before{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+    width:60%;height:8px;background:linear-gradient(#4a3626,#2b1f16);
+    clip-path:polygon(6% 100%,0 0,100% 0,94% 100%);border-radius:2px}
+  .stage-kanji{font-family:'Shippori Mincho',serif;font-size:22px;line-height:1;color:var(--gold);letter-spacing:2px}
+  .stage-name{font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.72;margin-top:3px}
+  .altitude{font-family:'Shippori Mincho',serif;font-size:13px;color:var(--frost);margin-top:5px;letter-spacing:.06em}
+
+  #score{position:absolute;top:calc(var(--safe-t) + 12px);right:14px;text-align:right}
+  #score .n{font-family:'Shippori Mincho',serif;font-size:30px;font-weight:800;line-height:.9;
+    text-shadow:0 2px 10px rgba(0,0,0,.7)}
+  #score .l{font-size:9px;letter-spacing:.28em;opacity:.6;margin-top:4px}
+  #gates{font-size:11px;letter-spacing:.14em;opacity:.8;margin-top:8px;color:var(--gold)}
+  #mult{font-family:'Shippori Mincho',serif;font-size:26px;font-weight:800;line-height:1;
+    margin-top:10px;color:var(--gold);text-shadow:0 0 14px rgba(217,164,65,.55);
+    transition:transform .12s,color .2s}
+  #mult.up{transform:scale(1.3);color:#fff}
+  #mult.brk{color:#D9401F;text-shadow:0 0 14px rgba(217,64,31,.7)}
+  #chain{width:64px;height:3px;margin:7px 0 0 auto;border-radius:2px;
+    background:rgba(242,233,216,.18);overflow:hidden}
+  #chainFill{height:100%;width:0%;background:var(--gold);transition:width .15s}
+  .sushiPct{font-family:'Shippori Mincho',serif;font-size:13px;color:#F0C56A;
+    margin-top:5px;letter-spacing:.06em}
+
+  /* signature: vertical torii ladder = the 5 stages */
+  #ladder{position:absolute;right:16px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column-reverse;gap:11px;align-items:center}
+  .rung{width:26px;height:20px;position:relative;opacity:.24;transition:opacity .5s,filter .5s}
+  .rung i{position:absolute;background:var(--washi);display:block}
+  .rung .top{left:0;right:0;top:0;height:3px;border-radius:2px}
+  .rung .mid{left:3px;right:3px;top:7px;height:2px}
+  .rung .l{left:5px;top:2px;width:3px;bottom:0}
+  .rung .r{right:5px;top:2px;width:3px;bottom:0}
+  .rung.done i{background:var(--vermilion)}
+  .rung.done{opacity:1;filter:drop-shadow(0 0 6px rgba(217,64,31,.8))}
+  .rung.cur{opacity:1}
+  .rung.cur i{background:var(--gold)}
+
+  /* climb progress: thin vertical thread beside the ladder */
+  #climb{position:absolute;right:46px;top:50%;transform:translateY(-50%);
+    width:2px;height:180px;background:rgba(242,233,216,.16);border-radius:2px;overflow:hidden}
+  #climbFill{position:absolute;bottom:0;left:0;right:0;height:0%;
+    background:linear-gradient(#F2E9D8,var(--gold));transition:height .12s linear}
+
+  /* stamina = mawashi belt */
+  #belt{position:absolute;left:14px;right:14px;bottom:calc(var(--safe-b) + 16px)}
+  #beltTrack{height:16px;border-radius:3px;background:rgba(10,8,7,.62);
+    border:1px solid rgba(242,233,216,.22);overflow:hidden;position:relative;
+    box-shadow:0 4px 14px rgba(0,0,0,.45)}
+  #beltFill{height:100%;width:100%;transform-origin:left;
+    background:repeating-linear-gradient(115deg,#EDE3CE 0 9px,#DCCFB4 9px 18px);
+    transition:width .1s linear}
+  #belt.warn #beltFill{background:repeating-linear-gradient(115deg,#E8B23A 0 9px,#C88A1E 9px 18px)}
+  #belt.crit #beltFill{background:repeating-linear-gradient(115deg,#D9401F 0 9px,#8E2411 9px 18px);
+    animation:pulse .5s infinite}
+  @keyframes pulse{50%{filter:brightness(1.6)}}
+  #beltLabel{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:10px;letter-spacing:.24em;opacity:.7;margin-bottom:6px;text-transform:uppercase}
+  #ganbare{font-family:'Shippori Mincho',serif;color:var(--vermilion);letter-spacing:.1em;
+    opacity:0;transition:opacity .2s;font-size:12px}
+  #belt.crit #ganbare{opacity:1;animation:pulse .5s infinite}
+
+  #temp{position:absolute;left:14px;bottom:calc(var(--safe-b) + 56px);
+    font-size:11px;letter-spacing:.16em;color:var(--frost);opacity:.85}
+
+  /* toast */
+  #toast{position:absolute;left:50%;top:26%;transform:translate(-50%,0) scale(.9);
+    font-family:'Shippori Mincho',serif;font-size:26px;letter-spacing:.08em;
+    opacity:0;text-shadow:0 3px 16px rgba(0,0,0,.8);white-space:nowrap}
+  #toast.show{animation:toastBurn 2.1s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes toastBurn{
+    0%  {opacity:0;color:#fff;filter:blur(6px);transform:translate(-50%,10px) scale(.78);
+         text-shadow:0 0 40px #fff}
+    5%  {opacity:1;color:#fff;filter:blur(0);transform:translate(-50%,-5px) scale(1.14);
+         text-shadow:0 0 26px #fff,0 0 62px rgba(255,255,255,.9)}
+    11% {color:#FF2BA6;transform:translate(-50%,-6px) scale(1.08);
+         text-shadow:0 0 22px #FF2BA6,0 0 58px rgba(255,43,166,.85)}
+    17% {color:#4BFF3C;text-shadow:0 0 22px #4BFF3C,0 0 58px rgba(75,255,60,.85)}
+    23% {color:#fff;text-shadow:0 0 24px #fff,0 0 54px rgba(255,255,255,.8)}
+    29% {color:#FF2BA6;transform:translate(-50%,-7px) scale(1.03);
+         text-shadow:0 0 16px #FF2BA6,0 0 40px rgba(255,43,166,.6)}
+    35% {color:#4BFF3C;text-shadow:0 0 14px #4BFF3C,0 0 34px rgba(75,255,60,.55)}
+    41% {color:#fff;text-shadow:0 0 12px rgba(255,255,255,.8)}
+    /* the flash stops — what's left is scorched into the glass */
+    47% {opacity:1;color:#07070A;transform:translate(-50%,-8px) scale(1);
+         text-shadow:0 0 20px rgba(255,255,255,.65),0 0 3px rgba(255,43,166,.5)}
+    62% {opacity:.96;color:#07070A;text-shadow:0 0 9px rgba(255,255,255,.28)}
+    80% {opacity:.6;color:#0B0B10;filter:blur(.4px);text-shadow:0 0 4px rgba(255,255,255,.12)}
+    100%{opacity:0;color:#12121A;filter:blur(2.4px);transform:translate(-50%,-9px) scale(1);
+         text-shadow:none}
+  }
+
+  /* the stage kanji gets the same burn, slower and grander */
+  .pHead .pk{animation:kanjiBurn 2.6s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes kanjiBurn{
+    0%  {color:#fff;opacity:0;filter:blur(14px);transform:scale(1.3);text-shadow:0 0 90px #fff}
+    6%  {color:#fff;opacity:1;filter:blur(0);transform:scale(1.04);
+         text-shadow:0 0 40px #fff,0 0 110px rgba(255,255,255,.8)}
+    13% {color:#FF2BA6;text-shadow:0 0 40px #FF2BA6,0 0 110px rgba(255,43,166,.75)}
+    20% {color:#4BFF3C;text-shadow:0 0 40px #4BFF3C,0 0 110px rgba(75,255,60,.75)}
+    27% {color:#fff;text-shadow:0 0 36px #fff}
+    34% {color:#FF2BA6;transform:scale(1.01);text-shadow:0 0 26px #FF2BA6}
+    41% {color:#4BFF3C;text-shadow:0 0 22px #4BFF3C}
+    48% {color:#07070A;transform:scale(1);
+         text-shadow:0 0 34px rgba(255,255,255,.6),0 0 5px rgba(75,255,60,.45)}
+    70% {color:#1E170F;opacity:1;text-shadow:0 0 14px rgba(255,255,255,.2)}
+    100%{color:#1E170F;opacity:1;filter:blur(0);text-shadow:none}
+  }
+
+  /* ---------- Screens ---------- */
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:28px;
+    pointer-events:auto;background:radial-gradient(120% 90% at 50% 40%,rgba(8,10,14,.55),rgba(6,7,10,.93))}
+  .screen.hide{display:none}
+  .brand{font-family:'Shippori Mincho',serif;font-weight:800;line-height:.92}
+  .brand .jp{font-size:clamp(46px,17vw,110px);color:var(--vermilion);letter-spacing:.06em;
+    text-shadow:0 0 34px rgba(217,64,31,.5),0 6px 0 rgba(0,0,0,.35)}
+  .brand .en{font-size:clamp(13px,4vw,20px);letter-spacing:.5em;margin-top:14px;color:var(--washi);opacity:.9}
+  .rule{width:76px;height:1px;background:var(--gold);opacity:.6;margin:22px 0}
+  .blurb{max-width:330px;font-size:13px;line-height:1.85;opacity:.78}
+  .blurb b{color:var(--gold);font-weight:700}
+
+  .btn{pointer-events:auto;margin-top:26px;padding:15px 40px;border:0;cursor:pointer;
+    font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:14px;letter-spacing:.24em;
+    color:#1a0d08;background:linear-gradient(#F2E9D8,#CBBB9C);border-radius:2px;
+    box-shadow:0 0 0 1px rgba(217,164,65,.7),0 10px 26px rgba(0,0,0,.5);
+    transition:transform .12s,filter .12s}
+  .btn:active{transform:translateY(2px);filter:brightness(.94)}
+  .btn.ghost{background:none;color:var(--washi);box-shadow:0 0 0 1px rgba(242,233,216,.3);margin-top:12px}
+
+  .keys{margin-top:22px;font-size:10.5px;letter-spacing:.14em;opacity:.5;line-height:2}
+
+  #stageCard{background:rgba(6,8,11,.82)}
+  #stageCard .num{font-size:10px;letter-spacing:.4em;opacity:.55}
+  #stageCard .k{font-family:'Shippori Mincho',serif;font-size:clamp(58px,20vw,120px);
+    color:var(--washi);line-height:1;margin:10px 0 4px;text-shadow:0 0 40px rgba(159,216,232,.35)}
+  #stageCard .nm{font-size:clamp(15px,5vw,22px);letter-spacing:.3em;text-transform:uppercase}
+  #stageCard .meta{margin-top:20px;font-size:12px;letter-spacing:.14em;opacity:.72;line-height:2.1}
+  #stageCard .meta em{font-style:normal;color:var(--frost)}
+
+  #end .big{font-family:'Shippori Mincho',serif;font-size:clamp(34px,11vw,64px);letter-spacing:.06em}
+  #end .stat{margin-top:18px;font-size:13px;letter-spacing:.16em;opacity:.8;line-height:2.2}
+  #end .stat b{color:var(--gold);font-family:'Shippori Mincho',serif;font-size:19px}
+
+  /* ---------- the scroll ---------- */
+  #scroll{background:radial-gradient(120% 90% at 50% 45%,rgba(8,10,14,.55),rgba(4,5,8,.92));
+    padding:20px}
+  .kake{width:min(87vw,392px);display:flex;flex-direction:column;align-items:center}
+  .rod{width:calc(100% + 30px);height:15px;border-radius:8px;position:relative;z-index:3;
+    background:linear-gradient(#7A5735,#3E2A19 55%,#20140A);
+    box-shadow:0 4px 14px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.22)}
+  .rod:before,.rod:after{content:"";position:absolute;top:-4px;width:11px;height:23px;
+    border-radius:3px;background:linear-gradient(#9A7648,#3A2716);
+    box-shadow:0 2px 6px rgba(0,0,0,.5)}
+  .rod:before{left:-9px} .rod:after{right:-9px}
+  .paper{width:100%;max-height:0;overflow:hidden;position:relative;
+    background:#EFE4C9;background-blend-mode:multiply;background-size:cover;
+    color:#2A2119;
+    box-shadow:0 18px 46px rgba(0,0,0,.6),inset 0 0 70px rgba(150,118,66,.3);
+    transition:max-height 1s cubic-bezier(.18,.92,.28,1)}
+  #scroll.open .paper{max-height:600px}
+  .paper:before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(60,40,15,.28),rgba(60,40,15,0) 12%,
+      rgba(60,40,15,0) 88%,rgba(60,40,15,.28));}
+  .pcontent{padding:26px 26px 30px;opacity:0;transition:opacity .55s .5s}
+  #scroll.open .pcontent{opacity:1}
+  .pHead{text-align:center;border-bottom:1px solid rgba(60,40,20,.28);padding-bottom:14px}
+  .pHead .pk{font-family:'Shippori Mincho',serif;font-size:52px;line-height:1;color:#1E170F}
+  .pHead .pn{font-size:12px;letter-spacing:.34em;text-transform:uppercase;margin-top:8px;opacity:.72}
+  .pHead .pt{font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.3em;
+    margin-top:9px;color:#8E2411}
+  .row{display:flex;align-items:baseline;justify-content:space-between;
+    padding:9px 2px;border-bottom:1px dotted rgba(60,40,20,.26)}
+  .row .lab{font-family:'Shippori Mincho',serif;font-size:15px;letter-spacing:.14em}
+  .row .lab small{display:block;font-family:'Zen Kaku Gothic New',sans-serif;
+    font-size:8.5px;letter-spacing:.24em;opacity:.55;margin-top:2px}
+  .row .val{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:800;white-space:nowrap}
+  .row .val u{text-decoration:none;font-size:12px;opacity:.6;margin-left:5px}
+  .row.perfect .val{color:#8E2411}
+  .pNext{margin-top:16px;padding-top:13px;border-top:2px solid rgba(60,40,20,.34);
+    display:flex;align-items:center;gap:12px}
+  .pNext .nk{font-family:'Shippori Mincho',serif;font-size:34px;line-height:1;color:#8E2411}
+  .pNext .nb{font-size:11px;line-height:1.75;letter-spacing:.1em;opacity:.78}
+  .pNext .nb b{display:block;font-size:12.5px;letter-spacing:.26em;text-transform:uppercase;opacity:1}
+  .seal{position:absolute;right:20px;bottom:16px;width:46px;height:46px;
+    display:flex;align-items:center;justify-content:center;transform:rotate(-7deg);
+    font-family:'Shippori Mincho',serif;font-size:22px;color:#F2E9D8;
+    background:#A82A16;border-radius:4px;opacity:.9;
+    box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 0 0 2px rgba(242,233,216,.35)}
+  .skipNote{margin-top:16px;font-size:10px;letter-spacing:.26em;opacity:.35;
+    text-transform:uppercase}
+
+  #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:#0b0f14;z-index:50;font-family:'Shippori Mincho',serif;letter-spacing:.4em;
+    color:var(--vermilion);font-size:15px}
+  #loading.hide{opacity:0;pointer-events:none;transition:opacity .6s}
+
+  /* touch guides */
+  #hint{position:absolute;left:50%;bottom:calc(var(--safe-b) + 92px);transform:translateX(-50%);
+    font-size:11px;letter-spacing:.18em;opacity:0;text-align:center;line-height:1.9}
+  #hint.show{animation:hintFade 4.5s ease-out}
+  @keyframes hintFade{0%,60%{opacity:.75}100%{opacity:0}}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div id="loading">読 み 込 み 中</div>
+<div id="ui">
+
+  <div id="hud">
+    <div class="plaque">
+      <div class="stage-kanji" id="hStageK">麓</div>
+      <div class="stage-name" id="hStageN">Foothill Path</div>
+      <div class="altitude" id="hAlt">240 m</div>
+      <div class="sushiPct" id="hSushi">寿司 0%</div>
+    </div>
+
+    <div id="score">
+      <div class="n" id="hScore">0</div>
+      <div class="l">SCORE</div>
+      <div id="gates">⛩ <span id="hGates">0</span></div>
+      <div id="mult">×1</div>
+      <div id="chain"><div id="chainFill"></div></div>
+    </div>
+
+    <div id="climb"><div id="climbFill"></div></div>
+    <div id="ladder"></div>
+
+    <div id="temp">−0°C</div>
+
+    <div id="belt">
+      <div id="beltLabel"><span>STAMINA 力</span><span id="ganbare">が ん ば れ</span></div>
+      <div id="beltTrack"><div id="beltFill"></div></div>
+    </div>
+
+    <div id="toast"></div>
+    <div id="hint">swipe ← → to change lane<br>swipe ↑ jump &nbsp;·&nbsp; swipe ↓ duck</div>
+  </div>
+
+  <div class="screen" id="title">
+    <div class="brand">
+      <div class="jp">鳥居駆</div>
+      <div class="en">TORII RUN</div>
+    </div>
+    <div class="rule"></div>
+    <div class="blurb">
+      A sumo climbs five shrine gates toward the summit. Pass through the <b>open gate</b> to catch your breath.
+      Miss it, or clip a boar, and the mountain takes it out of you.
+    </div>
+    <button class="btn" id="btnStart">BEGIN THE CLIMB</button>
+    <div class="keys">TOUCH — swipe to steer, jump, duck<br>KEYS — ← → arrows &nbsp;·&nbsp; ↑ jump &nbsp;·&nbsp; ↓ duck</div>
+  </div>
+
+  <div class="screen hide" id="scroll">
+    <div class="kake">
+      <div class="rod"></div>
+      <div class="paper" id="paperBg"><div class="pcontent" id="pcontent"></div></div>
+      <div class="rod"></div>
+    </div>
+    <div class="skipNote">tap to continue</div>
+  </div>
+
+  <div class="screen hide" id="end">
+    <div class="big" id="endTitle">力 尽 き た</div>
+    <div class="stat" id="endStat"></div>
+    <button class="btn" id="btnRetry">RETRY STAGE</button>
+    <button class="btn ghost" id="btnMenu">BACK TO THE FOOT</button>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   TORII RUN — five shrine stages up one cold mountain
+   ============================================================ */
+
+const LANES = [-2.45, 0, 2.45];
+const ROAD_HALF = 4.6;
+const TILE_LEN = 8;
+const TILE_COUNT = 30;
+const DRAW_Z = -TILE_LEN * TILE_COUNT + TILE_LEN;
+
+/* ---------- Stage definitions ---------- */
+const STAGES = [
+  { k:'麓', name:'Foothill Path', dist:820, alt:[240,620], temp:[24,17],
+    speed:13.5, speedGain:2.6, slope:0.085, curve:0.00055, cold:0.00, eventGap:20, gateEvery:3,
+    sky:[0x67B4F2,0xDCEEFF], sun:0xFFF0CE, fog:0xBBD9F2, fogD:0.0100,
+    ground:0x54803A, tree:0x2F6B36, gateGap:34, obsRate:1.0, animalRate:0.55 },
+
+  { k:'杉', name:'Cedar Rise', dist:960, alt:[620,1080], temp:[17,10],
+    speed:15.5, speedGain:3.0, slope:0.105, curve:0.00070, cold:0.18, eventGap:21, gateEvery:3,
+    sky:[0x4E96D8,0xCBE4F7], sun:0xFFE7C0, fog:0xA8C6DC, fogD:0.0115,
+    ground:0x466B33, tree:0x22512C, gateGap:31, obsRate:1.35, animalRate:0.8 },
+
+  { k:'雲', name:'Cloud Terrace', dist:1080, alt:[1080,1720], temp:[10,3],
+    speed:17.5, speedGain:3.4, slope:0.125, curve:0.00088, cold:0.42, eventGap:22, gateEvery:3,
+    sky:[0x3D7CC0,0xF2C79A], sun:0xFFC98A, fog:0xC9CBD6, fogD:0.0132,
+    ground:0x5A6B48, tree:0x2A4A31, gateGap:28, obsRate:1.7, animalRate:1.0 },
+
+  { k:'霜', name:'Frost Steps', dist:1180, alt:[1720,2480], temp:[3,-8],
+    speed:19.5, speedGain:3.8, slope:0.145, curve:0.00105, cold:0.72, eventGap:23, gateEvery:2,
+    sky:[0x2E4F76,0xA9BCCB], sun:0xD8E4F0, fog:0xA9B6C4, fogD:0.0152,
+    ground:0x8FA0A6, tree:0x2C4038, gateGap:26, obsRate:2.05, animalRate:1.2 },
+
+  { k:'頂', name:'Summit Shrine', dist:1300, alt:[2480,3340], temp:[-8,-24],
+    speed:21.5, speedGain:4.4, slope:0.165, curve:0.00125, cold:1.00, eventGap:24, gateEvery:2,
+    sky:[0x1B2E4A,0x7E93AC], sun:0xC6D9F0, fog:0x8FA0B2, fogD:0.0172,
+    ground:0xC6D2D8, tree:0x243430, gateGap:24, obsRate:2.4, animalRate:1.45 }
+];
+
+/* ---------- Utilities ---------- */
+const clamp = (v,a,b)=>v<a?a:v>b?b:v;
+const lerp  = (a,b,t)=>a+(b-a)*t;
+const rand  = (a,b)=>a+Math.random()*(b-a);
+const pick  = arr=>arr[(Math.random()*arr.length)|0];
+function lerpColor(a,b,t){ return new THREE.Color(a).lerp(new THREE.Color(b),t); }
+
+/* ---------- Renderer / scene ---------- */
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.06;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0xBBD9F2, 0.0100);
+
+const camera = new THREE.PerspectiveCamera(62, innerWidth/innerHeight, 0.1, 420);
+camera.position.set(0,3.5,7.4);
+
+/* mobile quality trim */
+const MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if(MOBILE) renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.6));
+const SHADOW_SIZE = MOBILE?1024:2048;
+
+/* ---------- Lights ---------- */
+const hemi = new THREE.HemisphereLight(0xBFE0FF, 0x3A4A2E, 0.85);
+scene.add(hemi);
+
+const sun = new THREE.DirectionalLight(0xFFF0CE, 2.0);
+sun.position.set(-16,26,-8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(SHADOW_SIZE,SHADOW_SIZE);
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 90;
+sun.shadow.camera.left = -22; sun.shadow.camera.right = 22;
+sun.shadow.camera.top = 26;   sun.shadow.camera.bottom = -18;
+sun.shadow.bias = -0.0009;
+sun.shadow.normalBias = 0.02;
+scene.add(sun); scene.add(sun.target);
+
+const rim = new THREE.DirectionalLight(0xFFFFFF,0.3);
+rim.position.set(10,8,14);
+scene.add(rim);
+
+/* ---------- Sky dome ---------- */
+const skyUniforms = {
+  topColor:{value:new THREE.Color(0x67B4F2)},
+  botColor:{value:new THREE.Color(0xDCEEFF)},
+  offset:{value:12}, expo:{value:0.68}
+};
+const sky = new THREE.Mesh(
+  new THREE.SphereGeometry(300,24,16),
+  new THREE.ShaderMaterial({
+    uniforms:skyUniforms, side:THREE.BackSide, depthWrite:false, fog:false,
+    vertexShader:`varying vec3 vP; void main(){ vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`uniform vec3 topColor; uniform vec3 botColor; uniform float offset; uniform float expo;
+      varying vec3 vP;
+      void main(){ float h=normalize(vP+vec3(0.0,offset,0.0)).y;
+        gl_FragColor=vec4(mix(botColor,topColor,pow(max(h,0.0),expo)),1.0); }`
+  })
+);
+scene.add(sky);
+
+/* sun glow sprite */
+function radialTex(inner,outer,soft){
+  const c=document.createElement('canvas'); c.width=c.height=128;
+  const g=c.getContext('2d');
+  const grd=g.createRadialGradient(64,64,0,64,64,64);
+  grd.addColorStop(0,inner); grd.addColorStop(soft,outer); grd.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=grd; g.fillRect(0,0,128,128);
+  const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; return t;
+}
+const glowTex = radialTex('rgba(255,255,255,1)','rgba(255,228,170,.35)',0.34);
+const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xFFF0CE,transparent:true,
+  opacity:0.85,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));
+sunGlow.scale.set(90,90,1);
+sunGlow.position.set(-90,110,-230);
+scene.add(sunGlow);
+
+/* ---------- Distant mountain (Fuji) ---------- */
+const fujiMat = new THREE.MeshBasicMaterial({color:0x8FA9C4, fog:false});
+const fuji = new THREE.Mesh(new THREE.ConeGeometry(150,105,32,1), fujiMat);
+fuji.position.set(6,-6,-290); scene.add(fuji);
+const fujiCapMat = new THREE.MeshBasicMaterial({color:0xF4FAFF, fog:false});
+const fujiCap = new THREE.Mesh(new THREE.ConeGeometry(52,38,32,1), fujiCapMat);
+fujiCap.position.set(6,58,-289); scene.add(fujiCap);
+
+/* cloud band */
+const cloudTex = radialTex('rgba(255,255,255,.95)','rgba(255,255,255,.5)',0.42);
+const clouds = new THREE.Group(); scene.add(clouds);
+for(let i=0;i<22;i++){
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:cloudTex,transparent:true,opacity:rand(.25,.6),
+    depthWrite:false,fog:false}));
+  const sc=rand(40,110);
+  s.scale.set(sc,sc*rand(.32,.5),1);
+  s.position.set(rand(-260,260),rand(24,80),rand(-280,-90));
+  s.userData.drift=rand(0.4,1.6);
+  clouds.add(s);
+}
+
+/* ============================================================
+   World bend — the hill.  y(z) = -slope*z - curve*z*|z|
+   ahead (z negative) rises; behind falls away.
+   ============================================================ */
+let SLOPE = STAGES[0].slope, CURVE = STAGES[0].curve;
+function bendY(z){ return -SLOPE*z - CURVE*z*Math.abs(z); }
+function bendSlope(z){ return -SLOPE - 2*CURVE*Math.abs(z); }
+function tiltAt(z){ return Math.asin(clamp(-bendSlope(z),-0.98,0.98)); }
+function placeOnHill(obj,z,baseY,tiltFactor){
+  obj.position.z = z;
+  obj.position.y = bendY(z) + (baseY||0);
+  obj.rotation.x = tiltAt(z) * (tiltFactor===undefined?1:tiltFactor);
+}
+
+/* ---------- Textures (procedural) ---------- */
+function stoneTex(){
+  const c=document.createElement('canvas'); c.width=c.height=256; const g=c.getContext('2d');
+  g.fillStyle='#B9B2A2'; g.fillRect(0,0,256,256);
+  for(let i=0;i<2600;i++){
+    const v=190+Math.random()*60|0;
+    g.fillStyle=`rgba(${v},${v-6},${v-18},${Math.random()*.5})`;
+    g.fillRect(Math.random()*256,Math.random()*256,Math.random()*4+1,Math.random()*4+1);
+  }
+  // slab seams
+  g.strokeStyle='rgba(70,64,56,.45)'; g.lineWidth=2;
+  for(let y=0;y<=256;y+=64){ g.beginPath(); g.moveTo(0,y); g.lineTo(256,y); g.stroke(); }
+  for(let y=0;y<256;y+=64){
+    const off=(y/64)%2?42:0;
+    g.beginPath(); g.moveTo(off+86,y); g.lineTo(off+86,y+64); g.stroke();
+    g.beginPath(); g.moveTo(off+170,y); g.lineTo(off+170,y+64); g.stroke();
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(1.4,1.4);
+  t.encoding=THREE.sRGBEncoding; t.anisotropy=4;
+  return t;
+}
+function woodTex(base,dark){
+  const c=document.createElement('canvas'); c.width=64; c.height=256; const g=c.getContext('2d');
+  g.fillStyle=base; g.fillRect(0,0,64,256);
+  for(let i=0;i<160;i++){
+    g.strokeStyle=`rgba(0,0,0,${Math.random()*.14})`; g.lineWidth=Math.random()*2.2;
+    g.beginPath(); const x=Math.random()*64; g.moveTo(x,0);
+    g.bezierCurveTo(x+rand(-6,6),85,x+rand(-6,6),170,x+rand(-4,4),256); g.stroke();
+  }
+  for(let i=0;i<40;i++){ g.fillStyle=`rgba(255,255,255,${Math.random()*.12})`;
+    g.fillRect(Math.random()*64,Math.random()*256,rand(1,3),rand(6,40)); }
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.encoding=THREE.sRGBEncoding; return t;
+}
+const TEX_STONE = stoneTex();
+const TEX_TORII = woodTex('#D9401F','#8E2411');
+const TEX_MOSS  = (function(){
+  const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d');
+  g.fillStyle='#4E7A38'; g.fillRect(0,0,128,128);
+  for(let i=0;i<1800;i++){ const v=Math.random();
+    g.fillStyle=v<.5?`rgba(30,60,26,${Math.random()*.6})`:`rgba(122,160,80,${Math.random()*.5})`;
+    g.fillRect(Math.random()*128,Math.random()*128,rand(1,5),rand(1,5)); }
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(8,8);
+  t.encoding=THREE.sRGBEncoding; return t;
+})();
+const softTex = radialTex('rgba(255,255,255,1)','rgba(255,255,255,.55)',0.4);
+
+/* ---------- Shared materials ---------- */
+const M = {
+  road:   new THREE.MeshLambertMaterial({map:TEX_STONE, color:0xFFFFFF}),
+  ground: new THREE.MeshLambertMaterial({map:TEX_MOSS, color:0x54803A}),
+  torii:  new THREE.MeshLambertMaterial({map:TEX_TORII, color:0xFFFFFF}),
+  toriiDark: new THREE.MeshLambertMaterial({color:0x7E2413}),
+  stone:  new THREE.MeshLambertMaterial({color:0x9A968C}),
+  stoneDark: new THREE.MeshLambertMaterial({color:0x6F6C64}),
+  wood:   new THREE.MeshLambertMaterial({color:0x5A4632}),
+  trunk:  new THREE.MeshLambertMaterial({color:0x4A3626}),
+  leaf:   new THREE.MeshLambertMaterial({color:0x2F6B36}),
+  snowMat:new THREE.MeshLambertMaterial({color:0xF3F8FF}),
+  paper:  new THREE.MeshLambertMaterial({color:0xF7F2E6, side:THREE.DoubleSide}),
+  rope:   new THREE.MeshLambertMaterial({color:0xD9CDA8}),
+  gold:   new THREE.MeshLambertMaterial({color:0xC79B3E, emissive:0x3A2A08}),
+  lampGlow:new THREE.MeshBasicMaterial({color:0xFFD98A, transparent:true, opacity:0.9}),
+  skinM:  new THREE.MeshLambertMaterial({color:0xE7B285}),
+  skinFlush: new THREE.MeshLambertMaterial({color:0xE09A6E}),
+  belt:   new THREE.MeshLambertMaterial({color:0xEDE6D2}),
+  hair:   new THREE.MeshLambertMaterial({color:0x171310}),
+  eye:    new THREE.MeshBasicMaterial({color:0x120E0C}),
+  mouth:  new THREE.MeshBasicMaterial({color:0x5A2020}),
+  fur:    new THREE.MeshLambertMaterial({color:0x6B4A30}),
+  furDark:new THREE.MeshLambertMaterial({color:0x3A2A1D}),
+  onigiri:new THREE.MeshLambertMaterial({color:0xFAF6EC}),
+  nori:   new THREE.MeshLambertMaterial({color:0x1E2A20})
+};
+
+/* ---------- Shared geometries ---------- */
+const G = {
+  box:  new THREE.BoxGeometry(1,1,1),
+  sph:  new THREE.SphereGeometry(1,16,12),
+  sphLo:new THREE.SphereGeometry(1,10,8),
+  cyl:  new THREE.CylinderGeometry(1,1,1,14),
+  cylLo:new THREE.CylinderGeometry(1,1,1,8),
+  cone: new THREE.ConeGeometry(1,1,12),
+  coneLo:new THREE.ConeGeometry(1,1,7),
+  tor:  new THREE.TorusGeometry(1,0.28,8,16)
+};
+const plane = new THREE.PlaneGeometry(1,1,1,1); plane.rotateX(-Math.PI/2);
+
+function mesh(geo,mat,sx,sy,sz,x,y,z){
+  const m=new THREE.Mesh(geo,mat);
+  m.scale.set(sx,sy===undefined?sx:sy,sz===undefined?sx:sz);
+  m.position.set(x||0,y||0,z||0);
+  return m;
+}
+
+/* ============================================================
+   ROAD  — recycled tiles
+   ============================================================ */
+const roadTiles=[];
+const roadGeo = new THREE.PlaneGeometry(ROAD_HALF*2, TILE_LEN, 1, 1); roadGeo.rotateX(-Math.PI/2);
+const kerbGeo = new THREE.BoxGeometry(0.5, 0.42, TILE_LEN);
+
+for(let i=0;i<TILE_COUNT;i++){
+  const grp = new THREE.Group();
+  const t = new THREE.Mesh(roadGeo, M.road); t.receiveShadow=true; grp.add(t);
+  const kl = new THREE.Mesh(kerbGeo, M.stoneDark); kl.position.set(-ROAD_HALF-0.2,0.12,0);
+  const kr = kl.clone(); kr.position.x = ROAD_HALF+0.2;
+  kl.receiveShadow=kr.receiveShadow=true; kl.castShadow=kr.castShadow=true;
+  grp.add(kl); grp.add(kr);
+  grp.userData.z = TILE_LEN - i*TILE_LEN;
+  scene.add(grp); roadTiles.push(grp);
+}
+
+/* terrain shoulders — displaced strips, recycled with the road */
+const terrainTiles=[];
+const TERR_W = 46;
+function makeTerrain(side){
+  const g = new THREE.PlaneGeometry(TERR_W, TILE_LEN, 8, 2); g.rotateX(-Math.PI/2);
+  const p = g.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i);
+    const d = Math.abs(x);
+    p.setY(i, Math.pow(d/TERR_W,1.4)*rand(6,16) + rand(-0.4,0.5));
+  }
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, M.ground); m.receiveShadow=true;
+  m.position.x = side*(TERR_W/2 + ROAD_HALF - 0.4);
+  return m;
+}
+for(let i=0;i<TILE_COUNT;i++){
+  const grp=new THREE.Group();
+  grp.add(makeTerrain(-1)); grp.add(makeTerrain(1));
+  grp.userData.z = TILE_LEN - i*TILE_LEN;
+  scene.add(grp); terrainTiles.push(grp);
+}
+
+/* ============================================================
+   BUILDERS
+   ============================================================ */
+function buildTorii(scaleW){
+  const g=new THREE.Group();
+  const w = scaleW||1;
+  const H = 6.2, PW = 0.46;
+  // pillars (slight taper, splayed)
+  [-1,1].forEach(s=>{
+    const p=new THREE.Mesh(new THREE.CylinderGeometry(PW*0.86,PW,H,12), M.torii);
+    p.position.set(s*(ROAD_HALF+0.35)*w, H/2, 0);
+    p.rotation.z = -s*0.022;
+    p.castShadow=true; p.receiveShadow=true;
+    g.add(p);
+    // stone footing
+    const f=mesh(G.cyl,M.stone,PW*1.9,0.5,PW*1.9, s*(ROAD_HALF+0.35)*w,0.25,0);
+    f.castShadow=true; g.add(f);
+  });
+  const span=(ROAD_HALF+0.35)*2*w;
+  // nuki (lower beam)
+  const nuki=mesh(G.box,M.torii, span+0.5,0.44,0.62, 0,H*0.74,0);
+  nuki.castShadow=true; g.add(nuki);
+  // shimaki (upper beam)
+  const shim=mesh(G.box,M.toriiDark, span+1.9,0.34,0.78, 0,H-0.52,0);
+  shim.castShadow=true; g.add(shim);
+  // kasagi (curved top) — three angled segments
+  const mid=mesh(G.box,M.torii, span+1.4,0.42,0.98, 0,H,0); mid.castShadow=true; g.add(mid);
+  [-1,1].forEach(s=>{
+    const e=mesh(G.box,M.torii, 1.5,0.42,0.98, s*(span/2+0.95),H+0.13,0);
+    e.rotation.z = -s*0.13; e.castShadow=true; g.add(e);
+  });
+  // gakuzuka + plaque
+  g.add(mesh(G.box,M.toriiDark,0.3,0.9,0.3, 0,H*0.86,0));
+  const pl=mesh(G.box,M.gold,0.95,0.7,0.14, 0,H*0.87,0.2); g.add(pl);
+  return g;
+}
+
+function buildLantern(){
+  const g=new THREE.Group();
+  g.add(mesh(G.cyl,M.stoneDark,0.42,0.34,0.42, 0,0.17,0));
+  g.add(mesh(G.cyl,M.stone,0.17,1.05,0.17, 0,0.7,0));
+  g.add(mesh(G.cyl,M.stone,0.42,0.16,0.42, 0,1.3,0));
+  const box=mesh(G.box,M.stone,0.62,0.6,0.62, 0,1.62,0); g.add(box);
+  const glow=mesh(G.box,M.lampGlow,0.5,0.42,0.5, 0,1.6,0); g.add(glow);
+  const roof=mesh(G.coneLo,M.stoneDark,0.66,0.42,0.66, 0,2.12,0); g.add(roof);
+  g.add(mesh(G.sphLo,M.stone,0.12,0.12,0.12, 0,2.36,0));
+  g.traverse(o=>{ if(o.isMesh) o.castShadow=true; });
+  g.userData.glow=glow;
+  return g;
+}
+
+function buildCedar(){
+  const g=new THREE.Group();
+  const h=rand(7,13);
+  const tr=mesh(G.cylLo,M.trunk,0.28,h*0.5,0.28, 0,h*0.25,0); g.add(tr);
+  const layers=4;
+  for(let i=0;i<layers;i++){
+    const t=i/layers;
+    const c=mesh(G.coneLo,M.leaf, lerp(2.5,0.9,t), lerp(3.4,2.2,t), lerp(2.5,0.9,t),
+      0, h*0.32 + t*h*0.52, 0);
+    c.castShadow=true; c.userData.cap=(i>=layers-2); g.add(c);
+  }
+  g.userData.h=h;
+  return g;
+}
+function buildBroadleaf(){
+  const g=new THREE.Group();
+  const h=rand(4.5,7.5);
+  g.add(mesh(G.cylLo,M.trunk,0.24,h*0.4,0.24, 0,h*0.2,0));
+  for(let i=0;i<4;i++){
+    const s=rand(1.5,2.5);
+    const b=mesh(G.sphLo,M.leaf, s,s*0.8,s, rand(-1.1,1.1), h*0.55+rand(-0.5,1.2), rand(-1.1,1.1));
+    b.castShadow=true; b.userData.cap=(i<2); g.add(b);
+  }
+  return g;
+}
+
+/* ---------- Obstacles ---------- */
+function buildLog(){
+  const g=new THREE.Group();
+  const l=mesh(G.cyl,M.wood, 0.42,2.0,0.42, 0,0.44,0);
+  l.rotation.z=Math.PI/2; l.castShadow=true; g.add(l);
+  const k1=mesh(G.cyl,M.trunk,0.44,0.1,0.44, -1.0,0.44,0); k1.rotation.z=Math.PI/2; g.add(k1);
+  const k2=k1.clone(); k2.position.x=1.0; g.add(k2);
+  return g;
+}
+function buildBoulder(){
+  const g=new THREE.Group();
+  const b=mesh(G.sphLo,M.stone, 1.0,0.9,0.95, 0,0.75,0);
+  b.rotation.set(rand(0,3),rand(0,3),rand(0,3)); b.castShadow=true; g.add(b);
+  const b2=mesh(G.sphLo,M.stoneDark,0.5,0.45,0.5, 0.7,0.35,0.3); b2.castShadow=true; g.add(b2);
+  return g;
+}
+function buildShimenawa(){
+  /* sacred rope strung post to post, right across the path — duck under it */
+  const g=new THREE.Group();
+  const SPAN=ROAD_HALF*2+2.6;
+  [-1,1].forEach(s=>{
+    const post=mesh(G.cyl,M.wood, 0.2,3.0,0.2, s*(ROAD_HALF+1.2),1.5,0);
+    post.castShadow=true; g.add(post);
+    g.add(mesh(G.cyl,M.stone,0.34,0.3,0.34, s*(ROAD_HALF+1.2),0.15,0));
+  });
+  const r=mesh(G.cyl,M.rope, 0.3,SPAN,0.3, 0,2.42,0);
+  r.rotation.z=Math.PI/2; r.castShadow=true; g.add(r);
+  // fatter middle, the way a real shimenawa bellies out
+  g.add(mesh(G.sphLo,M.rope, 1.5,0.36,0.34, 0,2.36,0));
+  for(let i=-4;i<=4;i++){
+    g.add(mesh(G.box,M.paper, 0.28,0.66,0.02, i*0.85,2.06,0.03));
+    g.add(mesh(G.box,M.paper, 0.28,0.32,0.02, i*0.85+0.09,1.74,0.03));
+  }
+  return g;
+}
+function buildBranch(){
+  /* a real limb off a real tree at the roadside, reaching the whole way over */
+  const g=new THREE.Group();
+  const side = Math.random()<0.5?-1:1;
+  const rootX = side*(ROAD_HALF+2.5);
+  const tipX  = -side*(ROAD_HALF+1.6);
+  // the tree it grows from
+  const trunk=mesh(G.cyl,new THREE.MeshLambertMaterial({color:0x4A3626}), 0.62,5.2,0.62, rootX,2.6,-0.4);
+  trunk.castShadow=true; g.add(trunk);
+  for(let i=0;i<3;i++){
+    const sc=rand(1.6,2.4);
+    const c=mesh(G.sphLo,M.leaf, sc,sc*0.75,sc, rootX+rand(-1,1)*side,rand(5.0,6.4),rand(-1.6,0.4));
+    c.castShadow=true; c.userData.cap=(i<1); g.add(c);
+  }
+  // the limb itself, drooping across the path
+  const len=Math.abs(rootX-tipX);
+  const limb=mesh(G.cyl,M.trunk, 0.24,len,0.24, (rootX+tipX)/2, 2.56, 0);
+  limb.rotation.z = Math.PI/2 + side*0.05;
+  limb.castShadow=true; g.add(limb);
+  // a fork off it
+  const fork=mesh(G.cyl,M.trunk, 0.14,len*0.4,0.14, (rootX+tipX)/2 - side*1.2, 2.86, 0.5);
+  fork.rotation.z=Math.PI/2 - side*0.25; g.add(fork);
+  // foliage hanging along the limb
+  for(let i=0;i<8;i++){
+    const t=i/7, x=lerp(rootX,tipX,t), sc=rand(0.5,0.95);
+    const b=mesh(G.sphLo,M.leaf, sc,sc*0.68,sc, x+rand(-.4,.4), 2.78+rand(-.1,.35), rand(-.5,.5));
+    b.castShadow=true; b.userData.cap=(Math.random()<0.5); g.add(b);
+    if(Math.random()<0.45)
+      g.add(mesh(G.cyl,M.trunk, 0.05,rand(.3,.7),0.05, x+rand(-.3,.3),2.35,rand(-.3,.3)));
+  }
+  return g;
+}
+
+/* ---------- Sushi: the multiplier chain ---------- */
+const SUSHI_KINDS=[
+  {top:0xF07A44, band:null},          // salmon
+  {top:0xB22233, band:null},          // tuna
+  {top:0xF3C63E, band:0x1E2A20},      // tamago, nori band
+  {top:0xF6A6AC, band:0xE8595F},      // prawn
+  {top:0x8FB57A, band:0x1E2A20}       // maki
+];
+function buildSushi(){
+  const g=new THREE.Group();
+  const k=SUSHI_KINDS[(Math.random()*SUSHI_KINDS.length)|0];
+  const riceM=new THREE.MeshLambertMaterial({color:0xFBF7EE, emissive:0x2A2620});
+  const topM =new THREE.MeshLambertMaterial({color:k.top});
+  topM.emissive=new THREE.Color(k.top).multiplyScalar(0.32);
+  const rice=mesh(G.sph,riceM, 0.4,0.24,0.28, 0,0,0);
+  rice.castShadow=true; g.add(rice);
+  const slab=mesh(G.sph,topM, 0.46,0.1,0.3, 0,0.2,0);
+  slab.castShadow=true; g.add(slab);
+  if(k.band) g.add(mesh(G.box,new THREE.MeshLambertMaterial({color:k.band}), 0.18,0.42,0.34, 0,0.06,0));
+  // glow so it reads through fog
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:0xFFE9B0,transparent:true,
+    opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));
+  halo.scale.set(1.5,1.5,1); g.add(halo);
+  return g;
+}
+
+/* ---------- Chasm: a broken span of path ---------- */
+const pitTex=(function(){
+  const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d');
+  const grd=g.createRadialGradient(64,64,4,64,64,66);
+  grd.addColorStop(0,'#000000'); grd.addColorStop(0.55,'#07080B');
+  grd.addColorStop(0.86,'#2A241D'); grd.addColorStop(1,'#4A4036');
+  g.fillStyle=grd; g.fillRect(0,0,128,128);
+  for(let i=0;i<500;i++){ g.fillStyle=`rgba(0,0,0,${Math.random()*.6})`;
+    g.fillRect(Math.random()*128,Math.random()*128,rand(2,9),rand(2,9)); }
+  const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; return t;
+})();
+const CHASM_LEN=4.8;
+function buildChasm(){
+  const g=new THREE.Group();
+  const W=ROAD_HALF*2+1.0;
+  const pit=new THREE.Mesh(new THREE.PlaneGeometry(W,CHASM_LEN),
+    new THREE.MeshBasicMaterial({map:pitTex,fog:true}));
+  pit.rotation.x=-Math.PI/2; pit.position.y=0.04; g.add(pit);
+  // broken stone lips either side of the drop
+  [-1,1].forEach(s=>{
+    const lip=mesh(G.box,M.stoneDark, W,0.44,0.75, 0,0.2,s*(CHASM_LEN/2+0.2));
+    lip.castShadow=true; lip.receiveShadow=true; g.add(lip);
+    for(let i=0;i<4;i++)
+      g.add(mesh(G.sphLo,M.stone, rand(.2,.45),rand(.15,.3),rand(.2,.4),
+        rand(-W/2,W/2), 0.34, s*(CHASM_LEN/2+0.2)+rand(-.2,.2)));
+  });
+  // rubble on the inner ledges + a snapped rope handline
+  for(let i=0;i<5;i++)
+    g.add(mesh(G.sphLo,M.stoneDark, rand(.25,.5),rand(.2,.4),rand(.25,.45),
+      rand(-W/2+.6,W/2-.6), -0.5, rand(-CHASM_LEN/2,CHASM_LEN/2)));
+  [-1,1].forEach(s=>{
+    const post=mesh(G.cyl,M.wood, 0.13,1.1,0.13, s*(ROAD_HALF+0.5),0.55,-CHASM_LEN/2);
+    post.castShadow=true; g.add(post);
+    const rope=mesh(G.cyl,M.rope, 0.06,rand(0.6,1.1),0.06, s*(ROAD_HALF+0.5),0.7,-CHASM_LEN/2+0.5);
+    rope.rotation.x=rand(0.6,1.2); g.add(rope);
+  });
+  return g;
+}
+function buildOnigiri(){
+  const g=new THREE.Group();
+  const r=mesh(G.cone,M.onigiri, 0.46,0.62,0.42, 0,0,0);
+  r.castShadow=true; g.add(r);
+  g.add(mesh(G.box,M.nori, 0.42,0.3,0.44, 0,-0.16,0));
+  return g;
+}
+
+/* ---------- Animals ---------- */
+function quadruped(bodyMat,darkMat,opts){
+  const o=opts||{};
+  const g=new THREE.Group();
+  const bl=o.len||1.0, bh=o.h||0.5;
+  const body=mesh(G.sphLo,bodyMat, bl,bh,bh*0.9, 0,bh+0.25,0);
+  body.castShadow=true; g.add(body);
+  const head=mesh(G.sphLo,bodyMat, bh*0.62,bh*0.58,bh*0.6, bl*0.85,bh+0.5,0);
+  head.castShadow=true; g.add(head);
+  const snout=mesh(G.box,darkMat, 0.3,0.2,0.22, bl*1.12,bh+0.42,0); g.add(snout);
+  // ears
+  [-1,1].forEach(s=>{
+    const e=mesh(G.coneLo,darkMat, 0.12,0.24,0.1, bl*0.8,bh+0.82,s*0.16);
+    g.add(e);
+  });
+  // legs
+  const legs=[];
+  [[bl*0.55,0.2],[bl*0.55,-0.2],[-bl*0.5,0.2],[-bl*0.5,-0.2]].forEach(p=>{
+    const L=mesh(G.cylLo,darkMat, 0.09,0.32,0.09, p[0],0.32,p[1]);
+    L.castShadow=true; g.add(L); legs.push(L);
+  });
+  // tail
+  const tail=mesh(G.sphLo,darkMat, 0.3,0.16,0.16, -bl*0.95,bh+0.34,0);
+  g.add(tail);
+  g.userData.legs=legs; g.userData.tail=tail; g.userData.head=head;
+  return g;
+}
+const ANIMALS = {
+  tanuki:()=> quadruped(new THREE.MeshLambertMaterial({color:0x7C6450}),
+                        new THREE.MeshLambertMaterial({color:0x2E2620}),{len:0.85,h:0.46}),
+  deer:  ()=>{ const g=quadruped(new THREE.MeshLambertMaterial({color:0xA9743F}),
+                        new THREE.MeshLambertMaterial({color:0x5C3D22}),{len:1.15,h:0.6});
+               // antlers
+               [-1,1].forEach(s=>{ const a=mesh(G.cylLo,M.trunk,0.05,0.4,0.05, 1.0,1.5,s*0.14);
+                 a.rotation.z=-0.4*s; g.add(a); });
+               return g; },
+  boar:  ()=>{ const g=quadruped(new THREE.MeshLambertMaterial({color:0x4A3B31}),
+                        new THREE.MeshLambertMaterial({color:0x241C17}),{len:1.05,h:0.55});
+               [-1,1].forEach(s=>{ const t=mesh(G.coneLo,M.paper,0.06,0.24,0.06, 1.22,0.98,s*0.14);
+                 t.rotation.z=-0.9; g.add(t); });
+               return g; },
+  fox:   ()=> quadruped(new THREE.MeshLambertMaterial({color:0xD3733A}),
+                        new THREE.MeshLambertMaterial({color:0xF2EDE4}),{len:0.9,h:0.42}),
+  monkey:()=>{ const g=quadruped(new THREE.MeshLambertMaterial({color:0xB9A48E}),
+                        new THREE.MeshLambertMaterial({color:0xD9615A}),{len:0.8,h:0.5});
+               return g; }
+};
+function buildCrane(){
+  const g=new THREE.Group();
+  const b=mesh(G.sphLo,M.paper, 0.6,0.28,0.28, 0,0,0); b.castShadow=true; g.add(b);
+  const neck=mesh(G.cylLo,M.paper,0.07,0.4,0.07, 0.5,0.16,0); neck.rotation.z=-0.5; g.add(neck);
+  g.add(mesh(G.sphLo,M.paper,0.14,0.12,0.12, 0.78,0.32,0));
+  g.add(mesh(G.coneLo,new THREE.MeshLambertMaterial({color:0xD9401F}),0.05,0.2,0.05, 0.95,0.34,0));
+  const wings=[];
+  [-1,1].forEach(s=>{
+    const w=new THREE.Group();
+    const p=mesh(G.box,M.paper, 1.5,0.06,0.5, 0.7,0,0);
+    const tip=mesh(G.box,M.hair, 0.4,0.07,0.5, 1.35,0,0);
+    w.add(p); w.add(tip); w.position.set(0,0.06,s*0.22); w.rotation.x = s*0.2;
+    w.scale.z = s;
+    g.add(w); wings.push(w);
+  });
+  g.userData.wings=wings;
+  return g;
+}
+
+/* ============================================================
+   THE SUMO
+   ============================================================ */
+function buildSumo(){
+  const root=new THREE.Group();
+  const yaw=new THREE.Group(); root.add(yaw);      // heading: 0 = facing camera, PI = facing uphill
+  const body=new THREE.Group(); yaw.add(body);
+
+  // belly
+  const belly=mesh(G.sph,M.skinM, 1.02,0.92,0.9, 0,1.12,0);
+  belly.castShadow=true; body.add(belly);
+  // chest / upper mass
+  const chest=mesh(G.sph,M.skinM, 0.86,0.66,0.76, 0,1.86,0);
+  chest.castShadow=true; body.add(chest);
+  // pecs
+  [-1,1].forEach(s=>body.add(mesh(G.sphLo,M.skinFlush,0.34,0.26,0.2, s*0.36,1.78,0.62)));
+  // navel shadow
+  body.add(mesh(G.sphLo,M.skinFlush,0.1,0.14,0.05, 0,1.02,0.88));
+
+  // neck + head
+  const head=new THREE.Group(); head.position.set(0,2.32,0.02); body.add(head);
+  body.add(mesh(G.cyl,M.skinM,0.32,0.22,0.32, 0,2.16,0));
+  const skull=mesh(G.sph,M.skinM,0.44,0.44,0.42, 0,0.14,0);
+  skull.castShadow=true; head.add(skull);
+  // jowls
+  [-1,1].forEach(s=>head.add(mesh(G.sphLo,M.skinFlush,0.16,0.16,0.14, s*0.34,0.0,0.16)));
+  // hair + chonmage topknot
+  const hair=mesh(G.sph,M.hair, 0.455,0.4,0.44, 0,0.2,-0.02);
+  head.add(hair);
+  head.add(mesh(G.box,M.hair, 0.5,0.1,0.5, 0,0.42,-0.05));
+  const knot=mesh(G.cyl,M.hair, 0.09,0.3,0.09, 0,0.56,-0.16);
+  knot.rotation.x=-0.6; head.add(knot);
+  head.add(mesh(G.sphLo,M.hair, 0.12,0.1,0.12, 0,0.66,-0.28));
+  // face
+  const eyeL=mesh(G.sphLo,M.eye, 0.06,0.075,0.04, -0.16,0.15,0.4);
+  const eyeR=mesh(G.sphLo,M.eye, 0.06,0.075,0.04,  0.16,0.15,0.4);
+  head.add(eyeL); head.add(eyeR);
+  // brows — set in a grimace
+  [-1,1].forEach(s=>{
+    const b=mesh(G.box,M.hair, 0.17,0.04,0.04, s*0.17,0.26,0.4);
+    b.rotation.z=s*0.34; head.add(b);
+  });
+  const mouth=mesh(G.sphLo,M.mouth, 0.14,0.09,0.06, 0,-0.06,0.4);
+  head.add(mouth);
+  head.add(mesh(G.sphLo,M.skinFlush,0.06,0.05,0.05, 0,0.04,0.44));
+
+  // mawashi
+  const belt=mesh(G.cyl,M.belt, 0.98,0.42,0.86, 0,0.72,0);
+  belt.castShadow=true; body.add(belt);
+  const flap=mesh(G.box,M.belt, 0.5,0.66,0.12, 0,0.44,0.78); body.add(flap);
+  // sagari fringe
+  for(let i=-2;i<=2;i++){
+    body.add(mesh(G.box,M.belt, 0.06,0.5,0.05, i*0.14,0.34,0.84));
+  }
+
+  // arms
+  const arms=[];
+  [-1,1].forEach(s=>{
+    const pivot=new THREE.Group();
+    pivot.position.set(s*0.86,1.92,0);
+    const upper=mesh(G.cyl,M.skinM, 0.21,0.42,0.21, 0,-0.36,0);
+    upper.castShadow=true; pivot.add(upper);
+    const fore=new THREE.Group(); fore.position.set(0,-0.72,0);
+    const f=mesh(G.cyl,M.skinM,0.18,0.34,0.18, 0,-0.3,0); f.castShadow=true; fore.add(f);
+    fore.add(mesh(G.sphLo,M.skinM,0.2,0.18,0.16, 0,-0.66,0));
+    pivot.add(fore);
+    pivot.add(mesh(G.sphLo,M.skinM,0.24,0.24,0.24, 0,-0.02,0)); // shoulder
+    body.add(pivot);
+    arms.push({pivot,fore,side:s});
+  });
+
+  // legs
+  const legs=[];
+  [-1,1].forEach(s=>{
+    const hip=new THREE.Group();
+    hip.position.set(s*0.42,0.72,0);
+    const thigh=mesh(G.cyl,M.skinM, 0.3,0.35,0.3, 0,-0.3,0);
+    thigh.castShadow=true; hip.add(thigh);
+    const knee=new THREE.Group(); knee.position.set(0,-0.62,0);
+    const shin=mesh(G.cyl,M.skinM,0.24,0.32,0.24, 0,-0.28,0); shin.castShadow=true; knee.add(shin);
+    const foot=mesh(G.box,M.skinFlush,0.3,0.14,0.5, 0,-0.58,0.1); foot.castShadow=true; knee.add(foot);
+    hip.add(knee);
+    body.add(hip);
+    legs.push({hip,knee,side:s});
+  });
+
+  root.userData={yaw,body,head,belly,chest,arms,legs,mouth,belt,hair,eyeL,eyeR};
+  return root;
+}
+
+const player = buildSumo();
+scene.add(player);
+
+/* shadow blob so he never looks unplanted */
+const blob = new THREE.Mesh(new THREE.PlaneGeometry(2.6,2.0),
+  new THREE.MeshBasicMaterial({map:softTex,color:0x000000,transparent:true,opacity:0.34,depthWrite:false}));
+blob.rotation.x=-Math.PI/2; scene.add(blob);
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+/* weather: snow / leaves / mist */
+const WEATHER_N = MOBILE?900:1600;
+const wPos = new Float32Array(WEATHER_N*3);
+const wVel = new Float32Array(WEATHER_N*3);
+for(let i=0;i<WEATHER_N;i++){
+  wPos[i*3]=rand(-40,40); wPos[i*3+1]=rand(0,42); wPos[i*3+2]=rand(-120,20);
+  wVel[i*3]=rand(-.6,.6); wVel[i*3+1]=rand(-3.2,-1.2); wVel[i*3+2]=rand(1,4);
+}
+const wGeo = new THREE.BufferGeometry();
+wGeo.setAttribute('position', new THREE.BufferAttribute(wPos,3));
+const wMat = new THREE.PointsMaterial({size:0.3,map:softTex,transparent:true,opacity:0,
+  depthWrite:false,color:0xFFFFFF,sizeAttenuation:true});
+const weather = new THREE.Points(wGeo,wMat);
+weather.frustumCulled=false; scene.add(weather);
+
+/* sweat droplets */
+const SWEAT_N = 90;
+const sweatPos = new Float32Array(SWEAT_N*3);
+const sweatV = [];
+for(let i=0;i<SWEAT_N;i++){ sweatPos[i*3+1]=-99; sweatV.push({x:0,y:0,z:0,life:0}); }
+const sweatGeo = new THREE.BufferGeometry();
+sweatGeo.setAttribute('position',new THREE.BufferAttribute(sweatPos,3));
+const sweat = new THREE.Points(sweatGeo, new THREE.PointsMaterial({
+  size:0.17,map:softTex,transparent:true,opacity:0.92,color:0xCFE9FF,depthWrite:false}));
+sweat.frustumCulled=false; scene.add(sweat);
+let sweatIdx=0;
+function emitSweat(x,y,z,heat){
+  const i=sweatIdx=(sweatIdx+1)%SWEAT_N;
+  sweatPos[i*3]=x; sweatPos[i*3+1]=y; sweatPos[i*3+2]=z;
+  sweatV[i]={x:rand(-1.6,1.6), y:rand(1.2,3.4), z:rand(1.5,4.5), life:rand(.5,.95)};
+}
+
+/* breath puffs (cold) */
+const breath=[];
+for(let i=0;i<8;i++){
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,transparent:true,
+    opacity:0,depthWrite:false,color:0xE8F4FF}));
+  s.scale.set(0.4,0.4,1); s.position.y=-99; scene.add(s);
+  breath.push({s,life:0});
+}
+let breathIdx=0, breathTimer=0;
+function emitBreath(x,y,z){
+  const b=breath[breathIdx=(breathIdx+1)%breath.length];
+  b.s.position.set(x,y,z); b.life=1; b.s.scale.set(0.35,0.35,1);
+}
+
+/* dust kicked up by feet */
+const DUST_N=40;
+const dustPos=new Float32Array(DUST_N*3);
+const dustV=[]; for(let i=0;i<DUST_N;i++){dustPos[i*3+1]=-99;dustV.push({y:0,z:0,life:0});}
+const dustGeo=new THREE.BufferGeometry();
+dustGeo.setAttribute('position',new THREE.BufferAttribute(dustPos,3));
+const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({size:0.5,map:softTex,
+  transparent:true,opacity:0.35,color:0xD8CDB8,depthWrite:false}));
+dust.frustumCulled=false; scene.add(dust);
+let dustIdx=0;
+function emitDust(x,z){
+  const i=dustIdx=(dustIdx+1)%DUST_N;
+  dustPos[i*3]=x+rand(-.3,.3); dustPos[i*3+1]=bendY(z)+0.1; dustPos[i*3+2]=z;
+  dustV[i]={y:rand(.4,1.2), z:rand(2,5), life:rand(.4,.7)};
+}
+
+/* ============================================================
+   POOLS
+   ============================================================ */
+function Pool(factory,n){
+  const items=[];
+  for(let i=0;i<n;i++){ const o=factory(); o.visible=false; scene.add(o); items.push({obj:o,active:false}); }
+  return {
+    items,
+    get(){ for(let i=0;i<items.length;i++){ if(!items[i].active){ items[i].active=true; items[i].obj.visible=true; return items[i]; } } return null; },
+    release(it){ it.active=false; it.obj.visible=false; }
+  };
+}
+
+const gatePool    = Pool(()=>buildTorii(1), 7);
+const lanternPool = Pool(buildLantern, 30);
+if(MOBILE) lanternPool.items.forEach(it=>it.obj.traverse(o=>{o.castShadow=false;}));
+const treePool    = Pool(()=>Math.random()<0.62?buildCedar():buildBroadleaf(), MOBILE?32:46);
+if(MOBILE) treePool.items.forEach(it=>it.obj.traverse(o=>{o.castShadow=false;}));
+const logPool     = Pool(buildLog, 8);
+const boulderPool = Pool(buildBoulder, 10);
+const ropePool    = Pool(buildShimenawa, 6);
+const branchPool  = Pool(buildBranch, 6);
+const onigiriPool = Pool(buildOnigiri, 8);
+const sushiPool   = Pool(buildSushi, 64);
+const chasmPool   = Pool(buildChasm, 4);
+const cranePool   = Pool(buildCrane, 4);
+const animalPools = {
+  tanuki:Pool(ANIMALS.tanuki,3), deer:Pool(ANIMALS.deer,3),
+  boar:Pool(ANIMALS.boar,3), fox:Pool(ANIMALS.fox,3), monkey:Pool(ANIMALS.monkey,3)
+};
+
+/* live entity lists */
+let gates=[], props=[], obstacles=[], animals=[], pickups=[], sushi=[], chasms=[];
+
+function clearWorld(){
+  gates.forEach(g=>gatePool.release(g.ref)); gates=[];
+  props.forEach(p=>p.pool.release(p.ref)); props=[];
+  obstacles.forEach(o=>o.pool.release(o.ref)); obstacles=[];
+  animals.forEach(a=>a.pool.release(a.ref)); animals=[];
+  pickups.forEach(p=>onigiriPool.release(p.ref)); pickups=[];
+  sushi.forEach(p=>sushiPool.release(p.ref)); sushi=[];
+  chasms.forEach(c=>chasmPool.release(c.ref)); chasms=[];
+}
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+const INTRO_T = 2.6;          // face the camera, then turn and go
+const S = {
+  intro:0, calledNokotta:false,
+  mode:'title',          // title | stagecard | run | dead | won
+  stage:0,
+  dist:0, speed:0,
+  stamina:100,
+  score:0, gatesCleared:0, totalGates:0, totalScore:0,
+  lane:1, laneX:LANES[1],
+  y:0, vy:0, jumping:false,
+  ducking:false, duckT:0,
+  runPhase:0,
+  hitFlash:0, gateFlash:0,
+  spawnZ:-60, nextGateZ:-70, nextPropZ:-20,
+  route:1, eventIdx:0, lastEvent:'',
+  sushiGot:0, sushiTotal:0, combo:0, mult:1, bestMult:1, multFlash:0,
+  stumble:0,
+  shake:0, collapse:0,
+  invuln:0
+};
+
+const stageData = ()=>STAGES[S.stage];
+
+/* ---------- Apply stage look ---------- */
+function applyStage(i){
+  const st=STAGES[i];
+  SLOPE=st.slope; CURVE=st.curve;
+  skyUniforms.topColor.value.set(st.sky[0]);
+  skyUniforms.botColor.value.set(st.sky[1]);
+  scene.fog.color.set(st.fog);
+  scene.fog.density = st.fogD;
+  renderer.setClearColor(st.fog);
+  sun.color.set(st.sun);
+  sun.intensity = lerp(2.0,1.25,st.cold);
+  hemi.intensity = lerp(0.85,0.62,st.cold);
+  hemi.color.set(lerpColor(0xBFE0FF,0x9FB4C8,st.cold));
+  sunGlow.material.color.set(st.sun);
+  sunGlow.material.opacity = lerp(0.85,0.35,st.cold);
+
+  M.ground.color.set(lerpColor(st.ground,0xE8F1F7,st.cold*0.55));
+  M.leaf.color.set(lerpColor(st.tree,0x4E6B6A,st.cold*0.5));
+  M.road.color.set(lerpColor(0xFFFFFF,0xE4EEF6,st.cold));
+  M.snowMat.color.set(0xF3F8FF);
+
+  // weather: leaves low down, snow up high
+  wMat.opacity = st.cold<0.2 ? 0.35 : lerp(0.4,0.95,st.cold);
+  wMat.color.set(st.cold<0.2 ? 0xE7C46A : 0xFFFFFF);
+  wMat.size = st.cold<0.2 ? 0.22 : lerp(0.22,0.42,st.cold);
+
+  // snow caps on foliage
+  const capMat = st.cold>0.45 ? M.snowMat : M.leaf;
+  [treePool, branchPool].forEach(pool=>pool.items.forEach(it=>{
+    it.obj.traverse(o=>{
+      if(o.isMesh && o.userData && o.userData.cap) o.material = capMat;
+    });
+  }));
+
+  fujiMat.color.set(lerpColor(0x8FA9C4,0x5E7086,st.cold));
+  clouds.children.forEach(c=>{ c.material.opacity = lerp(0.4,0.75,st.cold); });
+}
+
+/* ============================================================
+   SPAWNING
+   ============================================================ */
+/* ---------------------------------------------------------------
+   Everything is generated as EVENTS along a guaranteed route.
+   S.route is the lane a perfect run stays in. Every piece of sushi
+   sits on that route, and the only thing ever placed on the route is
+   something the sushi already asks you to do — jump it or duck it.
+   That is what makes 100% always reachable.
+   --------------------------------------------------------------- */
+
+function makeGate(z, open){
+  const it=gatePool.get(); if(!it) return;
+  const g={ref:it, obj:it.obj, z, open:open.slice(), scored:false};
+  it.obj.position.x=0;
+  placeOnHill(it.obj, z, 0, 1);
+  [0,1,2].filter(l=>open.indexOf(l)<0).forEach(l=>{
+    const useLantern = Math.random()<0.5;
+    const bp = useLantern ? lanternPool : boulderPool;
+    const bit = bp.get(); if(!bit) return;
+    bit.obj.position.x = LANES[l];
+    placeOnHill(bit.obj, z, 0, 0.4);
+    bit.obj.scale.setScalar(useLantern?1.25:1.0);
+    obstacles.push({ref:bit,pool:bp,obj:bit.obj,z,lane:l,type:'full',fromGate:true});
+  });
+  gates.push(g);
+}
+
+function lowObstacle(z, lane){
+  const pool = Math.random()<0.55 ? logPool : boulderPool;
+  const it=pool.get(); if(!it) return;
+  it.obj.scale.setScalar(1);
+  it.obj.position.x=LANES[lane];
+  it.obj.rotation.y=rand(-0.25,0.25);
+  placeOnHill(it.obj, z, 0, 0.5);
+  obstacles.push({ref:it,pool,obj:it.obj,z,lane,type:'low'});
+}
+function highObstacle(z){
+  const pool = Math.random()<0.62 ? branchPool : ropePool;   // limbs mostly, ropes sometimes
+  const it=pool.get(); if(!it) return;
+  it.obj.position.x=0;
+  placeOnHill(it.obj, z, 0, 0.35);
+  obstacles.push({ref:it,pool,obj:it.obj,z,lane:-1,type:'high'});
+}
+function addChasm(z){
+  const it=chasmPool.get(); if(!it) return;
+  it.obj.position.x=0;
+  placeOnHill(it.obj, z, 0, 1);
+  chasms.push({ref:it,obj:it.obj,z,fallen:false});
+}
+function addAnimal(z){
+  const st=stageData();
+  const flying = st.cold>0.3 && Math.random()<0.30;
+  const dir = Math.random()<0.5?1:-1;
+  const t = Math.abs(z)/Math.max(S.speed||st.speed, 6);      // time until the runner arrives
+  const vx = clamp((10 - LANES[S.route]*dir)/Math.max(t,0.6), 3, 14);
+  let pool, obj;
+  if(flying){ pool=cranePool; }
+  else {
+    let kind;
+    if(st.cold>0.6) kind=pick(['monkey','boar','fox']);
+    else if(st.cold>0.25) kind=pick(['deer','boar','tanuki','fox']);
+    else kind=pick(['tanuki','deer','fox']);
+    pool=animalPools[kind];
+  }
+  const it=pool.get(); if(!it) return;
+  it.obj.position.x=dir*10;
+  it.obj.rotation.y = dir>0?Math.PI:0;
+  placeOnHill(it.obj, z, flying?2.25:0, flying?0.2:0.5);
+  animals.push({ref:it,pool,obj:it.obj,z,dir,vx,type:flying?'high':'low',
+    fly:flying,phase:Math.random()*6});
+}
+function addOnigiri(z, lane){
+  const it=onigiriPool.get(); if(!it) return;
+  it.obj.position.x=LANES[lane];
+  placeOnHill(it.obj, z, 1.1, 0);
+  pickups.push({ref:it,obj:it.obj,z,lane,taken:false,spin:0});
+}
+
+/* sushi -------------------------------------------------------- */
+function addSushi(z, lane, req, arc){
+  const it=sushiPool.get(); if(!it) return;
+  it.obj.position.x=LANES[lane];
+  const y = req==='duck' ? 0.52 : req==='air' ? (1.55 + (arc||0)*1.15) : 1.32;
+  placeOnHill(it.obj, z, y, 0);
+  sushi.push({ref:it,obj:it.obj,z,lane,req,y,taken:false,spin:Math.random()*6});
+  S.sushiTotal++;
+}
+function sushiLine(z, lane, req, n, spread){
+  for(let i=0;i<n;i++){
+    const t = n===1 ? 0.5 : i/(n-1);
+    const zz = z + spread - t*spread*2;
+    const arc = req==='air' ? Math.sin(t*Math.PI) : 0;
+    addSushi(zz, lane, req, arc);
+  }
+}
+
+/* events ------------------------------------------------------- */
+function evGate(z){
+  const open=[S.route];
+  if(Math.random()<0.45){
+    const extra=pick([0,1,2].filter(l=>l!==S.route));
+    open.push(extra);
+  }
+  makeGate(z, open);
+  sushiLine(z, S.route, 'ground', 4, 3.6);
+}
+function evPlain(z){
+  sushiLine(z, S.route, 'ground', 5, 5.0);
+  const others=[0,1,2].filter(l=>l!==S.route);
+  if(Math.random()<0.4) lowObstacle(z+rand(-3,3), pick(others));
+  if(Math.random()<0.24) addOnigiri(z+rand(-4,4), S.route);
+}
+function evWeave(z){
+  [0,1,2].filter(l=>l!==S.route).forEach(l=>{
+    if(Math.random()<0.85) lowObstacle(z+rand(-2.5,2.5), l);
+  });
+  sushiLine(z, S.route, 'ground', 5, 5.0);
+}
+function evHurdle(z){
+  lowObstacle(z, S.route);
+  sushiLine(z, S.route, 'air', 4, 3.2);
+  const others=[0,1,2].filter(l=>l!==S.route);
+  if(Math.random()<0.45) lowObstacle(z+rand(-2,2), pick(others));
+}
+function evDuck(z){
+  highObstacle(z);
+  sushiLine(z, S.route, 'duck', 4, 2.2);
+}
+function evChasm(z){
+  addChasm(z);
+  sushiLine(z, S.route, 'air', 4, 3.0);
+}
+function evAnimal(z){
+  addAnimal(z);
+  sushiLine(z, S.route, 'air', 4, 3.0);
+}
+function evSwitch(z){
+  const from=S.route;
+  const to=pick([0,1,2].filter(l=>Math.abs(l-from)===1));
+  sushiLine(z+9, from, 'ground', 3, 2.0);     // trail runs out here...
+  S.route=to;
+  sushiLine(z-1, to, 'ground', 4, 3.0);       // ...and picks up over there
+  lowObstacle(z-1.5, from);                   // and the old lane is closed off
+}
+
+function spawnEvent(z){
+  const st=stageData();
+  S.eventIdx++;
+  if(S.eventIdx % st.gateEvery === 0){ evGate(z); S.lastEvent='gate'; return; }
+  const bag=['plain','plain','weave','hurdle','duck','switch','animal','chasm'];
+  if(S.stage>=1) bag.push('chasm','animal');
+  if(S.stage>=2) bag.push('hurdle','duck','animal');
+  if(S.stage>=3) bag.push('chasm','weave','duck');
+  let t=pick(bag);
+  if(t===S.lastEvent && (t==='chasm'||t==='duck'||t==='switch')) t='plain';
+  S.lastEvent=t;
+  ({plain:evPlain, weave:evWeave, hurdle:evHurdle, duck:evDuck,
+    chasm:evChasm, animal:evAnimal, 'switch':evSwitch})[t](z);
+}
+
+function spawnProps(z){
+  // lanterns lining the path
+  if(Math.random()<0.75){
+    [-1,1].forEach(s=>{
+      const it=lanternPool.get(); if(!it) return;
+      it.obj.scale.setScalar(1);
+      it.obj.position.x = s*(ROAD_HALF+1.3);
+      placeOnHill(it.obj, z+rand(-1,1), 0, 0.5);
+      props.push({ref:it,pool:lanternPool,obj:it.obj,z});
+    });
+  }
+  const n = 2 + ((Math.random()*3)|0);
+  for(let i=0;i<n;i++){
+    const it=treePool.get(); if(!it) return;
+    const side = Math.random()<0.5?-1:1;
+    it.obj.position.x = side*rand(ROAD_HALF+2.6, ROAD_HALF+22);
+    const off = Math.pow((Math.abs(it.obj.position.x)-ROAD_HALF)/TERR_W,1.4)*10;
+    placeOnHill(it.obj, z+rand(-4,4), off*0.55, 0.25);
+    it.obj.rotation.y = rand(0,6.28);
+    props.push({ref:it,pool:treePool,obj:it.obj,z:it.obj.position.z});
+  }
+}
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+function moveLane(d){
+  if(S.mode!=='run') return;
+  const n=clamp(S.lane+d,0,2);
+  if(n!==S.lane){ S.lane=n; }
+}
+function jump(){
+  if(S.mode!=='run'||S.jumping) return;
+  S.jumping=true; S.vy=9.2; S.ducking=false; S.duckT=0;
+}
+function duck(){
+  if(S.mode!=='run') return;
+  if(S.jumping){ S.vy=Math.min(S.vy,-4); }
+  S.ducking=true; S.duckT=0.55;
+}
+
+addEventListener('keydown',e=>{
+  if(e.repeat) return;
+  const k=e.key;
+  if(k==='ArrowLeft'||k==='a'||k==='A') moveLane(-1);
+  else if(k==='ArrowRight'||k==='d'||k==='D') moveLane(1);
+  else if(k==='ArrowUp'||k==='w'||k==='W'||k===' ') { e.preventDefault(); jump(); }
+  else if(k==='ArrowDown'||k==='s'||k==='S') duck();
+});
+
+let tX=0,tY=0,tT=0,swiped=false;
+const cv=renderer.domElement;
+cv.addEventListener('touchstart',e=>{
+  const t=e.changedTouches[0]; tX=t.clientX; tY=t.clientY; tT=performance.now(); swiped=false;
+},{passive:true});
+cv.addEventListener('touchmove',e=>{
+  if(swiped) return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-tX, dy=t.clientY-tY;
+  const TH=26;
+  if(Math.abs(dx)>Math.abs(dy)){
+    if(Math.abs(dx)>TH){ moveLane(dx>0?1:-1); swiped=true; }
+  } else {
+    if(dy<-TH){ jump(); swiped=true; }
+    else if(dy>TH){ duck(); swiped=true; }
+  }
+},{passive:true});
+cv.addEventListener('touchend',e=>{
+  if(swiped) return;
+  // quick tap: left/right half steers
+  if(performance.now()-tT<260){
+    const t=e.changedTouches[0];
+    moveLane(t.clientX > innerWidth/2 ? 1 : -1);
+  }
+},{passive:true});
+
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+/* ============================================================
+   HUD
+   ============================================================ */
+const $ = id=>document.getElementById(id);
+const el={
+  hud:$('hud'), stageK:$('hStageK'), stageN:$('hStageN'), alt:$('hAlt'),
+  score:$('hScore'), gates:$('hGates'), belt:$('belt'), beltFill:$('beltFill'),
+  temp:$('temp'), climb:$('climbFill'), toast:$('toast'), ladder:$('ladder'),
+  title:$('title'), card:$('scroll'), end:$('end'),
+  scroll:$('scroll'), pcontent:$('pcontent'),
+  mult:$('mult'), chain:$('chainFill'), sushiPct:$('hSushi'),
+  endTitle:$('endTitle'), endStat:$('endStat'), hint:$('hint')
+};
+// build ladder rungs
+for(let i=0;i<5;i++){
+  const d=document.createElement('div'); d.className='rung';
+  d.innerHTML='<i class="top"></i><i class="mid"></i><i class="l"></i><i class="r"></i>';
+  el.ladder.appendChild(d);
+}
+function updateLadder(){
+  [].forEach.call(el.ladder.children,(r,i)=>{
+    r.className='rung'+(i<S.stage?' done':'')+(i===S.stage?' cur':'');
+  });
+}
+let toastT=0;
+function toast(txt){
+  el.toast.textContent=txt;
+  el.toast.classList.remove('show'); void el.toast.offsetWidth; el.toast.classList.add('show');
+}
+function show(screen){
+  [el.title,el.card,el.end].forEach(s=>s.classList.add('hide'));
+  if(screen) screen.classList.remove('hide');
+  el.hud.classList.toggle('on', screen===null);
+}
+
+/* ============================================================
+   FLOW
+   ============================================================ */
+/* ---------- the hanging scroll ---------- */
+let scrollToken=0, scrollNext=null;
+function statRow(k,en,val,unit,perfect){
+  return `<div class="row${perfect?' perfect':''}"><div class="lab">${k}<small>${en}</small></div>`+
+         `<div class="val">${val}${unit?'<u>'+unit+'</u>':''}</div></div>`;
+}
+function stageBrief(i){
+  const st=STAGES[i];
+  return `<div class="pNext"><div class="nk">${st.k}</div><div class="nb">`+
+    `<b>Stage ${i+1} — ${st.name}</b>`+
+    `${st.alt[0].toLocaleString()} m → ${st.alt[1].toLocaleString()} m &nbsp;·&nbsp; ${st.temp[0]}°C → ${st.temp[1]}°C<br>`+
+    `${st.dist} m of climbing`+
+    `</div></div>`;
+}
+function showScroll(html, next){
+  el.pcontent.innerHTML = html;
+  scrollNext = next;
+  show(el.scroll);
+  const tok = ++scrollToken;
+  setTimeout(()=>{ if(tok===scrollToken) el.scroll.classList.add('open'); }, 40);
+  setTimeout(()=>{ if(tok===scrollToken) closeScroll(); }, 5200);
+}
+function closeScroll(){
+  const tok = ++scrollToken;
+  el.scroll.classList.remove('open');
+  const fn=scrollNext; scrollNext=null;
+  setTimeout(()=>{ if(tok===scrollToken && fn) fn(); }, 820);
+}
+
+function goStage(i, resultsHtml){
+  S.stage=i; S.mode='stagecard';
+  applyStage(i);
+  updateLadder();
+  const head = resultsHtml
+    ? ''
+    : `<div class="pHead"><div class="pk">${STAGES[i].k}</div>`+
+      `<div class="pn">${STAGES[i].name}</div>`+
+      `<div class="pt">登 山 記</div></div>`;
+  showScroll(head + (resultsHtml||'') + stageBrief(i) + '<div class="seal">登</div>',
+             ()=>startStage());
+}
+
+function startStage(){
+  const st=stageData();
+  clearWorld();
+  S.mode='run';
+  S.dist=0; S.speed=st.speed;
+  S.stamina=100;
+  S.score=S.totalScore; S.gatesCleared=0;
+  S.route=1; S.eventIdx=0; S.lastEvent='';
+  S.sushiGot=0; S.sushiTotal=0; S.combo=0; S.mult=1; S.bestMult=1; S.multFlash=0;
+  S.stumble=0;
+  S.lane=1; S.laneX=LANES[1];
+  S.y=0; S.vy=0; S.jumping=false; S.ducking=false; S.duckT=0;
+  S.spawnZ=-72; S.nextGateZ=-90; S.nextPropZ=-30;
+  S.collapse=0; S.shake=0;
+  S.intro=INTRO_T; S.calledNokotta=false; S.invuln=INTRO_T+0.9;
+  player.rotation.z=0; player.scale.set(1,1,1);
+  player.userData.yaw.rotation.y=0;
+  show(null);
+  toast('は っ け よ い');
+  el.hint.classList.remove('show'); void el.hint.offsetWidth; el.hint.classList.add('show');
+  // prewarm scenery
+  for(let z=-30;z>-200;z-=14) spawnProps(z);
+}
+
+function stageComplete(){
+  S.mode='stagecard';
+  // sushi still ahead of the runner never had a chance — don't count it against him
+  sushi.forEach(p=>{ if(!p.taken && p.z < 0) S.sushiTotal--; });
+  if(S.sushiTotal<0) S.sushiTotal=0;
+  sushi.forEach(p=>sushiPool.release(p.ref)); sushi=[];
+
+  const pct = S.sushiTotal>0 ? Math.round(S.sushiGot/S.sushiTotal*100) : 100;
+  const perfect = pct>=100;
+  const stam = Math.round(S.stamina);
+  const stageScore = Math.round(S.score) - S.totalScore
+    + 500 + S.gatesCleared*40 + stam*6 + (perfect?2500:0) + S.bestMult*150;
+
+  S.score = Math.round(S.score);
+  S.totalScore = S.score + 500 + S.gatesCleared*40 + stam*6 + (perfect?2500:0) + S.bestMult*150;
+  S.lifeSushiGot = (S.lifeSushiGot||0) + S.sushiGot;
+  S.lifeSushiTot = (S.lifeSushiTot||0) + S.sushiTotal;
+
+  const st=STAGES[S.stage];
+  const results =
+    `<div class="pHead"><div class="pk">${st.k}</div>`+
+    `<div class="pn">${st.name}</div>`+
+    `<div class="pt">${perfect?'完 全 制 覇':'登 頂'}</div></div>`+
+    statRow('寿司','SUSHI COLLECTED', pct+'%', S.sushiGot+' / '+S.sushiTotal, perfect)+
+    statRow('倍率','BEST MULTIPLIER', '×'+S.bestMult, '', S.bestMult>=5)+
+    statRow('鳥居','GATES PASSED', S.gatesCleared, '')+
+    statRow('体力','STAMINA LEFT', stam+'%', '')+
+    statRow('得点','STAGE SCORE', stageScore.toLocaleString(), '');
+
+  toast(perfect ? '完 全 制 覇' : '登 頂');
+  if(S.stage>=STAGES.length-1){ setTimeout(()=>win(results), 700); return; }
+  setTimeout(()=>goStage(S.stage+1, results), 700);
+}
+
+function die(reason){
+  if(S.mode!=='run') return;
+  S.mode='dead';
+  S.collapse=0;
+  setTimeout(()=>{
+    el.endTitle.textContent='力 尽 き た';
+    el.endTitle.style.color='#D9401F';
+    el.endStat.innerHTML =
+      `${reason}<br>`+
+      `STAGE <b>${S.stage+1}</b> &nbsp; ${STAGES[S.stage].name}<br>`+
+      `CLIMBED <b>${Math.round(S.dist)}</b> m of ${stageData().dist} m<br>`+
+      `SUSHI <b>${S.sushiTotal>0?Math.round(S.sushiGot/S.sushiTotal*100):0}%</b>`+
+      ` &nbsp;·&nbsp; BEST CHAIN <b>×${S.bestMult}</b><br>`+
+      `GATES <b>${S.gatesCleared}</b> &nbsp;·&nbsp; SCORE <b>${Math.round(S.score).toLocaleString()}</b>`;
+    $('btnRetry').textContent='RETRY STAGE';
+    show(el.end);
+  }, 1500);
+}
+
+function win(results){
+  S.mode='won';
+  const pct = S.lifeSushiTot>0 ? Math.round(S.lifeSushiGot/S.lifeSushiTot*100) : 100;
+  el.endTitle.textContent='頂 上';
+  el.endTitle.style.color='#D9A441';
+  el.endStat.innerHTML =
+    `All five shrines behind you.<br>`+
+    `FINAL SCORE <b>${Math.round(S.totalScore).toLocaleString()}</b><br>`+
+    `SUSHI <b>${pct}%</b> &nbsp;·&nbsp; GATES <b>${S.totalGates}</b><br>`+
+    `ALTITUDE <b>3,340</b> m`;
+  $('btnRetry').textContent='CLIMB AGAIN';
+  showScroll(results + stageBrief(STAGES.length-1).replace('nb"><b>Stage 5','nb"><b>Summit reached — Stage 5')
+             + '<div class="seal">頂</div>', ()=>show(el.end));
+}
+
+function newRun(){ S.totalScore=0; S.totalGates=0; S.lifeSushiGot=0; S.lifeSushiTot=0; goStage(0,null); }
+$('btnStart').onclick=newRun;
+$('btnRetry').onclick=()=>{ if(S.mode==='won') newRun(); else goStage(S.stage,null); };
+$('btnMenu').onclick=()=>{ S.mode='title'; S.totalScore=0; clearWorld(); show(el.title); };
+el.scroll.addEventListener('click',()=>{ if(scrollNext) closeScroll(); });
+
+/* ============================================================
+   COLLISION + STAMINA
+   ============================================================ */
+function drain(amount,label,color){
+  breakChain();
+  S.stamina -= amount;
+  S.shake = Math.max(S.shake, 0.5);
+  S.invuln = 0.55;
+  if(label) toast(label,color||'#D9401F');
+  if(S.stamina<=0){ S.stamina=0; die(label||'The mountain won.'); }
+}
+function restore(amount){ S.stamina=Math.min(100,S.stamina+amount); }
+function breakChain(){
+  if(S.combo>0){ S.multFlash=1; }
+  S.combo=0; S.mult=1;
+}
+function addChain(){
+  S.combo++;
+  S.mult = Math.min(1 + Math.floor(S.combo/8), 10);
+  if(S.mult>S.bestMult) S.bestMult=S.mult;
+}
+
+/* ============================================================
+   MAIN LOOP
+   ============================================================ */
+let last=performance.now();
+let ambientT=0;
+
+function frame(now){
+  requestAnimationFrame(frame);
+  let dt=(now-last)/1000; last=now;
+  dt=Math.min(dt,0.05);
+  ambientT+=dt;
+
+  const st=stageData();
+  const running = S.mode==='run';
+  const idle = (S.mode==='title' || S.mode==='stagecard');
+
+  /* ---- clouds drift always ---- */
+  clouds.children.forEach(c=>{
+    c.position.x += c.userData.drift*dt*0.6;
+    if(c.position.x>280) c.position.x=-280;
+  });
+
+  if(running){
+    /* ---- speed & distance ---- */
+    const prog = S.dist/st.dist;
+    if(S.intro>0){
+      S.intro -= dt;
+      const k = 1 - S.intro/INTRO_T;
+      S.speed = k<0.62 ? 0 : st.speed*Math.pow((k-0.62)/0.38,1.4);
+      if(!S.calledNokotta && k>=0.60){ S.calledNokotta=true; toast('の こ っ た'); }
+      if(S.intro<=0){ S.intro=0; S.speed=st.speed; }
+    } else {
+      S.speed = st.speed + st.speedGain*prog;
+      /* ---- stamina drain: steeper + colder + faster = harder ---- */
+      const drainRate = 4.2 + st.slope*14 + st.cold*2.4 + prog*1.8;
+      S.stamina -= drainRate*dt;
+      if(S.stamina<=0){ S.stamina=0; die('Legs gave out on the slope.'); }
+    }
+    S.dist += S.speed*dt;
+    S.score += S.speed*dt*0.9*S.mult;
+
+    if(S.invuln>0) S.invuln-=dt;
+
+    /* ---- movement ---- */
+    if(S.stumble>0){ S.stumble-=dt; S.speed*=0.42; }
+    S.laneX = lerp(S.laneX, LANES[S.lane], 1-Math.pow(0.0009,dt));
+    if(S.jumping){
+      S.vy -= 26*dt; S.y += S.vy*dt;
+      if(S.y<=0){ S.y=0; S.vy=0; S.jumping=false; emitDust(S.laneX,0); emitDust(S.laneX,0); }
+    }
+    if(S.duckT>0){ S.duckT-=dt; if(S.duckT<=0) S.ducking=false; }
+
+    /* ---- event frontier ---- */
+    if(S.intro<=0){
+      while(S.spawnZ > -175){
+        spawnEvent(S.spawnZ);
+        S.spawnZ -= st.eventGap;
+      }
+    }
+    S.spawnZ += S.speed*dt;
+  }
+
+  const dz = running ? S.speed*dt : (idle ? 6.5*dt : 0);
+
+  if(running || idle){
+    while(S.nextPropZ > -190){
+      spawnProps(S.nextPropZ);
+      S.nextPropZ -= rand(9,16);
+    }
+    S.nextPropZ += dz;
+    if(idle){
+      while(S.nextGateZ > -190){ makeGate(S.nextGateZ,[0,1,2]); S.nextGateZ -= 30; }
+      S.nextGateZ += dz;
+    }
+  }
+
+  /* ---- scroll road & terrain ---- */
+  [roadTiles,terrainTiles].forEach(list=>{
+    list.forEach(t=>{
+      t.userData.z += dz;
+      if(t.userData.z > TILE_LEN*2) t.userData.z -= TILE_LEN*TILE_COUNT;
+      placeOnHill(t, t.userData.z, 0, 1);
+    });
+  });
+
+  /* ---- player transform ---- */
+  const groundY = bendY(0);
+  const duckAmt = S.ducking?1:0;
+  player.position.x = S.laneX;
+  player.position.y = groundY + S.y;
+  player.position.z = 0;
+
+  const ud=player.userData;
+  const exhaustion = 1 - S.stamina/100;      // 0 fresh, 1 spent
+  const cadence = lerp(11.5, 7.4, exhaustion) * (S.speed/16);
+  const introK = (running && S.intro>0) ? 1 - S.intro/INTRO_T : 1;
+  // 1 while he's squared up to camera, 0 once he's fully turned
+  const poseAmt = (running && S.intro>0) ? clamp(1-(introK-0.42)/0.26, 0, 1) : 0;
+  // heading: hold facing camera, then swing 180 to face uphill
+  ud.yaw.rotation.y = Math.PI * clamp((introK-0.42)/0.26, 0, 1);
+  if((running && introK>0.55) || (running && S.intro<=0) || idle) S.runPhase += cadence*dt;
+  const ph=S.runPhase;
+
+  // lean into the hill, more when spent
+  const hillTilt = tiltAt(0);
+  const lean = 0.20 + SLOPE*1.6 + exhaustion*0.34;
+  player.rotation.x = hillTilt*0.5;
+  ud.body.rotation.x = lean - duckAmt*0.5;
+  ud.body.rotation.z = Math.sin(ph)*0.055;
+  ud.body.position.y = (S.jumping?0.05:Math.abs(Math.sin(ph))*0.11) - duckAmt*0.62;
+  ud.body.scale.y = 1 - duckAmt*0.22;
+  ud.body.scale.x = 1 + duckAmt*0.1;
+
+  // belly jiggle
+  const jig = Math.sin(ph*2)*0.045 + (S.jumping? -0.03:0);
+  ud.belly.scale.set(1.02+jig, 0.92-jig*0.6, 0.9+jig*0.5);
+  ud.chest.scale.set(0.86, 0.66+Math.sin(ph*2+1)*0.03, 0.76);
+
+  // head bob + gasping mouth
+  ud.head.rotation.x = -lean*0.75 + Math.sin(ph*2)*0.05;
+  ud.head.rotation.z = Math.sin(ph)*0.05;
+  const gasp = 0.09 + Math.abs(Math.sin(ph*0.9))*0.1*(0.5+exhaustion);
+  ud.mouth.scale.set(0.14, gasp, 0.06);
+  // flushed face when hot / pale-blue when cold
+  ud.head.children[0].material = M.skinM;
+  M.skinFlush.color.set(lerpColor(0xD9704A, 0xC98F92, st.cold));
+  M.skinM.color.set(lerpColor(0xE7B285, 0xDCB6AE, st.cold*0.6));
+
+  // arms — heavy, low swing
+  ud.arms.forEach(a=>{
+    const s=a.side;
+    a.pivot.rotation.x = Math.sin(ph + (s>0?Math.PI:0))*0.62 - 0.25 - duckAmt*0.5;
+    a.pivot.rotation.z = s*(0.34 + Math.sin(ph*2)*0.05);
+    a.fore.rotation.x = -0.7 - Math.max(0,Math.sin(ph+(s>0?Math.PI:0)))*0.5;
+  });
+
+  // legs — waddling stomp
+  let footStruck=false;
+  ud.legs.forEach(a=>{
+    const s=a.side;
+    const p = ph + (s>0?Math.PI:0);
+    a.hip.rotation.x = Math.sin(p)*0.78 - 0.12 + duckAmt*0.55;
+    a.hip.rotation.z = s*0.16;
+    a.knee.rotation.x = Math.max(0, -Math.sin(p-0.7))*1.15;
+    if(!S.jumping && Math.sin(p)<-0.95) footStruck=true;
+  });
+  if(footStruck && running && S.intro<=0 && Math.random()<0.4) emitDust(S.laneX, 0.4);
+
+  /* ---- shiko stance: feet planted wide, glaring down the lens, then a chest thump ---- */
+  if(poseAmt>0.001){
+    const P=poseAmt;
+    const beat = clamp((introK-0.16)/0.16,0,1);            // the thump, ~0.4s in
+    const thump = Math.sin(beat*Math.PI)*(beat<1?1:0);
+    ud.legs.forEach(a=>{
+      a.hip.rotation.x  = lerp(a.hip.rotation.x, 0.10, P);
+      a.hip.rotation.z  = lerp(a.hip.rotation.z, a.side*0.66, P);
+      a.knee.rotation.x = lerp(a.knee.rotation.x, 0.66, P);
+    });
+    ud.arms.forEach(a=>{
+      a.pivot.rotation.x = lerp(a.pivot.rotation.x, -0.10 - thump*0.55, P);
+      a.pivot.rotation.z = lerp(a.pivot.rotation.z, a.side*(1.02 - thump*0.42), P);
+      a.fore.rotation.x  = lerp(a.fore.rotation.x, -0.5 - thump*0.85, P);
+    });
+    ud.body.rotation.x  = lerp(ud.body.rotation.x, 0.03 + thump*0.14, P);
+    ud.body.rotation.z  = lerp(ud.body.rotation.z, 0, P);
+    ud.body.position.y  = lerp(ud.body.position.y, -0.30 + thump*0.06, P);
+    ud.head.rotation.x  = lerp(ud.head.rotation.x, 0.04, P);
+    ud.head.rotation.z  = lerp(ud.head.rotation.z, 0, P);
+    ud.mouth.scale.set(0.14, 0.10+thump*0.12, 0.06);
+  }
+
+  // blob shadow
+  blob.position.set(S.laneX, groundY+0.03, 0.2);
+  const bs = 1 - clamp(S.y/3.2,0,0.7);
+  blob.scale.set(bs,bs,1);
+  blob.material.opacity = 0.34*bs;
+
+  /* ---- sweat & breath ---- */
+  if(running || idle){
+    const heat = 1-st.cold;
+    const rate = (0.35 + exhaustion*0.9) * (0.25 + heat*1.0);
+    if(Math.random() < rate*dt*36){
+      const hx = S.laneX + rand(-0.5,0.5);
+      const hy = groundY + S.y + rand(1.9,2.7);
+      emitSweat(hx, hy, rand(-0.3,0.4), heat);
+    }
+    breathTimer-=dt;
+    if(st.cold>0.25 && breathTimer<=0){
+      breathTimer = lerp(0.9,0.42,exhaustion);
+      emitBreath(S.laneX+0.05, groundY+S.y+2.45-duckAmt*0.6, 0.42);
+    }
+  }
+  // integrate sweat
+  {
+    const arr=sweatGeo.attributes.position.array;
+    for(let i=0;i<SWEAT_N;i++){
+      const v=sweatV[i];
+      if(v.life>0){
+        v.life-=dt; v.y-=17*dt;
+        arr[i*3]+=v.x*dt; arr[i*3+1]+=v.y*dt; arr[i*3+2]+=(v.z+ (running?S.speed*0.25:0))*dt;
+        if(v.life<=0 || arr[i*3+1] < bendY(arr[i*3+2])-0.2) arr[i*3+1]=-99;
+      }
+    }
+    sweatGeo.attributes.position.needsUpdate=true;
+    sweat.material.opacity = lerp(0.92,0.45,st.cold);
+  }
+  // breath puffs
+  breath.forEach(b=>{
+    if(b.life>0){
+      b.life-=dt*1.35;
+      const k=1-b.life;
+      b.s.scale.setScalar(0.32+k*1.5);
+      b.s.material.opacity = Math.max(0,b.life*0.55);
+      b.s.position.z += (2 + (running?S.speed*0.3:0))*dt;
+      b.s.position.y += 0.5*dt;
+      if(b.life<=0) b.s.position.y=-99;
+    }
+  });
+  // dust
+  {
+    const arr=dustGeo.attributes.position.array;
+    for(let i=0;i<DUST_N;i++){
+      const v=dustV[i];
+      if(v.life>0){ v.life-=dt;
+        arr[i*3+1]+=v.y*dt; arr[i*3+2]+=(v.z+(running?S.speed*0.4:0))*dt;
+        if(v.life<=0) arr[i*3+1]=-99;
+      }
+    }
+    dustGeo.attributes.position.needsUpdate=true;
+  }
+
+  /* ---- weather ---- */
+  {
+    const arr=wGeo.attributes.position.array;
+    const wind = st.cold*3.5;
+    for(let i=0;i<WEATHER_N;i++){
+      arr[i*3]   += (wVel[i*3]+wind)*dt;
+      arr[i*3+1] += wVel[i*3+1]*(0.5+st.cold)*dt;
+      arr[i*3+2] += (wVel[i*3+2] + (running?S.speed*0.55:0))*dt;
+      if(arr[i*3+1] < -4 || arr[i*3+2] > 18){
+        arr[i*3]=rand(-38,38); arr[i*3+1]=rand(18,44); arr[i*3+2]=rand(-160,-20);
+      }
+      if(arr[i*3]>44) arr[i*3]=-44;
+    }
+    wGeo.attributes.position.needsUpdate=true;
+  }
+
+  /* ---- gates ---- */
+  for(let i=gates.length-1;i>=0;i--){
+    const g=gates[i];
+    g.z += dz;
+    placeOnHill(g.obj, g.z, 0, 1);
+    if(!g.scored && g.z > -0.6){
+      g.scored=true;
+      if(!running){ /* menu drift: gates are scenery */ } else {
+      if(g.open.indexOf(S.lane)>=0){
+        S.gatesCleared++; S.totalGates++; S.score += 120*S.mult; restore(12);
+        S.gateFlash=1;
+        const msgs=['⛩ 通 過','⛩ 良 し','⛩ 見 事','⛩ 通 過'];
+        if(S.gatesCleared%3===0) toast(pick(msgs),'#D9A441');
+      } else {
+        // slipped past outside the open lane
+        if(S.invuln<=0) drain(9,'外 れ た');
+      }
+      }
+    }
+    if(g.z > 16){ gatePool.release(g.ref); gates.splice(i,1); }
+  }
+
+  /* ---- props ---- */
+  for(let i=props.length-1;i>=0;i--){
+    const p=props[i];
+    p.z += dz;
+    placeOnHill(p.obj, p.z, p.obj.userData.yOff||0, p.pool===treePool?0.25:0.5);
+    if(p.pool===treePool){
+      const off = Math.pow(clamp((Math.abs(p.obj.position.x)-ROAD_HALF)/TERR_W,0,1),1.4)*10*0.55;
+      p.obj.position.y = bendY(p.z)+off;
+    }
+    if(p.z > 20){ p.pool.release(p.ref); props.splice(i,1); }
+  }
+
+  /* ---- obstacles + collision ---- */
+  for(let i=obstacles.length-1;i>=0;i--){
+    const o=obstacles[i];
+    o.z += dz;
+    placeOnHill(o.obj, o.z, 0, o.type==='high'?0.35:0.5);
+    if(running && S.invuln<=0 && Math.abs(o.z)<1.25 && (o.type==='high' || o.lane===S.lane)){
+      if(o.type==='low'){
+        if(S.y < 1.15){ drain(17,'つ ま づ き'); o.hit=true; }
+      } else if(o.type==='high'){
+        if(!S.ducking && S.y < 2.6){ drain(16,'頭 打 ち'); o.hit=true; }
+      } else {
+        drain(24,'塞 が れ た'); o.hit=true;
+      }
+      if(o.hit) S.invuln=0.6;
+    }
+    if(o.z > 14){ o.pool.release(o.ref); obstacles.splice(i,1); }
+  }
+
+  /* ---- animals ---- */
+  for(let i=animals.length-1;i>=0;i--){
+    const a=animals[i];
+    a.z += dz;
+    if(S.intro<=0) a.obj.position.x -= a.dir * a.vx * dt;
+    a.phase += dt*13;
+    placeOnHill(a.obj, a.z, a.fly? 2.25 + Math.sin(a.phase*0.4)*0.25 : 0, a.fly?0.2:0.5);
+    // gait
+    const ud2=a.obj.userData;
+    if(ud2.legs){
+      ud2.legs.forEach((L,li)=>{ L.rotation.x = Math.sin(a.phase + li*1.7)*0.7; });
+      a.obj.position.y += Math.abs(Math.sin(a.phase*0.5))*0.09;
+      if(ud2.tail) ud2.tail.rotation.y = Math.sin(a.phase*0.5)*0.5;
+    }
+    if(ud2.wings){ ud2.wings.forEach(w=>{ w.rotation.x = Math.sin(a.phase*0.55)*0.75; }); }
+
+    if(running && S.invuln<=0 && Math.abs(a.z)<1.3 && Math.abs(a.obj.position.x - S.laneX)<1.25){
+      if(a.fly){
+        if(!S.ducking && S.y<2.6){ drain(15,'鶴 に 衝 突'); S.invuln=0.6; }
+      } else {
+        if(S.y < 1.25){ drain(19,'獣 に 衝 突'); S.invuln=0.6; }
+      }
+    }
+    if(a.z > 14 || Math.abs(a.obj.position.x)>16){ a.pool.release(a.ref); animals.splice(i,1); }
+  }
+
+  /* ---- chasms: jump them or drop in ---- */
+  for(let i=chasms.length-1;i>=0;i--){
+    const c=chasms[i];
+    c.z += dz;
+    placeOnHill(c.obj, c.z, 0, 1);
+    if(running && !c.fallen && Math.abs(c.z) < CHASM_LEN/2 + 0.4 && S.y < 0.55){
+      c.fallen=true;
+      drain(24,'落 と し 穴');
+      S.stumble=0.5; S.invuln=1.0; S.shake=1.0;
+    }
+    if(c.z > 14){ chasmPool.release(c.ref); chasms.splice(i,1); }
+  }
+
+  /* ---- sushi: the chain ---- */
+  for(let i=sushi.length-1;i>=0;i--){
+    const p=sushi[i];
+    p.z += dz; p.spin += dt*3.4;
+    placeOnHill(p.obj, p.z, p.y + Math.sin(p.spin*1.1)*0.09, 0);
+    p.obj.rotation.y = p.spin;
+    p.obj.rotation.z = Math.sin(p.spin*0.7)*0.18;
+    if(running && !p.taken && Math.abs(p.z)<1.45 && p.lane===S.lane){
+      const airborne = S.y > 0.35;
+      const ok = p.req==='air' ? airborne : p.req==='duck' ? (S.ducking && !airborne) : (!S.ducking && !airborne);
+      if(ok){
+        p.taken=true; S.sushiGot++; addChain();
+        S.score += 25*S.mult; restore(1.5);
+        if(S.combo>0 && S.combo%8===0) toast('連 鎖 ×'+S.mult);
+        sushiPool.release(p.ref); sushi.splice(i,1); continue;
+      }
+    }
+    if(p.z > 2.2){                       // gone past — chain broken
+      if(!p.taken && running) breakChain();
+      sushiPool.release(p.ref); sushi.splice(i,1); continue;
+    }
+  }
+
+  /* ---- pickups ---- */
+  for(let i=pickups.length-1;i>=0;i--){
+    const p=pickups[i];
+    p.z += dz; p.spin += dt*2.6;
+    placeOnHill(p.obj, p.z, 1.1 + Math.sin(p.spin*1.6)*0.14, 0);
+    p.obj.rotation.y = p.spin;
+    if(running && !p.taken && Math.abs(p.z)<1.3 && p.lane===S.lane && S.y<2.0){
+      p.taken=true; restore(20); S.score+=60; toast('お に ぎ り +20','#F2E9D8');
+      onigiriPool.release(p.ref); pickups.splice(i,1); continue;
+    }
+    if(p.z > 14){ onigiriPool.release(p.ref); pickups.splice(i,1); }
+  }
+
+  /* ---- death animation ---- */
+  if(S.mode==='dead'){
+    S.collapse=Math.min(1,S.collapse+dt*1.7);
+    const c=S.collapse;
+    player.rotation.x = hillTilt*0.5 - c*1.42;
+    player.position.y = groundY - c*0.5;
+    ud.body.rotation.x = lerp(lean,0.2,c);
+    ud.arms.forEach(a=>{ a.pivot.rotation.x=lerp(a.pivot.rotation.x,-0.9,c*0.2); });
+    if(c<1 && Math.random()<0.4) emitSweat(S.laneX+rand(-.6,.6), groundY+rand(1,2.2), 0, 1);
+  }
+
+  /* ---- camera ---- */
+  const camShake = S.shake>0 ? S.shake : 0;
+  if(S.shake>0) S.shake=Math.max(0,S.shake-dt*2.4);
+  const camTargetX = S.laneX*0.42;
+  camera.position.x = lerp(camera.position.x, camTargetX, 1-Math.pow(0.002,dt));
+  const speedPull = running ? (S.speed-13)/22 : 0;
+  camera.position.y = lerp(camera.position.y, groundY + 3.55 + S.y*0.32 + (S.ducking?-0.3:0), 1-Math.pow(0.01,dt));
+  camera.position.z = lerp(camera.position.z, 7.6 + speedPull*0.9 + (S.mode==='dead'?1.6:0) + (S.intro>0?-1.0:0), 1-Math.pow(0.05,dt));
+  if(camShake>0){
+    camera.position.x += rand(-1,1)*camShake*0.22;
+    camera.position.y += rand(-1,1)*camShake*0.18;
+  }
+  const lookZ=-13;
+  camera.lookAt(camTargetX*0.6, bendY(lookZ)+2.6, lookZ);
+
+  camera.fov = lerp(camera.fov, 62 + speedPull*7, 1-Math.pow(0.05,dt));
+  camera.updateProjectionMatrix();
+
+  sky.position.copy(camera.position);
+  weather.position.z = 0;
+  sun.position.set(camera.position.x-16, camera.position.y+24, -10);
+  sun.target.position.set(camera.position.x, camera.position.y-3, -14);
+  sun.target.updateMatrixWorld();
+
+  /* ---- lantern glow at altitude ---- */
+  M.lampGlow.opacity = lerp(0.25,1.0,st.cold)*(0.8+Math.sin(ambientT*2.4)*0.12);
+
+  /* ---- HUD ---- */
+  if(running || S.mode==='dead'){
+    const prog=clamp(S.dist/st.dist,0,1);
+    el.beltFill.style.width = clamp(S.stamina,0,100)+'%';
+    el.belt.className = S.stamina<22?'crit':(S.stamina<45?'warn':'');
+    el.score.textContent = Math.round(S.score);
+    el.gates.textContent = S.gatesCleared;
+    el.climb.style.height = (prog*100)+'%';
+    el.stageK.textContent = st.k;
+    el.stageN.textContent = st.name;
+    el.alt.textContent = Math.round(lerp(st.alt[0],st.alt[1],prog)).toLocaleString()+' m';
+    el.sushiPct.textContent = '寿司 '+(S.sushiTotal>0?Math.round(S.sushiGot/S.sushiTotal*100):100)+'%';
+    if(el.mult.textContent!=='×'+S.mult){
+      el.mult.textContent='×'+S.mult;
+      el.mult.classList.remove('up'); void el.mult.offsetWidth; el.mult.classList.add('up');
+    }
+    el.chain.style.width = ((S.combo%8)/8*100)+'%';
+    if(S.multFlash>0){ S.multFlash-=dt*2.2; el.mult.classList.add('brk'); }
+    else el.mult.classList.remove('brk');
+    el.temp.textContent = Math.round(lerp(st.temp[0],st.temp[1],prog))+'°C';
+    if(running && prog>=1) stageComplete();
+  }
+
+  /* ---- gate pass flash ---- */
+  if(S.gateFlash>0){
+    S.gateFlash-=dt*3;
+    renderer.toneMappingExposure = 1.06 + S.gateFlash*0.22;
+  } else renderer.toneMappingExposure = lerp(renderer.toneMappingExposure,1.06,0.1);
+
+  renderer.render(scene,camera);
+}
+
+/* ---------- aged washi for the scroll ---------- */
+try{
+  const wc=document.createElement('canvas'); wc.width=wc.height=220; const wg=wc.getContext('2d');
+  wg.fillStyle='#EFE4C9'; wg.fillRect(0,0,220,220);
+  for(let i=0;i<900;i++){                       // mottling and foxing
+    const a=Math.random()*0.09;
+    wg.fillStyle=Math.random()<0.55?`rgba(150,118,66,${a})`:`rgba(255,250,235,${a*1.6})`;
+    wg.beginPath(); wg.arc(Math.random()*220,Math.random()*220,rand(3,22),0,6.3); wg.fill();
+  }
+  for(let i=0;i<160;i++){                       // paper fibres
+    wg.strokeStyle=`rgba(120,96,54,${Math.random()*0.11})`; wg.lineWidth=Math.random()*1.4;
+    wg.beginPath(); const y=Math.random()*220; wg.moveTo(0,y); wg.lineTo(220,y+rand(-3,3)); wg.stroke();
+  }
+  for(let i=0;i<26;i++){                        // age spots
+    wg.fillStyle=`rgba(126,92,42,${Math.random()*0.14})`;
+    wg.beginPath(); wg.arc(Math.random()*220,Math.random()*220,rand(1.5,5),0,6.3); wg.fill();
+  }
+  const url=wc.toDataURL();
+  const pb=document.getElementById('paperBg');
+  if(pb && url) pb.style.backgroundImage='url('+url+')';
+}catch(e){}
+
+/* ---------- boot ---------- */
+applyStage(0);
+S.nextPropZ=-20; S.nextGateZ=-40;
+show(el.title);
+// idle showcase behind the title
+S.laneX=0;
+requestAnimationFrame(frame);
+setTimeout(()=>{ document.getElementById('loading').classList.add('hide'); }, 500);
+
+})();
+</script>
+</body>
+</html>
