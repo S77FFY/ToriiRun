@@ -101,6 +101,73 @@
     opacity:0;transition:opacity .2s;font-size:12px}
   #belt.crit #ganbare{opacity:1;animation:pulse .5s infinite}
 
+  /* weight — the dial everything hangs off */
+  #wt{position:absolute;left:14px;bottom:calc(var(--safe-b) + 108px);width:132px}
+  #wtLab{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:9.5px;letter-spacing:.2em;opacity:.62;margin-bottom:5px;text-transform:uppercase}
+  #wtLab b{font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:0;
+    color:#F0C6A6;opacity:1}
+  #wtTrack{height:9px;border-radius:5px;background:rgba(10,8,7,.6);
+    border:1px solid rgba(240,198,166,.28);overflow:hidden;position:relative}
+  #wtFill{height:100%;width:34%;background:linear-gradient(90deg,#C98F6B,#F0C6A6);
+    transition:width .15s}
+  #wtTrack:after{content:"";position:absolute;left:62%;top:-3px;bottom:-3px;width:2px;
+    background:rgba(217,64,31,.85)}          /* the width a narrow gate allows */
+
+  /* momentum — what you spend to smash */
+  #mom{position:absolute;left:14px;right:96px;bottom:calc(var(--safe-b) + 42px)}
+  #momTrack{height:5px;border-radius:3px;background:rgba(10,8,7,.55);overflow:hidden;
+    border:1px solid rgba(242,233,216,.16)}
+  #momFill{height:100%;width:0%;background:linear-gradient(90deg,#6EC5E8,#F2E9D8);
+    transition:width .09s}
+  #mom.hot #momFill{background:linear-gradient(90deg,#FFB03A,#FFF0C0);
+    box-shadow:0 0 12px rgba(255,176,58,.8)}
+  #momLab{font-size:9px;letter-spacing:.22em;opacity:.5;margin-bottom:4px;text-transform:uppercase}
+  #mom.hot #momLab{opacity:.95;color:#FFC96A}
+
+  /* shiko stomp */
+  #stompBtn{position:absolute;right:14px;bottom:calc(var(--safe-b) + 34px);
+    width:74px;height:74px;border-radius:50%;pointer-events:auto;cursor:pointer;
+    border:1px solid rgba(242,233,216,.25);background:rgba(14,16,22,.55);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Shippori Mincho',serif;font-size:22px;color:rgba(242,233,216,.4);
+    transition:transform .12s}
+  #stompBtn.ready{color:#1a0d08;border-color:var(--gold);
+    background:radial-gradient(circle,#FFE8B0,#D9A441);
+    box-shadow:0 0 26px rgba(217,164,65,.6);animation:breathe 1.6s infinite}
+  #stompBtn:active{transform:scale(.92)}
+  @keyframes breathe{50%{box-shadow:0 0 40px rgba(217,164,65,.95)}}
+  #stompRing{position:absolute;inset:-4px;border-radius:50%;pointer-events:none}
+
+  /* the rival's position on the climb thread */
+  #rivalPip{position:absolute;right:40px;width:14px;height:3px;border-radius:2px;
+    background:#6E86D9;box-shadow:0 0 8px rgba(110,134,217,.9);transition:bottom .12s;
+    display:none}
+  #youPip{position:absolute;right:40px;width:14px;height:3px;border-radius:2px;
+    background:var(--washi);display:none}
+
+  /* faltering */
+  #falter{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    flex-direction:column;background:radial-gradient(circle,rgba(140,20,10,0) 35%,rgba(140,20,10,.42));
+    pointer-events:none}
+  #falter.on{display:flex;animation:pulse .45s infinite}
+  #falter .k{font-family:'Shippori Mincho',serif;font-size:clamp(30px,10vw,56px);
+    color:#FFD9C0;text-shadow:0 0 30px rgba(217,64,31,.9)}
+  #falter .t{font-size:11px;letter-spacing:.3em;margin-top:12px;text-transform:uppercase;opacity:.85}
+
+  /* blessings on the scroll */
+  .blessRow{display:flex;gap:10px;margin-top:16px}
+  .bless{flex:1;pointer-events:auto;cursor:pointer;text-align:center;padding:13px 8px;
+    border:1px solid rgba(60,40,20,.42);border-radius:3px;background:rgba(255,250,235,.5);
+    color:#2A2119;font-family:'Zen Kaku Gothic New',sans-serif;transition:background .15s,transform .1s}
+  .bless:active{transform:translateY(2px)}
+  .bless.picked{background:#8E2411;color:#F2E9D8;border-color:#8E2411}
+  .bless .bk{font-family:'Shippori Mincho',serif;font-size:26px;display:block;line-height:1}
+  .bless .bn{font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-top:6px;opacity:.75}
+  .bless .bd{font-size:10px;line-height:1.6;margin-top:6px;opacity:.62}
+  .blessHead{margin-top:16px;text-align:center;font-family:'Shippori Mincho',serif;
+    font-size:13px;letter-spacing:.3em;color:#8E2411}
+
   #temp{position:absolute;left:14px;bottom:calc(var(--safe-b) + 56px);
     font-size:11px;letter-spacing:.16em;color:var(--frost);opacity:.85}
 
@@ -270,13 +337,28 @@
 
     <div id="temp">−0°C</div>
 
+    <div id="wt">
+      <div id="wtLab"><span>WEIGHT</span><b id="wtVal">体重</b></div>
+      <div id="wtTrack"><div id="wtFill"></div></div>
+    </div>
+
+    <div id="mom">
+      <div id="momLab">MOMENTUM — <span id="momHint">build it up</span></div>
+      <div id="momTrack"><div id="momFill"></div></div>
+    </div>
+
+    <div id="stompBtn">四<div id="stompRing"></div></div>
+    <div id="rivalPip"></div><div id="youPip"></div>
+
+    <div id="falter"><div class="k">こ ら え ろ</div><div class="t">tap anything to fight back up</div></div>
+
     <div id="belt">
       <div id="beltLabel"><span>STAMINA 力</span><span id="ganbare">が ん ば れ</span></div>
       <div id="beltTrack"><div id="beltFill"></div></div>
     </div>
 
     <div id="toast"></div>
-    <div id="hint">swipe ← → to change lane<br>swipe ↑ jump &nbsp;·&nbsp; swipe ↓ duck</div>
+    <div id="hint">swipe ← → lane &nbsp;·&nbsp; ↑ jump &nbsp;·&nbsp; ↓ lean back<br>tap 四 to stomp the mountain flat</div>
   </div>
 
   <div class="screen" id="title">
@@ -286,11 +368,13 @@
     </div>
     <div class="rule"></div>
     <div class="blurb">
-      A sumo climbs five shrine gates toward the summit. Pass through the <b>open gate</b> to catch your breath.
-      Miss it, or clip a boar, and the mountain takes it out of you.
+      Eat <b>chanko</b> and he grows. Heavy men smash straight through boulders and win shoves,
+      but they jump low, steer like barges and won't fit a narrow gate.
+      Run clean to build <b>momentum</b> — then spend it flattening whatever's in the way.
+      There's a rival on this mountain, and he isn't waiting for you.
     </div>
     <button class="btn" id="btnStart">BEGIN THE CLIMB</button>
-    <div class="keys">TOUCH — swipe to steer, jump, duck<br>KEYS — ← → arrows &nbsp;·&nbsp; ↑ jump &nbsp;·&nbsp; ↓ duck</div>
+    <div class="keys">TOUCH — swipe to steer &nbsp;·&nbsp; tap 四 for the shiko stomp<br>KEYS — arrows &nbsp;·&nbsp; F to stomp</div>
   </div>
 
   <div class="screen hide" id="scroll">
@@ -312,6 +396,442 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ==========================================================================
+   SUMO MODEL BLOCK  —  v1.4.0
+   This block is IDENTICAL in torii-run.html and sumo-viewer.html.
+   To change the wrestler, edit it in one file and paste it over the other,
+   replacing everything between the BEGIN and END markers.
+   ======================================================================= */
+/* ===== BEGIN SUMO MODEL ===== */
+/* ============================================================================
+   SUMO — shared character model
+   ----------------------------------------------------------------------------
+   One source of truth for the wrestler. Both torii-run.html (the game) and
+   sumo-viewer.html (the turntable) load THIS file, so anything you change here
+   shows up in both. Keep all three files in the same folder.
+
+   Classic script, no modules — works over file:// as well as GitHub Pages.
+
+   API
+     SumoModel.VERSION                     -> string
+     SumoModel.build(THREE)                -> { root, ...parts }  (add root to a scene)
+     SumoModel.pose(model, o)              -> { footStruck:bool }
+     SumoModel.collapse(model, c, lean)    -> the fall when stamina runs out
+
+   pose() options, all optional:
+     phase       run cycle, radians, keep advancing it   (default 0)
+     cadence     helper only — you advance phase yourself
+     duck        0..1 crouch                             (0)
+     jumping     bool, airborne                          (false)
+     exhaustion  0 fresh .. 1 spent                      (0)
+     cold        0 warm .. 1 freezing, tints the skin    (0)
+     lean        forward lean in radians                 (0.25)
+     heading     0 = facing camera, PI = facing away     (PI)
+     poseAmt     0..1 blend into the shiko stance        (0)
+     thump       0..1 chest-thump within the stance      (0)
+   ========================================================================== */
+(function (global) {
+  'use strict';
+
+  var VERSION = '1.4.0';
+
+  /* ---- tiny helpers -------------------------------------------------- */
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function mesh(THREE, geo, mat, sx, sy, sz, x, y, z) {
+    var m = new THREE.Mesh(geo, mat);
+    m.scale.set(sx, sy === undefined ? sx : sy, sz === undefined ? sx : sz);
+    m.position.set(x || 0, y || 0, z || 0);
+    return m;
+  }
+
+  /* ---- palette ------------------------------------------------------ *
+   * Taken off photographs of rikishi rather than invented. Real sumo skin
+   * is pale warm beige, not tan, and it is GLOSSY — oiled and sweating
+   * under the lights. The joints that take the punishment (shoulders,
+   * elbows, knees) sit noticeably redder than the belly.
+   * ------------------------------------------------------------------- */
+  var PALETTE = {
+    skinWarm:  0xF0C6A6,   // main tone, foot of the mountain
+    skinCold:  0xE6C0BA,   // blood pulled inward, gone pale at altitude
+    deepWarm:  0xD69C7C,   // creases and shading — jowls, navel, belly fold
+    deepCold:  0xC59D96,
+    ruddyWarm: 0xE3A88A,   // shoulders, elbows, knees
+    ruddyCold: 0xD98D84,   // cold reddens the extremities rather than paling them
+    hair:      0x171310,
+    mawashi:   0xEDE6D2,
+    eye:       0x120E0C,
+    mouth:     0x5A2020,
+    navel:     0x120D0A,
+    // sheen
+    specWarm:  0x8A6752,   // slick with sweat down low
+    specCold:  0x5E5158,   // drier, duller, up high
+    shineWarm: 34,
+    shineCold: 15
+  };
+
+  function makeMaterials(THREE) {
+    // Phong, not Lambert — Lambert has no specular at all, and the sheen off
+    // a rikishi's shoulders is half of what makes the skin read as skin.
+    function skinMat(hex) {
+      return new THREE.MeshPhongMaterial({
+        color: hex,
+        specular: PALETTE.specWarm,
+        shininess: PALETTE.shineWarm,
+        reflectivity: 0.2
+      });
+    }
+    return {
+      skin:      skinMat(PALETTE.skinWarm),
+      skinDeep:  skinMat(PALETTE.deepWarm),
+      skinRuddy: skinMat(PALETTE.ruddyWarm),
+      hair:      new THREE.MeshPhongMaterial({ color: PALETTE.hair, specular: 0x33302C, shininess: 46 }),
+      mawashi:   new THREE.MeshPhongMaterial({ color: PALETTE.mawashi, specular: 0x2A2820, shininess: 12 }),
+      eye:       new THREE.MeshBasicMaterial({ color: PALETTE.eye }),
+      mouth:     new THREE.MeshBasicMaterial({ color: PALETTE.mouth }),
+      navel:     new THREE.MeshPhongMaterial({ color: PALETTE.navel, shininess: 6 })
+    };
+  }
+
+  function makeGeo(THREE) {
+    // he is one character on screen — spend the triangles. Specular
+    // highlights fall apart on coarse spheres.
+    return {
+      box:   new THREE.BoxGeometry(1, 1, 1),
+      sph:   new THREE.SphereGeometry(1, 26, 18),
+      sphLo: new THREE.SphereGeometry(1, 16, 12),
+      cyl:   new THREE.CylinderGeometry(1, 1, 1, 20),
+      // crown only — a full sphere for hair swallows the face
+      cap:   new THREE.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.34),
+      // 4 segments around, 2 down = an octahedron, i.e. a diamond
+      dia:   new THREE.SphereGeometry(1, 4, 2)
+    };
+  }
+
+  /* ====================================================================
+     BUILD
+     ==================================================================== */
+  function build(THREE) {
+    var M = makeMaterials(THREE);
+    var G = makeGeo(THREE);
+    var m = function (geo, mat, sx, sy, sz, x, y, z) {
+      return mesh(THREE, geo, mat, sx, sy, sz, x, y, z);
+    };
+
+    var root = new THREE.Group();
+    var yaw = new THREE.Group(); root.add(yaw);      // 0 faces camera, PI faces away
+    var body = new THREE.Group(); yaw.add(body);
+
+    /* ---- torso ---- */
+    var belly = m(G.sph, M.skin, 1.06, 0.95, 0.94, 0, 1.10, 0);
+    belly.castShadow = true; body.add(belly);
+
+    // the lower roll that hangs over the belt — the defining sumo silhouette
+    var roll = m(G.sph, M.skin, 1.02, 0.44, 0.9, 0, 0.86, 0.03);
+    roll.castShadow = true; body.add(roll);
+    body.add(m(G.sph, M.skinDeep, 1.0, 0.13, 0.86, 0, 0.98, 0.06));   // the fold's shadow
+
+    var chest = m(G.sph, M.skin, 0.88, 0.68, 0.78, 0, 1.88, 0);
+    chest.castShadow = true; body.add(chest);
+
+    // pectorals — same tone as the rest of him
+    [-1, 1].forEach(function (s) {
+      body.add(m(G.sphLo, M.skin, 0.38, 0.30, 0.23, s * 0.37, 1.80, 0.61));
+    });
+    body.add(m(G.sphLo, M.skinDeep, 0.04, 0.18, 0.06, 0, 1.79, 0.65));   // sternum groove
+
+    /* ---- abdominals ----------------------------------------------------
+       There is real slab muscle under the fat on a rikishi. Three rows of
+       shallow pads proud of the belly so they catch the specular, with
+       darker grooves between them for the midline and the tendinous bands.
+       They live in their own group so they can ride the belly's jiggle.
+       ------------------------------------------------------------------ */
+    var abs = new THREE.Group(); body.add(abs);
+    var ROWS = [
+      { y: 1.66, z: 0.720, w: 0.205 },
+      { y: 1.46, z: 0.830, w: 0.215 },
+      { y: 1.26, z: 0.880, w: 0.215 }
+    ];
+    ROWS.forEach(function (r) {
+      [-1, 1].forEach(function (sx) {
+        var pad = m(G.sphLo, M.skin, 0.20, 0.12, 0.11, sx * r.w, r.y, r.z);
+        pad.castShadow = true; abs.add(pad);
+      });
+      abs.add(m(G.sphLo, M.skinDeep, 0.045, 0.125, 0.10, 0, r.y, r.z));   // midline
+    });
+    // the horizontal bands between the rows
+    abs.add(m(G.sphLo, M.skinDeep, 0.44, 0.03, 0.09, 0, 1.565, 0.785));
+    abs.add(m(G.sphLo, M.skinDeep, 0.46, 0.03, 0.09, 0, 1.365, 0.865));
+    // obliques flanking the lowest row
+    [-1, 1].forEach(function (sx) {
+      abs.add(m(G.sphLo, M.skin, 0.15, 0.20, 0.10, sx * 0.52, 1.34, 0.760));
+    });
+
+    // navel — a wide diamond, sunk dark into the belly
+    var navel = m(G.dia, M.navel, 0.26, 0.14, 0.085, 0, 1.06, 0.878);
+    body.add(navel);
+
+    /* ---- head ---- */
+    var head = new THREE.Group(); head.position.set(0, 2.30, 0.02); body.add(head);
+    body.add(m(G.cyl, M.skin, 0.38, 0.2, 0.36, 0, 2.14, -0.02));        // neck — thick and short
+    body.add(m(G.sphLo, M.skin, 0.5, 0.22, 0.42, 0, 2.06, -0.04));      // traps
+
+    var skull = m(G.sph, M.skin, 0.47, 0.46, 0.45, 0, 0.14, 0);
+    skull.castShadow = true; head.add(skull);
+    [-1, 1].forEach(function (s) {                                       // jowls
+      head.add(m(G.sphLo, M.skinDeep, 0.17, 0.17, 0.15, s * 0.36, 0.0, 0.17));
+    });
+
+    /* hair — a THIN layer lying on the crown. It hugs the skull by about
+       0.02, and the hairline stops at y 0.37 with the brows down at 0.26,
+       so the whole face is left clear. */
+    head.add(m(G.cap, M.hair, 0.485, 0.465, 0.475, 0, 0.145, -0.015));
+    head.add(m(G.sphLo, M.hair, 0.40, 0.32, 0.26, 0, 0.16, -0.24));      // nape
+    // the mage: queue folded forward over the crown, fanned at the front
+    var knot = m(G.cyl, M.hair, 0.075, 0.36, 0.075, 0, 0.54, -0.10);
+    knot.rotation.x = -1.22; head.add(knot);
+    head.add(m(G.sphLo, M.hair, 0.10, 0.09, 0.10, 0, 0.50, -0.26));      // the base of it
+    var fan = m(G.box, M.hair, 0.23, 0.055, 0.17, 0, 0.585, 0.10);       // ichō leaf
+    fan.rotation.x = 0.22; head.add(fan);
+    head.add(m(G.sphLo, M.hair, 0.115, 0.04, 0.09, 0, 0.60, 0.17));
+
+    // face
+    var eyeL = m(G.sphLo, M.eye, 0.065, 0.08, 0.045, -0.17, 0.15, 0.425);
+    var eyeR = m(G.sphLo, M.eye, 0.065, 0.08, 0.045, 0.17, 0.15, 0.425);
+    head.add(eyeL); head.add(eyeR);
+    [-1, 1].forEach(function (s) {                                       // grimacing brows
+      var b = m(G.box, M.hair, 0.18, 0.042, 0.045, s * 0.18, 0.265, 0.425);
+      b.rotation.z = s * 0.34; head.add(b);
+    });
+    var mouth = m(G.sphLo, M.mouth, 0.15, 0.09, 0.065, 0, -0.07, 0.425);
+    head.add(mouth);
+    head.add(m(G.sphLo, M.skinDeep, 0.065, 0.055, 0.055, 0, 0.03, 0.465));   // nose
+
+    /* ---- mawashi ---- */
+    var belt = m(G.cyl, M.mawashi, 0.98, 0.42, 0.86, 0, 0.72, 0);
+    belt.castShadow = true; body.add(belt);
+    body.add(m(G.box, M.mawashi, 0.5, 0.66, 0.12, 0, 0.44, 0.78));       // front flap
+    for (var i = -2; i <= 2; i++) {                                      // sagari fringe
+      body.add(m(G.box, M.mawashi, 0.06, 0.5, 0.05, i * 0.14, 0.34, 0.84));
+    }
+
+    /* ---- arms ---- */
+    var arms = [];
+    [-1, 1].forEach(function (s) {
+      var pivot = new THREE.Group();
+      pivot.position.set(s * 0.86, 1.92, 0);
+      var upper = m(G.cyl, M.skin, 0.21, 0.42, 0.21, 0, -0.36, 0);
+      upper.castShadow = true; pivot.add(upper);
+      var fore = new THREE.Group(); fore.position.set(0, -0.72, 0);
+      var f = m(G.cyl, M.skin, 0.18, 0.34, 0.18, 0, -0.3, 0);
+      f.castShadow = true; fore.add(f);
+      fore.add(m(G.sphLo, M.skin, 0.2, 0.18, 0.16, 0, -0.66, 0));        // fist
+      fore.add(m(G.sphLo, M.skinRuddy, 0.2, 0.16, 0.2, 0, 0.02, 0));     // elbow
+      pivot.add(fore);
+      pivot.add(m(G.sphLo, M.skinRuddy, 0.25, 0.25, 0.25, 0, -0.02, 0)); // shoulder
+      body.add(pivot);
+      arms.push({ pivot: pivot, fore: fore, side: s });
+    });
+
+    /* ---- legs ---- */
+    var legs = [], feet = [];
+    [-1, 1].forEach(function (s) {
+      var hip = new THREE.Group();
+      hip.position.set(s * 0.42, 0.72, 0);
+      var thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.34, 0.72, 20), M.skin);
+      thigh.position.set(0, -0.3, 0);
+      thigh.castShadow = true; hip.add(thigh);
+      var knee = new THREE.Group(); knee.position.set(0, -0.62, 0);
+      knee.add(m(G.sphLo, M.skinRuddy, 0.27, 0.22, 0.26, 0, 0.02, 0.02)); // kneecap
+      var shin = m(G.cyl, M.skin, 0.24, 0.32, 0.24, 0, -0.28, 0);
+      shin.castShadow = true; knee.add(shin);
+      var foot = m(G.box, M.skin, 0.3, 0.14, 0.5, 0, -0.58, 0.1);
+      foot.castShadow = true; knee.add(foot);
+      hip.add(knee);
+      body.add(hip);
+      legs.push({ hip: hip, knee: knee, foot: foot, side: s });
+      feet.push(foot);
+    });
+
+    var model = {
+      root: root, yaw: yaw, body: body, head: head, belly: belly, roll: roll,
+      chest: chest, abs: abs, navel: navel, feet: feet, _THREE: THREE,
+      mouth: mouth, belt: belt, eyeL: eyeL, eyeR: eyeR,
+      arms: arms, legs: legs, mats: M, geo: G
+    };
+    root.userData = model;
+
+    /* The rig is authored from the hips, so his soles sit below the group
+       origin — drop him in raw and he floats. Measure the rest pose once
+       and keep the offset that puts the planted sole on the floor. */
+    model.restOffset = 0;
+    pose(model, { phase: 0, lean: 0.25 });
+    root.position.set(0, 0, 0);
+    root.updateMatrixWorld(true);
+    var v = new THREE.Vector3(), low = Infinity;
+    feet.forEach(function (f) { f.getWorldPosition(v); if (v.y < low) low = v.y; });
+    model.restOffset = -(low - 0.085);          // 0.085 = half the sole's thickness
+
+    return model;
+  }
+
+  /* Exact version — puts the lowest sole on floorY this frame. The viewer
+     uses it; the game uses restOffset so the run keeps its bounce. */
+  function plant(model, floorY) {
+    var T = model._THREE, v = new T.Vector3(), low = Infinity;
+    model.root.position.y = floorY;
+    model.root.updateMatrixWorld(true);
+    model.feet.forEach(function (f) { f.getWorldPosition(v); if (v.y < low) low = v.y; });
+    model.root.position.y = floorY + (floorY - (low - 0.085));
+    return model.root.position.y;
+  }
+
+  /* ====================================================================
+     POSE — call once per frame
+     ==================================================================== */
+  var DUCK_LEAN = 1.45;      // radians of backward lean at full duck
+  var WAIST_PIVOT = 0.5;     // 0 = topple from the ankles, 1 = bend only at the waist
+  var HIP_Y = 0.72;
+
+  function pose(model, o) {
+    o = o || {};
+    var ph        = o.phase || 0;
+    var duck      = o.duck || 0;
+    var jumping   = !!o.jumping;
+    var spent     = o.exhaustion || 0;
+    var cold      = o.cold || 0;
+    var lean      = o.lean === undefined ? 0.25 : o.lean;
+    var heading   = o.heading === undefined ? Math.PI : o.heading;
+    var P         = o.poseAmt || 0;
+    var thump     = o.thump || 0;
+
+    model.yaw.rotation.y = heading;
+
+    /* torso — ducking is a limbo, not a squat: he drops his head back
+       and slides under the rope rather than crouching beneath it */
+    var back = duck * DUCK_LEAN;
+    model.body.rotation.x = lean - back;
+    model.body.rotation.z = Math.sin(ph) * 0.055 * (1 - duck * 0.7);
+    // Pivot part of that lean at the waist instead of at his feet. Rotating
+    // the whole body about the floor throws his head two metres backwards;
+    // rotating it all about the waist barely lowers his head at all. Split it.
+    model.body.position.y = (jumping ? 0.05 : Math.abs(Math.sin(ph)) * 0.11)
+                          - duck * 0.06 + WAIST_PIVOT * HIP_Y * (1 - Math.cos(back));
+    model.body.position.z = WAIST_PIVOT * HIP_Y * Math.sin(back);
+    model.body.scale.y = 1;
+    model.body.scale.x = 1 + duck * 0.05;
+
+    /* belly jiggle */
+    var jig = Math.sin(ph * 2) * 0.045 + (jumping ? -0.03 : 0);
+    model.belly.scale.set(1.06 + jig, 0.95 - jig * 0.6, 0.94 + jig * 0.5);
+    // the roll lags the belly by half a beat — that's what sells the weight
+    var lag = Math.sin(ph * 2 - 1.1) * 0.05 + (jumping ? -0.04 : 0);
+    model.roll.scale.set(1.02 + lag, 0.44 - lag * 0.5, 0.9 + lag * 0.6);
+    model.chest.scale.set(0.88, 0.68 + Math.sin(ph * 2 + 1) * 0.03, 0.78);
+    // the ab plate rides the belly so the pads never sink into it
+    if (model.abs) model.abs.scale.set(1 + jig * 0.9, 1 - jig * 0.5, 1 + jig * 0.55);
+
+    /* head bob and gasping */
+    // let the head go back with him, but only halfway, so the face still reads
+    model.head.rotation.x = -lean * 0.75 + Math.sin(ph * 2) * 0.05 + back * 0.5;
+    model.head.rotation.z = Math.sin(ph) * 0.05 * (1 - duck);
+    var gasp = 0.09 + Math.abs(Math.sin(ph * 0.9)) * 0.1 * (0.5 + spent);
+    model.mouth.scale.set(0.14, gasp, 0.06);
+
+    /* skin cools off as he climbs */
+    setCold(model, cold);
+
+    /* arms — heavy, low swing */
+    model.arms.forEach(function (a) {
+      var s = a.side, off = s > 0 ? Math.PI : 0;
+      // arms swing wide for balance as he goes back
+      a.pivot.rotation.x = Math.sin(ph + off) * 0.62 * (1 - duck * 0.7) - 0.25 + back * 0.75;
+      a.pivot.rotation.z = s * (0.34 + Math.sin(ph * 2) * 0.05 + duck * 0.62);
+      a.fore.rotation.x = (-0.7 - Math.max(0, Math.sin(ph + off)) * 0.5) * (1 - duck * 0.55);
+    });
+
+    /* legs — waddling stomp */
+    var footStruck = false;
+    model.legs.forEach(function (a) {
+      var s = a.side, p = ph + (s > 0 ? Math.PI : 0);
+      // counter the torso's lean so the thighs stay under him and the
+      // feet keep the floor — otherwise leaning back lifts him off it
+      a.hip.rotation.x = Math.sin(p) * 0.78 * (1 - duck * 0.75) - 0.12 + back * 0.92 + duck * 0.12;
+      a.hip.rotation.z = s * (0.16 + duck * 0.24);
+      a.knee.rotation.x = Math.max(0, -Math.sin(p - 0.7)) * 1.15 * (1 - duck * 0.7) + duck * 0.5;
+      if (!jumping && !duck && Math.sin(p) < -0.95) footStruck = true;
+    });
+
+    /* shiko stance — feet planted wide, glaring down the lens, chest thump */
+    if (P > 0.001) {
+      model.legs.forEach(function (a) {
+        a.hip.rotation.x  = lerp(a.hip.rotation.x, 0.10, P);
+        a.hip.rotation.z  = lerp(a.hip.rotation.z, a.side * 0.66, P);
+        a.knee.rotation.x = lerp(a.knee.rotation.x, 0.66, P);
+      });
+      model.arms.forEach(function (a) {
+        a.pivot.rotation.x = lerp(a.pivot.rotation.x, -0.10 - thump * 0.55, P);
+        a.pivot.rotation.z = lerp(a.pivot.rotation.z, a.side * (1.02 - thump * 0.42), P);
+        a.fore.rotation.x  = lerp(a.fore.rotation.x, -0.5 - thump * 0.85, P);
+      });
+      model.body.rotation.x = lerp(model.body.rotation.x, 0.03 + thump * 0.14, P);
+      model.body.rotation.z = lerp(model.body.rotation.z, 0, P);
+      model.body.position.y = lerp(model.body.position.y, -0.30 + thump * 0.06, P);
+      model.head.rotation.x = lerp(model.head.rotation.x, 0.04, P);
+      model.head.rotation.z = lerp(model.head.rotation.z, 0, P);
+      model.mouth.scale.set(0.14, 0.10 + thump * 0.12, 0.06);
+      footStruck = false;
+    }
+
+    return { footStruck: footStruck };
+  }
+
+  /* tint the skin for altitude — warm at the foot, drained at the summit */
+  function setCold(model, cold) {
+    var M = model.mats;
+    M.skin.color.set(mixHex(PALETTE.skinWarm, PALETTE.skinCold, cold * 0.75));
+    M.skinDeep.color.set(mixHex(PALETTE.deepWarm, PALETTE.deepCold, cold));
+    M.skinRuddy.color.set(mixHex(PALETTE.ruddyWarm, PALETTE.ruddyCold, cold));
+    // sweat-slick low down, dry and dull at the summit
+    var spec = mixHex(PALETTE.specWarm, PALETTE.specCold, cold);
+    var shine = PALETTE.shineWarm + (PALETTE.shineCold - PALETTE.shineWarm) * cold;
+    [M.skin, M.skinDeep, M.skinRuddy].forEach(function (mat) {
+      if (mat.specular) mat.specular.set(spec);
+      mat.shininess = shine;
+    });
+  }
+  function mixHex(a, b, t) {
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    var ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+    var br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+    return ((ar + (br - ar) * t) | 0) << 16 |
+           ((ag + (bg - ag) * t) | 0) << 8 |
+           ((ab + (bb - ab) * t) | 0);
+  }
+
+  /* ====================================================================
+     COLLAPSE — c goes 0 -> 1 as he goes down, face first, uphill
+     ==================================================================== */
+  function collapse(model, c, lean) {
+    model.body.rotation.x = lerp(lean === undefined ? 0.25 : lean, 0.2, c);
+    model.arms.forEach(function (a) {
+      a.pivot.rotation.x = lerp(a.pivot.rotation.x, -0.9, c * 0.2);
+    });
+  }
+
+  global.SumoModel = {
+    VERSION: VERSION,
+    PALETTE: PALETTE,
+    build: build,
+    plant: plant,
+    pose: pose,
+    collapse: collapse,
+    setCold: setCold
+  };
+
+})(typeof window !== 'undefined' ? window : this);
+/* ===== END SUMO MODEL ===== */
+</script>
 <script>
 (function(){
 'use strict';
@@ -367,7 +887,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.06;
+renderer.toneMappingExposure = 0.94;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
@@ -384,10 +904,10 @@ if(MOBILE) renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.6));
 const SHADOW_SIZE = MOBILE?1024:2048;
 
 /* ---------- Lights ---------- */
-const hemi = new THREE.HemisphereLight(0xBFE0FF, 0x3A4A2E, 0.85);
+const hemi = new THREE.HemisphereLight(0xBFE0FF, 0x3A4A2E, 0.58);
 scene.add(hemi);
 
-const sun = new THREE.DirectionalLight(0xFFF0CE, 2.0);
+const sun = new THREE.DirectionalLight(0xFFF0CE, 1.45);
 sun.position.set(-16,26,-8);
 sun.castShadow = true;
 sun.shadow.mapSize.set(SHADOW_SIZE,SHADOW_SIZE);
@@ -399,7 +919,7 @@ sun.shadow.bias = -0.0009;
 sun.shadow.normalBias = 0.02;
 scene.add(sun); scene.add(sun.target);
 
-const rim = new THREE.DirectionalLight(0xFFFFFF,0.3);
+const rim = new THREE.DirectionalLight(0xFFFFFF,0.2);
 rim.position.set(10,8,14);
 scene.add(rim);
 
@@ -537,12 +1057,6 @@ const M = {
   rope:   new THREE.MeshLambertMaterial({color:0xD9CDA8}),
   gold:   new THREE.MeshLambertMaterial({color:0xC79B3E, emissive:0x3A2A08}),
   lampGlow:new THREE.MeshBasicMaterial({color:0xFFD98A, transparent:true, opacity:0.9}),
-  skinM:  new THREE.MeshLambertMaterial({color:0xE7B285}),
-  skinFlush: new THREE.MeshLambertMaterial({color:0xE09A6E}),
-  belt:   new THREE.MeshLambertMaterial({color:0xEDE6D2}),
-  hair:   new THREE.MeshLambertMaterial({color:0x171310}),
-  eye:    new THREE.MeshBasicMaterial({color:0x120E0C}),
-  mouth:  new THREE.MeshBasicMaterial({color:0x5A2020}),
   fur:    new THREE.MeshLambertMaterial({color:0x6B4A30}),
   furDark:new THREE.MeshLambertMaterial({color:0x3A2A1D}),
   onigiri:new THREE.MeshLambertMaterial({color:0xFAF6EC}),
@@ -708,17 +1222,17 @@ function buildShimenawa(){
   const g=new THREE.Group();
   const SPAN=ROAD_HALF*2+2.6;
   [-1,1].forEach(s=>{
-    const post=mesh(G.cyl,M.wood, 0.2,3.0,0.2, s*(ROAD_HALF+1.2),1.5,0);
+    const post=mesh(G.cyl,M.wood, 0.2,3.5,0.2, s*(ROAD_HALF+1.2),1.75,0);
     post.castShadow=true; g.add(post);
     g.add(mesh(G.cyl,M.stone,0.34,0.3,0.34, s*(ROAD_HALF+1.2),0.15,0));
   });
-  const r=mesh(G.cyl,M.rope, 0.3,SPAN,0.3, 0,2.42,0);
+  const r=mesh(G.cyl,M.rope, 0.3,SPAN,0.3, 0,2.92,0);
   r.rotation.z=Math.PI/2; r.castShadow=true; g.add(r);
   // fatter middle, the way a real shimenawa bellies out
-  g.add(mesh(G.sphLo,M.rope, 1.5,0.36,0.34, 0,2.36,0));
+  g.add(mesh(G.sphLo,M.rope, 1.5,0.36,0.34, 0,2.86,0));
   for(let i=-4;i<=4;i++){
-    g.add(mesh(G.box,M.paper, 0.28,0.66,0.02, i*0.85,2.06,0.03));
-    g.add(mesh(G.box,M.paper, 0.28,0.32,0.02, i*0.85+0.09,1.74,0.03));
+    g.add(mesh(G.box,M.paper, 0.28,0.66,0.02, i*0.85,2.56,0.03));
+    g.add(mesh(G.box,M.paper, 0.28,0.32,0.02, i*0.85+0.09,2.24,0.03));
   }
   return g;
 }
@@ -729,28 +1243,28 @@ function buildBranch(){
   const rootX = side*(ROAD_HALF+2.5);
   const tipX  = -side*(ROAD_HALF+1.6);
   // the tree it grows from
-  const trunk=mesh(G.cyl,new THREE.MeshLambertMaterial({color:0x4A3626}), 0.62,5.2,0.62, rootX,2.6,-0.4);
+  const trunk=mesh(G.cyl,new THREE.MeshLambertMaterial({color:0x4A3626}), 0.62,6.0,0.62, rootX,3.0,-0.4);
   trunk.castShadow=true; g.add(trunk);
   for(let i=0;i<3;i++){
     const sc=rand(1.6,2.4);
-    const c=mesh(G.sphLo,M.leaf, sc,sc*0.75,sc, rootX+rand(-1,1)*side,rand(5.0,6.4),rand(-1.6,0.4));
+    const c=mesh(G.sphLo,M.leaf, sc,sc*0.75,sc, rootX+rand(-1,1)*side,rand(5.6,7.0),rand(-1.6,0.4));
     c.castShadow=true; c.userData.cap=(i<1); g.add(c);
   }
   // the limb itself, drooping across the path
   const len=Math.abs(rootX-tipX);
-  const limb=mesh(G.cyl,M.trunk, 0.24,len,0.24, (rootX+tipX)/2, 2.56, 0);
+  const limb=mesh(G.cyl,M.trunk, 0.24,len,0.24, (rootX+tipX)/2, 3.05, 0);
   limb.rotation.z = Math.PI/2 + side*0.05;
   limb.castShadow=true; g.add(limb);
   // a fork off it
-  const fork=mesh(G.cyl,M.trunk, 0.14,len*0.4,0.14, (rootX+tipX)/2 - side*1.2, 2.86, 0.5);
+  const fork=mesh(G.cyl,M.trunk, 0.14,len*0.4,0.14, (rootX+tipX)/2 - side*1.2, 3.35, 0.5);
   fork.rotation.z=Math.PI/2 - side*0.25; g.add(fork);
   // foliage hanging along the limb
   for(let i=0;i<8;i++){
     const t=i/7, x=lerp(rootX,tipX,t), sc=rand(0.5,0.95);
-    const b=mesh(G.sphLo,M.leaf, sc,sc*0.68,sc, x+rand(-.4,.4), 2.78+rand(-.1,.35), rand(-.5,.5));
+    const b=mesh(G.sphLo,M.leaf, sc,sc*0.68,sc, x+rand(-.4,.4), 3.27+rand(-.1,.35), rand(-.5,.5));
     b.castShadow=true; b.userData.cap=(Math.random()<0.5); g.add(b);
     if(Math.random()<0.45)
-      g.add(mesh(G.cyl,M.trunk, 0.05,rand(.3,.7),0.05, x+rand(-.3,.3),2.35,rand(-.3,.3)));
+      g.add(mesh(G.cyl,M.trunk, 0.05,rand(.3,.7),0.05, x+rand(-.3,.3),2.86,rand(-.3,.3)));
   }
   return g;
 }
@@ -778,6 +1292,31 @@ function buildSushi(){
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:0xFFE9B0,transparent:true,
     opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));
   halo.scale.set(1.5,1.5,1); g.add(halo);
+  return g;
+}
+
+/* ---------- Chanko-nabe: the pot that makes him bigger ---------- */
+function buildChanko(){
+  const g=new THREE.Group();
+  const ironM=new THREE.MeshLambertMaterial({color:0x2E2A28});
+  const pot=mesh(G.sph,ironM, 0.42,0.34,0.42, 0,0,0);
+  pot.castShadow=true; g.add(pot);
+  g.add(mesh(G.cyl,ironM, 0.44,0.07,0.44, 0,0.24,0));            // rim
+  const stew=mesh(G.cyl,new THREE.MeshLambertMaterial({color:0xD9A05B, emissive:0x3A2408}),
+    0.37,0.05,0.37, 0,0.26,0);
+  g.add(stew);
+  // things bobbing in it
+  [[0.12,0.10,0xE8E2D2],[-0.14,0.06,0xC44A2E],[0.02,-0.13,0x7FA34E]].forEach(c=>{
+    g.add(mesh(G.sphLo,new THREE.MeshLambertMaterial({color:c[2]}), 0.08,0.06,0.08, c[0],0.29,c[1]));
+  });
+  [-1,1].forEach(sd=>{                                            // handles
+    const h=mesh(G.tor,ironM, 0.1,0.1,0.1, sd*0.44,0.13,0);
+    h.rotation.y=Math.PI/2; g.add(h);
+  });
+  const steam=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:0xFFE7C0,
+    transparent:true,opacity:0.55,depthWrite:false,blending:THREE.AdditiveBlending}));
+  steam.scale.set(1.5,1.5,1); steam.position.y=0.55; g.add(steam);
+  g.userData.steam=steam;
   return g;
 }
 
@@ -894,97 +1433,96 @@ function buildCrane(){
 }
 
 /* ============================================================
-   THE SUMO
+   THE SUMO — lives in sumo.js, shared with sumo-viewer.html
    ============================================================ */
-function buildSumo(){
-  const root=new THREE.Group();
-  const yaw=new THREE.Group(); root.add(yaw);      // heading: 0 = facing camera, PI = facing uphill
-  const body=new THREE.Group(); yaw.add(body);
-
-  // belly
-  const belly=mesh(G.sph,M.skinM, 1.02,0.92,0.9, 0,1.12,0);
-  belly.castShadow=true; body.add(belly);
-  // chest / upper mass
-  const chest=mesh(G.sph,M.skinM, 0.86,0.66,0.76, 0,1.86,0);
-  chest.castShadow=true; body.add(chest);
-  // pecs
-  [-1,1].forEach(s=>body.add(mesh(G.sphLo,M.skinFlush,0.34,0.26,0.2, s*0.36,1.78,0.62)));
-  // navel shadow
-  body.add(mesh(G.sphLo,M.skinFlush,0.1,0.14,0.05, 0,1.02,0.88));
-
-  // neck + head
-  const head=new THREE.Group(); head.position.set(0,2.32,0.02); body.add(head);
-  body.add(mesh(G.cyl,M.skinM,0.32,0.22,0.32, 0,2.16,0));
-  const skull=mesh(G.sph,M.skinM,0.44,0.44,0.42, 0,0.14,0);
-  skull.castShadow=true; head.add(skull);
-  // jowls
-  [-1,1].forEach(s=>head.add(mesh(G.sphLo,M.skinFlush,0.16,0.16,0.14, s*0.34,0.0,0.16)));
-  // hair + chonmage topknot
-  const hair=mesh(G.sph,M.hair, 0.455,0.4,0.44, 0,0.2,-0.02);
-  head.add(hair);
-  head.add(mesh(G.box,M.hair, 0.5,0.1,0.5, 0,0.42,-0.05));
-  const knot=mesh(G.cyl,M.hair, 0.09,0.3,0.09, 0,0.56,-0.16);
-  knot.rotation.x=-0.6; head.add(knot);
-  head.add(mesh(G.sphLo,M.hair, 0.12,0.1,0.12, 0,0.66,-0.28));
-  // face
-  const eyeL=mesh(G.sphLo,M.eye, 0.06,0.075,0.04, -0.16,0.15,0.4);
-  const eyeR=mesh(G.sphLo,M.eye, 0.06,0.075,0.04,  0.16,0.15,0.4);
-  head.add(eyeL); head.add(eyeR);
-  // brows — set in a grimace
-  [-1,1].forEach(s=>{
-    const b=mesh(G.box,M.hair, 0.17,0.04,0.04, s*0.17,0.26,0.4);
-    b.rotation.z=s*0.34; head.add(b);
-  });
-  const mouth=mesh(G.sphLo,M.mouth, 0.14,0.09,0.06, 0,-0.06,0.4);
-  head.add(mouth);
-  head.add(mesh(G.sphLo,M.skinFlush,0.06,0.05,0.05, 0,0.04,0.44));
-
-  // mawashi
-  const belt=mesh(G.cyl,M.belt, 0.98,0.42,0.86, 0,0.72,0);
-  belt.castShadow=true; body.add(belt);
-  const flap=mesh(G.box,M.belt, 0.5,0.66,0.12, 0,0.44,0.78); body.add(flap);
-  // sagari fringe
-  for(let i=-2;i<=2;i++){
-    body.add(mesh(G.box,M.belt, 0.06,0.5,0.05, i*0.14,0.34,0.84));
-  }
-
-  // arms
-  const arms=[];
-  [-1,1].forEach(s=>{
-    const pivot=new THREE.Group();
-    pivot.position.set(s*0.86,1.92,0);
-    const upper=mesh(G.cyl,M.skinM, 0.21,0.42,0.21, 0,-0.36,0);
-    upper.castShadow=true; pivot.add(upper);
-    const fore=new THREE.Group(); fore.position.set(0,-0.72,0);
-    const f=mesh(G.cyl,M.skinM,0.18,0.34,0.18, 0,-0.3,0); f.castShadow=true; fore.add(f);
-    fore.add(mesh(G.sphLo,M.skinM,0.2,0.18,0.16, 0,-0.66,0));
-    pivot.add(fore);
-    pivot.add(mesh(G.sphLo,M.skinM,0.24,0.24,0.24, 0,-0.02,0)); // shoulder
-    body.add(pivot);
-    arms.push({pivot,fore,side:s});
-  });
-
-  // legs
-  const legs=[];
-  [-1,1].forEach(s=>{
-    const hip=new THREE.Group();
-    hip.position.set(s*0.42,0.72,0);
-    const thigh=mesh(G.cyl,M.skinM, 0.3,0.35,0.3, 0,-0.3,0);
-    thigh.castShadow=true; hip.add(thigh);
-    const knee=new THREE.Group(); knee.position.set(0,-0.62,0);
-    const shin=mesh(G.cyl,M.skinM,0.24,0.32,0.24, 0,-0.28,0); shin.castShadow=true; knee.add(shin);
-    const foot=mesh(G.box,M.skinFlush,0.3,0.14,0.5, 0,-0.58,0.1); foot.castShadow=true; knee.add(foot);
-    hip.add(knee);
-    body.add(hip);
-    legs.push({hip,knee,side:s});
-  });
-
-  root.userData={yaw,body,head,belly,chest,arms,legs,mouth,belt,hair,eyeL,eyeR};
-  return root;
+if(!window.SumoModel){
+  document.getElementById('loading').textContent='sumo.js not found';
+  throw new Error('sumo.js must sit next to torii-run.html');
 }
 
-const player = buildSumo();
+const sumo   = SumoModel.build(THREE);
+const player = sumo.root;
 scene.add(player);
+
+/* ============================================================
+   THE RIVAL — someone to actually race, and shove
+   ============================================================ */
+const rival = SumoModel.build(THREE);
+rival.mats.mawashi.color.set(0x2B2F52);        // dark blue belt, so you can tell you apart
+rival.mats.skin.color.set(0xE0B296);
+rival.root.visible=false;
+scene.add(rival.root);
+const R = { z:-30, lane:1, laneX:0, phase:0, pace:1, nextLane:0, stagger:0, out:0 };
+function resetRival(){
+  R.z=-30; R.lane=1; R.laneX=LANES[1]; R.pace=1; R.nextLane=1.6; R.stagger=0; R.out=0;
+  rival.root.visible=true;
+}
+
+function updateRival(dt, running){
+  const st=stageData();
+  if(S.mode==='title'){ rival.root.visible=false; return; }
+  const prog = clamp(S.dist/st.dist,0,1);
+
+  if(running && S.intro<=0 && !S.faltering){
+    // he paces himself — sometimes he pulls away, sometimes he blows up
+    // he eases when he's well clear and digs in when you pass him,
+    // so the two of you stay in each other's peripheral vision
+    const band = R.z < -32 ? -0.05 : R.z > 6 ? 0.075 : 0;
+    R.pace = 1.0 + band + Math.sin(ambientT*0.31 + S.stage)*0.045;
+    const rSpeed = (st.speed + st.speedGain*prog) * R.pace;
+    R.z += (S.speed - rSpeed)*dt;
+  } else if(running && S.faltering){
+    R.z -= 9*dt;                       // he leaves you behind while you scrabble
+  }
+  R.z = clamp(R.z, -110, 30);
+
+  R.nextLane -= dt;
+  if(R.nextLane<=0 && R.out<=0){
+    R.nextLane = rand(1.3,3.0);
+    R.lane = clamp(R.lane + pick([-1,1]), 0, 2);
+  }
+  if(R.out>0) R.out -= dt;
+  R.laneX = lerp(R.laneX, LANES[R.lane], 1-Math.pow(0.006,dt));
+  R.phase += (running?11:5)*dt;
+
+  const vis = R.z > -95 && R.z < 26;
+  rival.root.visible = vis;
+  if(!vis) return;
+
+  SumoModel.pose(rival, {
+    phase: R.phase, duck: 0, jumping: false,
+    exhaustion: clamp(prog*0.7,0,1), cold: st.cold,
+    lean: 0.24 + st.slope*1.5, heading: Math.PI, poseAmt: 0
+  });
+  rival.root.position.x = R.laneX;
+  rival.root.position.z = R.z;
+  rival.root.position.y = bendY(R.z) + rival.restOffset;
+  rival.root.rotation.x = tiltAt(R.z)*0.5 + (R.out>0 ? Math.sin(R.out*9)*0.12 : 0);
+  rival.root.rotation.z = R.out>0 ? Math.sin(R.out*11)*0.2 : 0;
+
+  /* ---- shoulder to shoulder: the shove ---- */
+  if(running && S.intro<=0 && R.out<=0 && S.invuln<=0 &&
+     Math.abs(R.z) < 1.8 && Math.abs(R.laneX - S.laneX) < 1.55){
+    const mine = S.weight + S.mom*0.5;
+    const his  = 0.54 + S.stage*0.055;
+    R.out = 1.0;
+    if(mine > his){
+      const push = S.laneX < R.laneX ? 1 : -1;
+      R.lane = clamp(R.lane + push, 0, 2);
+      if(R.lane===S.lane) R.lane = clamp(R.lane + push, 0, 2);
+      S.mom = Math.max(0, S.mom - 0.16);
+      S.score += 200*S.mult; S.shoves++;
+      S.shake = 0.85; burst(R.laneX, 1.5, R.z, 0xEDE6D2, 7);
+      toast('突 っ 張 り');
+    } else {
+      const push = R.laneX < S.laneX ? 1 : -1;
+      S.lane = clamp(S.lane + push, 0, 2);
+      S.laneCool = 0.25;
+      drain(13,'押 し 返 さ れ た'); S.invuln=0.9;
+      S.shake = 0.95;
+    }
+  }
+}
 
 /* shadow blob so he never looks unplanted */
 const blob = new THREE.Mesh(new THREE.PlaneGeometry(2.6,2.0),
@@ -1080,6 +1618,7 @@ const ropePool    = Pool(buildShimenawa, 6);
 const branchPool  = Pool(buildBranch, 6);
 const onigiriPool = Pool(buildOnigiri, 8);
 const sushiPool   = Pool(buildSushi, 64);
+const chankoPool  = Pool(buildChanko, 6);
 const chasmPool   = Pool(buildChasm, 4);
 const cranePool   = Pool(buildCrane, 4);
 const animalPools = {
@@ -1087,8 +1626,34 @@ const animalPools = {
   boar:Pool(ANIMALS.boar,3), fox:Pool(ANIMALS.fox,3), monkey:Pool(ANIMALS.monkey,3)
 };
 
+/* ---------- smash debris ---------- */
+const DEBRIS_N = MOBILE?26:40;
+const debris=[];
+for(let i=0;i<DEBRIS_N;i++){
+  const d=mesh(G.box,new THREE.MeshLambertMaterial({color:0x8A8378}), 0.3,0.3,0.3, 0,-99,0);
+  d.castShadow=true; d.visible=false; scene.add(d);
+  debris.push({m:d,vx:0,vy:0,vz:0,rx:0,ry:0,life:0});
+}
+let debrisIdx=0;
+function burst(x,y,z,colour,n){
+  for(let i=0;i<(n||9);i++){
+    const d=debris[debrisIdx=(debrisIdx+1)%DEBRIS_N];
+    d.m.visible=true; d.m.material.color.set(colour||0x8A8378);
+    d.m.position.set(x+rand(-.5,.5), y+rand(0,1.0), z+rand(-.5,.5));
+    const sc=rand(0.16,0.42); d.m.scale.set(sc,sc*rand(.6,1.2),sc);
+    d.vx=rand(-7,7); d.vy=rand(3,10); d.vz=rand(-2,9);
+    d.rx=rand(-9,9); d.ry=rand(-9,9); d.life=rand(0.7,1.3);
+  }
+}
+
+/* ---------- shiko shockwave ---------- */
+const shock=new THREE.Mesh(new THREE.TorusGeometry(1,0.08,6,40),
+  new THREE.MeshBasicMaterial({color:0xFFE6A8,transparent:true,opacity:0,
+    depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
+shock.rotation.x=-Math.PI/2; shock.visible=false; scene.add(shock);
+
 /* live entity lists */
-let gates=[], props=[], obstacles=[], animals=[], pickups=[], sushi=[], chasms=[];
+let gates=[], props=[], obstacles=[], animals=[], pickups=[], sushi=[], chasms=[], chanko=[];
 
 function clearWorld(){
   gates.forEach(g=>gatePool.release(g.ref)); gates=[];
@@ -1098,14 +1663,36 @@ function clearWorld(){
   pickups.forEach(p=>onigiriPool.release(p.ref)); pickups=[];
   sushi.forEach(p=>sushiPool.release(p.ref)); sushi=[];
   chasms.forEach(c=>chasmPool.release(c.ref)); chasms=[];
+  chanko.forEach(c=>chankoPool.release(c.ref)); chanko=[];
 }
 
 /* ============================================================
    GAME STATE
    ============================================================ */
-const INTRO_T = 2.6;          // face the camera, then turn and go
+/* ---------------------------------------------------------------
+   WEIGHT is the dial the whole game hangs off. Chanko makes him
+   bigger: heavier smashes through things and wins shoves, but jumps
+   lower, steers like a barge, won't fit narrow gates and burns
+   stamina faster. He burns it off as he climbs, so you're constantly
+   deciding whether to gorge or stay lean.
+   --------------------------------------------------------------- */
+const W_START = 0.36, W_BURN = 0.0115, CHANKO_W = 0.18;
+const wScale  = w => 0.88 + w*0.44;          // how big he actually looks
+const wAgility= w => 0.10 + w*0.26;          // seconds between lane changes
+const wApex   = w => 2.15 - w*0.58;          // heavy men don't jump high
+const wDrain  = w => 0.88 + w*0.46;          // and it costs them to climb
+const wSpeed  = w => 1.06 - w*0.13;
+
+/* MOMENTUM builds while you run clean and is SPENT smashing.
+   That turns every obstacle into a choice instead of a reflex. */
+const MOM_GAIN = 0.30, MOM_SMASH = 0.26;
+const smashNeed = w => 0.62 - w*0.30;        // heavier men need less run-up
+
+const INTRO_T = 4.0;          // walk in, square up, turn and go
+const IDLE_DRIFT = 6.5;       // how fast the world creeps while a scroll is up
+const smoothstep = t => (t=clamp(t,0,1))*t*(3-2*t);
 const S = {
-  intro:0, calledNokotta:false,
+  intro:0, calledNokotta:false, calledHakkeyoi:false,
   mode:'title',          // title | stagecard | run | dead | won
   stage:0,
   dist:0, speed:0,
@@ -1118,6 +1705,10 @@ const S = {
   hitFlash:0, gateFlash:0,
   spawnZ:-60, nextGateZ:-70, nextPropZ:-20,
   route:1, eventIdx:0, lastEvent:'', sinceSwitch:0, prevTail:6, jg:26,
+  weight:W_START, mom:0, stomp:0, stompFx:0, smashes:0, peakW:W_START,
+  laneCool:0, faltering:0, falterFrom:0, falterFlash:0,
+  bless:{}, sushiMax:0, evLanes:null, evQueue:[],
+  rival:null, rivalBeat:false, shoves:0,
   sushiGot:0, sushiTotal:0, combo:0, mult:1, bestMult:1, multFlash:0,
   stumble:0,
   shake:0, collapse:0,
@@ -1136,8 +1727,8 @@ function applyStage(i){
   scene.fog.density = st.fogD;
   renderer.setClearColor(st.fog);
   sun.color.set(st.sun);
-  sun.intensity = lerp(2.0,1.25,st.cold);
-  hemi.intensity = lerp(0.85,0.62,st.cold);
+  sun.intensity = lerp(1.45,1.0,st.cold);
+  hemi.intensity = lerp(0.58,0.45,st.cold);
   hemi.color.set(lerpColor(0xBFE0FF,0x9FB4C8,st.cold));
   sunGlow.material.color.set(st.sun);
   sunGlow.material.opacity = lerp(0.85,0.35,st.cold);
@@ -1175,9 +1766,10 @@ function applyStage(i){
    That is what makes 100% always reachable.
    --------------------------------------------------------------- */
 
-function makeGate(z, open){
+function makeGate(z, open, narrow){
   const it=gatePool.get(); if(!it) return;
-  const g={ref:it, obj:it.obj, z, open:open.slice(), scored:false};
+  const g={ref:it, obj:it.obj, z, open:open.slice(), scored:false, narrow:!!narrow};
+  it.obj.scale.x = narrow ? 0.74 : 1;             // a squeeze only a lean man makes
   it.obj.position.x=0;
   placeOnHill(it.obj, z, 0, 1);
   [0,1,2].filter(l=>open.indexOf(l)<0).forEach(l=>{
@@ -1187,26 +1779,27 @@ function makeGate(z, open){
     bit.obj.position.x = LANES[l];
     placeOnHill(bit.obj, z, 0, 0.4);
     bit.obj.scale.setScalar(useLantern?1.25:1.0);
-    obstacles.push({ref:bit,pool:bp,obj:bit.obj,z,lane:l,type:'full',fromGate:true});
+    obstacles.push({ref:bit,pool:bp,obj:bit.obj,z,lane:l,type:'full',fromGate:true,smash:true,heavy:true});
   });
   gates.push(g);
 }
 
-function lowObstacle(z, lane){
+function lowObstacle(z, lane, guard){
   const pool = Math.random()<0.55 ? logPool : boulderPool;
   const it=pool.get(); if(!it) return;
   it.obj.scale.setScalar(1);
   it.obj.position.x=LANES[lane];
   it.obj.rotation.y=rand(-0.25,0.25);
   placeOnHill(it.obj, z, 0, 0.5);
-  obstacles.push({ref:it,pool,obj:it.obj,z,lane,type:'low'});
+  // low obstacles can be ploughed through if you're carrying enough weight and speed
+  obstacles.push({ref:it,pool,obj:it.obj,z,lane,type:'low',smash:true,guard:!!guard});
 }
 function highObstacle(z){
   const pool = Math.random()<0.62 ? branchPool : ropePool;   // limbs mostly, ropes sometimes
   const it=pool.get(); if(!it) return;
   it.obj.position.x=0;
   placeOnHill(it.obj, z, 0, 0.35);
-  obstacles.push({ref:it,pool,obj:it.obj,z,lane:-1,type:'high'});
+  obstacles.push({ref:it,pool,obj:it.obj,z,lane:-1,type:'high',smash:false});
 }
 function addChasm(z){
   const it=chasmPool.get(); if(!it) return;
@@ -1244,10 +1837,18 @@ function addOnigiri(z, lane){
 }
 
 /* sushi -------------------------------------------------------- */
+function addChanko(z, lane){
+  const it=chankoPool.get(); if(!it) return;
+  it.obj.position.x=LANES[lane];
+  placeOnHill(it.obj, z, 1.05, 0);
+  chanko.push({ref:it,obj:it.obj,z,lane,taken:false,spin:Math.random()*6});
+}
+
 function addSushi(z, lane, req, arc){
   const it=sushiPool.get(); if(!it) return;
+  if(S.evLanes) S.evLanes[lane]=(S.evLanes[lane]||0)+1;
   it.obj.position.x=LANES[lane];
-  const y = req==='duck' ? 0.52 : req==='air' ? (1.55 + (arc||0)*1.15) : 1.32;
+  const y = req==='duck' ? 0.78 : req==='air' ? (1.55 + (arc||0)*1.15) : 1.32;
   placeOnHill(it.obj, z, y, 0);
   sushi.push({ref:it,obj:it.obj,z,lane,req,y,taken:false,spin:Math.random()*6});
   S.sushiTotal++;
@@ -1261,7 +1862,27 @@ function sushiLine(z, lane, req, n, spread){
   }
 }
 
-/* events ------------------------------------------------------- */
+/* ---------------------------------------------------------------
+   THE GREEDY LINE. The safe lane always carries a thin trickle of
+   sushi. The fat cluster — plus the chanko — sits in a neighbouring
+   lane behind something you have to deal with. Take it or leave it.
+   --------------------------------------------------------------- */
+function greedyLine(z, safeLane, kind){
+  const opts=[0,1,2].filter(l=>Math.abs(l-safeLane)===1);
+  if(!opts.length) return;
+  const g=pick(opts);
+  if(kind==='duck'){
+    sushiLine(z, g, 'duck', 5, 2.2);
+  } else if(kind==='air'){
+    sushiLine(z, g, 'air', 5, 3.0);
+  } else {
+    // guarded by something you smash through, jump, or go round
+    lowObstacle(z+3.4, g, true);
+    sushiLine(z-0.6, g, 'ground', 5, 3.2);
+    if(Math.random()<0.45) addChanko(z-4.6, g);
+  }
+  return g;
+}
 function evGate(z){
   // most gates open somewhere other than where you're standing
   if(Math.random() < 0.62 || S.sinceSwitch>=2){
@@ -1269,45 +1890,51 @@ function evGate(z){
     const to=pick([0,1,2].filter(l=>Math.abs(l-from)===1));
     sushiLine(z+8, from, 'ground', 3, 2.0);      // trail runs out short of the gate
     S.route=to; S.sinceSwitch=0;
-    makeGate(z, [to]);                            // one way through, two lanes bricked up
+    makeGate(z, [to], Math.random()<0.42);        // one way through, sometimes a narrow one
     sushiLine(z-0.5, to, 'ground', 4, 3.0);
   } else {
     const open=[S.route];
     if(Math.random()<0.4) open.push(pick([0,1,2].filter(l=>l!==S.route)));
-    makeGate(z, open);
-    sushiLine(z, S.route, 'ground', 4, 3.6);
+    makeGate(z, open, Math.random()<0.3);
+    sushiLine(z, S.route, 'ground', 3, 3.0);
+    greedyLine(z-9, S.route, 'ground');
   }
   return 0;
 }
 function evPlain(z){
-  sushiLine(z, S.route, 'ground', 5, 5.0);
-  const others=[0,1,2].filter(l=>l!==S.route);
-  if(Math.random()<0.4) lowObstacle(z+rand(-3,3), pick(others));
-  if(Math.random()<0.32) addOnigiri(z+rand(-4,4), S.route);
+  sushiLine(z, S.route, 'ground', 2, 2.2);        // the safe trickle
+  greedyLine(z, S.route, 'ground');               // the fat line
+  if(Math.random()<0.3) addOnigiri(z+rand(-4,4), S.route);
 }
 function evWeave(z){
-  [0,1,2].filter(l=>l!==S.route).forEach(l=>{
-    if(Math.random()<0.85) lowObstacle(z+rand(-2.5,2.5), l);
-  });
-  sushiLine(z, S.route, 'ground', 5, 5.0);
+  const others=[0,1,2].filter(l=>l!==S.route);
+  const g=pick(others);
+  others.forEach(l=>{ if(l!==g && Math.random()<0.85) lowObstacle(z+rand(-2.5,2.5), l); });
+  sushiLine(z, S.route, 'ground', 2, 2.2);
+  // a gauntlet: two smashables back to back, and a feast behind them
+  lowObstacle(z+5.5, g, true); lowObstacle(z+1.0, g, true);
+  sushiLine(z-3.2, g, 'ground', 5, 3.0);
+  if(Math.random()<0.6) addChanko(z-7.4, g);
 }
 function evHurdle(z){
   lowObstacle(z, S.route);
-  sushiLine(z, S.route, 'air', 4, 3.2);
-  const others=[0,1,2].filter(l=>l!==S.route);
-  if(Math.random()<0.45) lowObstacle(z+rand(-2,2), pick(others));
+  sushiLine(z, S.route, 'air', 2, 2.0);
+  greedyLine(z, S.route, 'ground');
 }
 function evDuck(z){
   highObstacle(z);
-  sushiLine(z, S.route, 'duck', 4, 2.2);
+  sushiLine(z, S.route, 'duck', 2, 1.4);
+  greedyLine(z, S.route, 'duck');
 }
 function evChasm(z){
   addChasm(z);
-  sushiLine(z, S.route, 'air', 4, 3.0);
+  sushiLine(z, S.route, 'air', 2, 1.6);
+  greedyLine(z, S.route, 'air');
 }
 function evAnimal(z){
   addAnimal(z);
-  sushiLine(z, S.route, 'air', 4, 3.0);
+  sushiLine(z, S.route, 'air', 2, 1.6);
+  greedyLine(z, S.route, 'air');
 }
 function evSwitch(z){
   const from=S.route;
@@ -1372,6 +1999,15 @@ function chooseEvent(){
   return t;
 }
 
+function runEvent(fn, z){
+  S.evLanes={};
+  fn(z);
+  let best=0; for(const k in S.evLanes) if(S.evLanes[k]>best) best=S.evLanes[k];
+  S.sushiMax += best;              // the most any single line could have given you
+  S.evQueue.push({at:S.dist + (-z), best:best});   // so unreached beats don't count
+  S.evLanes=null;
+}
+
 function spawnProps(z){
   // lanterns lining the path
   if(Math.random()<0.75){
@@ -1400,19 +2036,47 @@ function spawnProps(z){
    ============================================================ */
 function moveLane(d){
   if(S.mode!=='run') return;
+  if(S.faltering){ falterPush(); return; }
+  if(S.laneCool>0) return;                       // a heavy man doesn't dart
   const n=clamp(S.lane+d,0,2);
-  if(n!==S.lane){ S.lane=n; }
+  if(n!==S.lane){ S.lane=n; S.laneCool=wAgility(S.weight); }
+}
+function falterPush(){
+  if(!S.faltering) return;
+  S.stamina = Math.min(100, S.stamina + 3.6);
+  S.falterFlash = 1;
+}
+function doStomp(){
+  if(S.mode!=='run' || S.intro>0 || S.stomp<1) return;
+  S.stomp=0; S.stompFx=1; S.shake=1.25; shock.visible=true;
+  for(let i=obstacles.length-1;i>=0;i--){ const o=obstacles[i];
+    if(o.z>-27 && o.z<7){ burst(o.obj.position.x,0.7,o.z,0x9A9184,7);
+      o.pool.release(o.ref); obstacles.splice(i,1); } }
+  for(let i=animals.length-1;i>=0;i--){ const a=animals[i];
+    if(a.z>-27 && a.z<7){ a.pool.release(a.ref); animals.splice(i,1); } }
+  chasms.forEach(c=>{ if(c.z>-27 && c.z<7) c.bridged=true; });
+  for(let i=sushi.length-1;i>=0;i--){ const p=sushi[i];      // hoovers up the food
+    if(p.z>-25 && p.z<5 && !p.taken){
+      S.sushiGot++; addChain(); S.score+=25*S.mult;
+      restore(1.75*(S.bless.food?1.6:1));
+      sushiPool.release(p.ref); sushi.splice(i,1); } }
+  S.invuln=Math.max(S.invuln,0.5);
+  toast('四 股');
 }
 const JUMP_DIST=12, JUMP_APEX=1.9, DUCK_DIST=7.0;
 function jump(){
-  if(S.mode!=='run'||S.jumping) return;
-  const T = JUMP_DIST/Math.max(S.speed,8);      // same ground covered at any speed
-  S.jg = 8*JUMP_APEX/(T*T);
-  S.vy = 4*JUMP_APEX/T;
+  if(S.mode!=='run') return;
+  if(S.faltering){ falterPush(); return; }
+  if(S.jumping) return;
+  const T = JUMP_DIST/Math.max(Math.abs(S.speed),8);   // same ground at any speed
+  const apex = wApex(S.weight);                        // ...but heavy men don't get high
+  S.jg = 8*apex/(T*T);
+  S.vy = 4*apex/T;
   S.jumping=true; S.ducking=false; S.duckT=0;
 }
 function duck(){
   if(S.mode!=='run') return;
+  if(S.faltering){ falterPush(); return; }
   if(S.jumping){ S.vy=Math.min(S.vy,-4); }
   S.ducking=true; S.duckT = DUCK_DIST/Math.max(S.speed,8);
 }
@@ -1424,6 +2088,7 @@ addEventListener('keydown',e=>{
   else if(k==='ArrowRight'||k==='d'||k==='D') moveLane(1);
   else if(k==='ArrowUp'||k==='w'||k==='W'||k===' ') { e.preventDefault(); jump(); }
   else if(k==='ArrowDown'||k==='s'||k==='S') duck();
+  else if(k==='f'||k==='F') doStomp();
 });
 
 let tX=0,tY=0,tT=0,swiped=false;
@@ -1444,6 +2109,7 @@ cv.addEventListener('touchmove',e=>{
   }
 },{passive:true});
 cv.addEventListener('touchend',e=>{
+  if(S.faltering){ falterPush(); return; }
   if(swiped) return;
   // quick tap: left/right half steers
   if(performance.now()-tT<260){
@@ -1468,6 +2134,9 @@ const el={
   title:$('title'), card:$('scroll'), end:$('end'),
   scroll:$('scroll'), pcontent:$('pcontent'),
   mult:$('mult'), chain:$('chainFill'), sushiPct:$('hSushi'),
+  wtFill:$('wtFill'), wtVal:$('wtVal'), mom:$('mom'), momFill:$('momFill'),
+  momHint:$('momHint'), stompBtn:$('stompBtn'), falter:$('falter'),
+  rivalPip:$('rivalPip'), youPip:$('youPip'),
   endTitle:$('endTitle'), endStat:$('endStat'), hint:$('hint')
 };
 // build ladder rungs
@@ -1495,6 +2164,46 @@ function show(screen){
 /* ============================================================
    FLOW
    ============================================================ */
+/* ---------------------------------------------------------------
+   BLESSINGS — one gift from the shrine at each summit, so no two
+   climbs play the same
+   --------------------------------------------------------------- */
+const BLESSINGS = [
+  {id:'strength', k:'力', n:'Strength',  d:'Smash through on less momentum'},
+  {id:'light',    k:'軽', n:'Lightness', d:'Burn the chanko off far quicker'},
+  {id:'salt',     k:'塩', n:'Salt',      d:'Gates charge the shiko stomp faster'},
+  {id:'food',     k:'食', n:'Appetite',  d:'Sushi restores much more stamina'},
+  {id:'belt',     k:'帯', n:'Mawashi',   d:'Stamina drains a quarter slower'},
+  {id:'fortune',  k:'運', n:'Fortune',   d:'Every point scored is worth more'}
+];
+function blessingCards(){
+  const pool=BLESSINGS.filter(b=>!S.bless[b.id]);
+  if(pool.length<2) return '';
+  const a=pool.splice((Math.random()*pool.length)|0,1)[0];
+  const b=pool.splice((Math.random()*pool.length)|0,1)[0];
+  pendingBless=[a,b];
+  return `<div class="blessHead">神 の 恵 み</div><div class="blessRow">`+
+    [a,b].map((x,i)=>`<div class="bless" data-b="${i}"><span class="bk">${x.k}</span>`+
+      `<span class="bn">${x.n}</span><span class="bd">${x.d}</span></div>`).join('')+
+    `</div>`;
+}
+let pendingBless=null;
+function wireBlessings(){
+  if(!pendingBless) return;
+  [].forEach.call(el.pcontent.querySelectorAll ? el.pcontent.querySelectorAll('.bless') : [], (node,i)=>{
+    node.onclick = e=>{
+      e.stopPropagation();
+      if(!pendingBless) return;
+      const chosen = pendingBless[i];
+      S.bless[chosen.id] = true;
+      node.className='bless picked';
+      pendingBless=null;
+      toast(chosen.k);
+      setTimeout(closeScroll, 700);
+    };
+  });
+}
+
 /* ---------- the hanging scroll ---------- */
 let scrollToken=0, scrollNext=null;
 function statRow(k,en,val,unit,perfect){
@@ -1510,14 +2219,17 @@ function stageBrief(i){
     `</div></div>`;
 }
 function showScroll(html, next){
+  pendingBless=null;
   el.pcontent.innerHTML = html;
+  setTimeout(wireBlessings, 10);
   scrollNext = next;
   show(el.scroll);
   const tok = ++scrollToken;
   setTimeout(()=>{ if(tok===scrollToken) el.scroll.classList.add('open'); }, 40);
-  setTimeout(()=>{ if(tok===scrollToken) closeScroll(); }, 5200);
+  setTimeout(()=>{ if(tok===scrollToken) closeScroll(); }, pendingBless?8200:5200);
 }
 function closeScroll(){
+  if(pendingBless){ S.bless[pendingBless[0].id]=true; pendingBless=null; }
   const tok = ++scrollToken;
   el.scroll.classList.remove('open');
   const fn=scrollNext; scrollNext=null;
@@ -1533,7 +2245,8 @@ function goStage(i, resultsHtml){
     : `<div class="pHead"><div class="pk">${STAGES[i].k}</div>`+
       `<div class="pn">${STAGES[i].name}</div>`+
       `<div class="pt">登 山 記</div></div>`;
-  showScroll(head + (resultsHtml||'') + stageBrief(i) + '<div class="seal">登</div>',
+  showScroll(head + (resultsHtml||'') + (resultsHtml ? blessingCards() : '')
+             + stageBrief(i) + '<div class="seal">登</div>',
              ()=>startStage());
 }
 
@@ -1545,17 +2258,20 @@ function startStage(){
   S.stamina=100;
   S.score=S.totalScore; S.gatesCleared=0;
   S.route=1; S.eventIdx=0; S.lastEvent=''; S.sinceSwitch=0; S.prevTail=6;
+  S.weight=W_START; S.peakW=W_START; S.mom=0; S.stomp=0; S.stompFx=0;
+  S.smashes=0; S.shoves=0; S.laneCool=0; S.faltering=0; S.falterFlash=0;
+  S.sushiMax=0; S.evQueue=[]; S.rivalBeat=false;
+  resetRival();
   S.sushiGot=0; S.sushiTotal=0; S.combo=0; S.mult=1; S.bestMult=1; S.multFlash=0;
   S.stumble=0;
   S.lane=1; S.laneX=LANES[1];
   S.y=0; S.vy=0; S.jumping=false; S.ducking=false; S.duckT=0;
   S.spawnZ=-72; S.nextGateZ=-90; S.nextPropZ=-30;
   S.collapse=0; S.shake=0;
-  S.intro=INTRO_T; S.calledNokotta=false; S.invuln=INTRO_T+0.9;
+  S.intro=INTRO_T; S.calledNokotta=false; S.calledHakkeyoi=false; S.invuln=INTRO_T+0.9;
   player.rotation.z=0; player.scale.set(1,1,1);
-  player.userData.yaw.rotation.y=0;
+  sumo.yaw.rotation.y=Math.PI;          // he arrives already facing uphill
   show(null);
-  toast('は っ け よ い');
   el.hint.classList.remove('show'); void el.hint.offsetWidth; el.hint.classList.add('show');
   // prewarm scenery
   for(let z=-30;z>-200;z-=14) spawnProps(z);
@@ -1568,26 +2284,34 @@ function stageComplete(){
   if(S.sushiTotal<0) S.sushiTotal=0;
   sushi.forEach(p=>sushiPool.release(p.ref)); sushi=[];
 
-  const pct = S.sushiTotal>0 ? Math.round(S.sushiGot/S.sushiTotal*100) : 100;
+  // 100% = took the best line every beat and cleared it, not "hoovered a rail"
+  S.evQueue.forEach(e=>{ if(e.at > S.dist) S.sushiMax -= e.best; });
+  const denom = Math.max(1, S.sushiMax);
+  const pct = Math.min(100, Math.round(S.sushiGot/denom*100));
+  S.rivalBeat = R.z > 0;
   const perfect = pct>=100;
   const stam = Math.round(S.stamina);
   const stageScore = Math.round(S.score) - S.totalScore
-    + 500 + S.gatesCleared*40 + stam*6 + (perfect?2500:0) + S.bestMult*150;
+    + 500 + S.gatesCleared*40 + stam*6 + (perfect?2500:0) + S.bestMult*150
+    + S.smashes*60 + S.shoves*250 + (S.rivalBeat?900:0);
 
+  if(S.bless.fortune) S.score *= 1.25;
   S.score = Math.round(S.score);
-  S.totalScore = S.score + 500 + S.gatesCleared*40 + stam*6 + (perfect?2500:0) + S.bestMult*150;
+  S.totalScore = S.score + 500 + S.gatesCleared*40 + stam*6 + (perfect?2500:0)
+    + S.bestMult*150 + S.smashes*60 + S.shoves*250 + (S.rivalBeat?900:0);
   S.lifeSushiGot = (S.lifeSushiGot||0) + S.sushiGot;
-  S.lifeSushiTot = (S.lifeSushiTot||0) + S.sushiTotal;
+  S.lifeSushiTot = (S.lifeSushiTot||0) + denom;
 
   const st=STAGES[S.stage];
   const results =
     `<div class="pHead"><div class="pk">${st.k}</div>`+
     `<div class="pn">${st.name}</div>`+
     `<div class="pt">${perfect?'完 全 制 覇':'登 頂'}</div></div>`+
-    statRow('寿司','SUSHI COLLECTED', pct+'%', S.sushiGot+' / '+S.sushiTotal, perfect)+
-    statRow('倍率','BEST MULTIPLIER', '×'+S.bestMult, '', S.bestMult>=5)+
-    statRow('鳥居','GATES PASSED', S.gatesCleared, '')+
-    statRow('体力','STAMINA LEFT', stam+'%', '')+
+    statRow('寿司','BEST LINE TAKEN', pct+'%', S.sushiGot+' eaten', perfect)+
+    statRow('突破','SMASHED THROUGH', S.smashes, '', S.smashes>=12)+
+    statRow('体重','HEAVIEST', Math.round(S.peakW*100)+'貫', '', S.peakW>0.8)+
+    statRow('相手','THE RIVAL', S.rivalBeat?'BEATEN':'AHEAD', S.shoves?S.shoves+' shoves':'', S.rivalBeat)+
+    statRow('倍率','BEST CHAIN', '×'+S.bestMult, '', S.bestMult>=5)+
     statRow('得点','STAGE SCORE', stageScore.toLocaleString(), '');
 
   toast(perfect ? '完 全 制 覇' : '登 頂');
@@ -1606,8 +2330,8 @@ function die(reason){
       `${reason}<br>`+
       `STAGE <b>${S.stage+1}</b> &nbsp; ${STAGES[S.stage].name}<br>`+
       `CLIMBED <b>${Math.round(S.dist)}</b> m of ${stageData().dist} m<br>`+
-      `SUSHI <b>${S.sushiTotal>0?Math.round(S.sushiGot/S.sushiTotal*100):0}%</b>`+
-      ` &nbsp;·&nbsp; BEST CHAIN <b>×${S.bestMult}</b><br>`+
+      `BEST LINE <b>${S.sushiMax>0?Math.min(100,Math.round(S.sushiGot/S.sushiMax*100)):0}%</b>`+
+      ` &nbsp;·&nbsp; SMASHED <b>${S.smashes}</b> &nbsp;·&nbsp; CHAIN <b>×${S.bestMult}</b><br>`+
       `GATES <b>${S.gatesCleared}</b> &nbsp;·&nbsp; SCORE <b>${Math.round(S.score).toLocaleString()}</b>`;
     $('btnRetry').textContent='RETRY STAGE';
     show(el.end);
@@ -1633,13 +2357,16 @@ function newRun(){ S.totalScore=0; S.totalGates=0; S.lifeSushiGot=0; S.lifeSushi
 $('btnStart').onclick=newRun;
 $('btnRetry').onclick=()=>{ if(S.mode==='won') newRun(); else goStage(S.stage,null); };
 $('btnMenu').onclick=()=>{ S.mode='title'; S.totalScore=0; clearWorld(); show(el.title); };
-el.scroll.addEventListener('click',()=>{ if(scrollNext) closeScroll(); });
+el.scroll.addEventListener('click',()=>{ if(scrollNext && !pendingBless) closeScroll(); });
+el.stompBtn.addEventListener('click',e=>{ e.stopPropagation(); doStomp(); });
+el.stompBtn.addEventListener('touchstart',e=>{ e.stopPropagation(); doStomp(); },{passive:true});
 
 /* ============================================================
    COLLISION + STAMINA
    ============================================================ */
 function drain(amount,label,color){
   breakChain();
+  S.mom = 0;
   S.stamina -= amount;
   S.shake = Math.max(S.shake, 0.5);
   S.invuln = 0.55;
@@ -1647,6 +2374,20 @@ function drain(amount,label,color){
   if(S.stamina<=0){ S.stamina=0; die(label||'The mountain won.'); }
 }
 function restore(amount){ S.stamina=Math.min(100,S.stamina+amount); }
+function smashNeedNow(o){
+  let n = smashNeed(S.weight) + (o && o.heavy ? 0.24 : 0);
+  if(S.bless.strength) n -= 0.16;
+  return n;
+}
+function smashOut(list, i, colour){
+  const o=list[i];
+  burst(o.obj.position.x, 0.75, o.z, colour||0x8A8378, 12);
+  o.pool.release(o.ref); list.splice(i,1);
+  S.mom = Math.max(0, S.mom - MOM_SMASH);
+  S.smashes++; S.score += 90*S.mult;
+  S.shake = Math.max(S.shake, 0.6);
+  if(S.smashes%6===0) toast('突 破');
+}
 function breakChain(){
   if(S.combo>0){ S.multFlash=1; }
   S.combo=0; S.mult=1;
@@ -1685,15 +2426,31 @@ function frame(now){
     if(S.intro>0){
       S.intro -= dt;
       const k = 1 - S.intro/INTRO_T;
-      S.speed = k<0.62 ? 0 : st.speed*Math.pow((k-0.62)/0.38,1.4);
-      if(!S.calledNokotta && k>=0.60){ S.calledNokotta=true; toast('の こ っ た'); }
+      if(k < 0.24)      S.speed = IDLE_DRIFT * (1 - k/0.24);   // walking the last few paces in
+      else if(k < 0.76) S.speed = 0;                            // planted for the tachiai
+      else              S.speed = st.speed*Math.pow((k-0.76)/0.24, 1.4);
+      if(!S.calledHakkeyoi && k>=0.42){ S.calledHakkeyoi=true; toast('は っ け よ い'); }
+      if(!S.calledNokotta && k>=0.76){ S.calledNokotta=true; toast('の こ っ た'); }
       if(S.intro<=0){ S.intro=0; S.speed=st.speed; }
     } else {
-      S.speed = st.speed + st.speedGain*prog;
-      /* ---- stamina drain: steeper + colder + faster = harder ---- */
-      const drainRate = 4.8 + st.slope*15 + st.cold*2.8 + prog*2.0;
-      S.stamina -= drainRate*dt;
-      if(S.stamina<=0){ S.stamina=0; die('Legs gave out on the slope.'); }
+      S.speed = (st.speed + st.speedGain*prog) * wSpeed(S.weight) * (1 + S.mom*0.15);
+      /* ---- stamina drain: steeper, colder, faster — and heavier ---- */
+      const drainRate = (4.8 + st.slope*15 + st.cold*2.8 + prog*2.0)
+                      * wDrain(S.weight) * (S.bless.belt?0.76:1);
+      if(!S.faltering) S.stamina -= drainRate*dt;
+      if(S.stamina<=0 && !S.faltering){
+        S.stamina=0; S.faltering=1; S.falterFrom=S.dist; S.mom=0;
+        toast('こ ら え ろ');
+      }
+      if(S.faltering){
+        /* Losing his legs doesn't kill him — it sends him sliding back down
+           the mountain, and you can fight your way out of it. */
+        S.speed = -3.6;
+        S.invuln = 0.4;
+        S.stamina = Math.max(0, S.stamina - 1.1*dt);
+        if(S.stamina >= 30){ S.faltering=0; S.mom=0.25; toast('持 ち 直 し た'); }
+        else if(S.falterFrom - S.dist > 62){ die('滑 り 落 ち た'); }
+      }
     }
     S.dist += S.speed*dt;
     S.score += S.speed*dt*0.9*S.mult;
@@ -1702,6 +2459,12 @@ function frame(now){
 
     /* ---- movement ---- */
     if(S.stumble>0){ S.stumble-=dt; S.speed*=0.42; }
+    // weight burns off as he climbs; momentum builds when he runs clean
+    S.weight = Math.max(0.12, S.weight - W_BURN*(S.bless.light?1.7:1)*dt);
+    if(S.weight > S.peakW) S.peakW = S.weight;
+    if(!S.faltering && S.invuln<=0) S.mom = Math.min(1, S.mom + MOM_GAIN*dt);
+    if(S.laneCool>0) S.laneCool -= dt;
+    if(S.falterFlash>0) S.falterFlash -= dt*3;
     S.laneX = lerp(S.laneX, LANES[S.lane], 1-Math.pow(0.0009,dt));
     if(S.jumping){
       S.vy -= (S.jg||26)*dt; S.y += S.vy*dt;
@@ -1715,7 +2478,7 @@ function frame(now){
         const t  = chooseEvent();
         const ev = EV[t];
         const z  = S.spawnZ - (S.prevTail + ev.lead + st.eventGap);
-        ev.fn()(z);
+        runEvent(ev.fn(), z);
         S.prevTail = ev.tail;
         S.spawnZ = z;
       }
@@ -1723,7 +2486,7 @@ function frame(now){
     S.spawnZ += S.speed*dt;
   }
 
-  const dz = running ? S.speed*dt : (idle ? 6.5*dt : 0);
+  const dz = running ? S.speed*dt : (idle ? IDLE_DRIFT*dt : 0);
 
   if(running || idle){
     while(S.nextPropZ > -190){
@@ -1750,87 +2513,58 @@ function frame(now){
   const groundY = bendY(0);
   const duckAmt = S.ducking?1:0;
   player.position.x = S.laneX;
-  player.position.y = groundY + S.y;
+  const wS = wScale(S.weight);
+  player.scale.setScalar(wS);                            // chanko shows
+  player.position.y = groundY + S.y + sumo.restOffset*wS;
   player.position.z = 0;
 
-  const ud=player.userData;
+  const ud=sumo;
   const exhaustion = 1 - S.stamina/100;      // 0 fresh, 1 spent
-  const cadence = lerp(11.5, 7.4, exhaustion) * (S.speed/16);
+  // stride is tied to how fast the ground is actually moving, so his feet
+  // never skate — including while the world creeps behind a scroll
+  const gaitSpeed = idle ? IDLE_DRIFT : S.speed;
+  const cadence = lerp(11.5, 7.4, exhaustion) * (gaitSpeed/16);
   const introK = (running && S.intro>0) ? 1 - S.intro/INTRO_T : 1;
-  // 1 while he's squared up to camera, 0 once he's fully turned
-  const poseAmt = (running && S.intro>0) ? clamp(1-(introK-0.42)/0.26, 0, 1) : 0;
-  // heading: hold facing camera, then swing 180 to face uphill
-  ud.yaw.rotation.y = Math.PI * clamp((introK-0.42)/0.26, 0, 1);
-  if((running && introK>0.55) || (running && S.intro<=0) || idle) S.runPhase += cadence*dt;
+  const inIntro = running && S.intro>0;
+
+  /* tachiai timeline
+       .00-.24  walking in, slowing to a halt, still facing uphill
+       .26-.40  turns to face the camera
+       .40-.62  shiko stance, chest thump
+       .62-.76  turns back to the hill
+       .76-1.0  accelerates away                                        */
+  let heading = Math.PI, poseAmt = 0, thump = 0;
+  if(inIntro){
+    const k=introK;
+    if(k < 0.26)      heading = Math.PI;
+    else if(k < 0.40) heading = Math.PI*(1 - smoothstep((k-0.26)/0.14));
+    else if(k < 0.62) heading = 0;
+    else if(k < 0.76) heading = Math.PI*smoothstep((k-0.62)/0.14);
+    poseAmt = clamp(Math.min((k-0.32)/0.09, (0.70-k)/0.09), 0, 1);
+    const beat = clamp((k-0.44)/0.14, 0, 1);
+    thump = Math.sin(beat*Math.PI)*(beat<1?1:0);
+  }
+  // legs move while he's walking in or running, not while he's planted
+  if(idle || (running && (S.intro<=0 || introK<0.26 || introK>0.74))) S.runPhase += cadence*dt;
   const ph=S.runPhase;
 
   // lean into the hill, more when spent
   const hillTilt = tiltAt(0);
   const lean = 0.20 + SLOPE*1.6 + exhaustion*0.34;
   player.rotation.x = hillTilt*0.5;
-  ud.body.rotation.x = lean - duckAmt*0.5;
-  ud.body.rotation.z = Math.sin(ph)*0.055;
-  ud.body.position.y = (S.jumping?0.05:Math.abs(Math.sin(ph))*0.11) - duckAmt*0.62;
-  ud.body.scale.y = 1 - duckAmt*0.22;
-  ud.body.scale.x = 1 + duckAmt*0.1;
 
-  // belly jiggle
-  const jig = Math.sin(ph*2)*0.045 + (S.jumping? -0.03:0);
-  ud.belly.scale.set(1.02+jig, 0.92-jig*0.6, 0.9+jig*0.5);
-  ud.chest.scale.set(0.86, 0.66+Math.sin(ph*2+1)*0.03, 0.76);
-
-  // head bob + gasping mouth
-  ud.head.rotation.x = -lean*0.75 + Math.sin(ph*2)*0.05;
-  ud.head.rotation.z = Math.sin(ph)*0.05;
-  const gasp = 0.09 + Math.abs(Math.sin(ph*0.9))*0.1*(0.5+exhaustion);
-  ud.mouth.scale.set(0.14, gasp, 0.06);
-  // flushed face when hot / pale-blue when cold
-  ud.head.children[0].material = M.skinM;
-  M.skinFlush.color.set(lerpColor(0xD9704A, 0xC98F92, st.cold));
-  M.skinM.color.set(lerpColor(0xE7B285, 0xDCB6AE, st.cold*0.6));
-
-  // arms — heavy, low swing
-  ud.arms.forEach(a=>{
-    const s=a.side;
-    a.pivot.rotation.x = Math.sin(ph + (s>0?Math.PI:0))*0.62 - 0.25 - duckAmt*0.5;
-    a.pivot.rotation.z = s*(0.34 + Math.sin(ph*2)*0.05);
-    a.fore.rotation.x = -0.7 - Math.max(0,Math.sin(ph+(s>0?Math.PI:0)))*0.5;
+  const rig = SumoModel.pose(sumo, {
+    phase: ph,
+    duck: duckAmt,
+    jumping: S.jumping,
+    exhaustion: exhaustion,
+    cold: st.cold,
+    lean: lean,
+    heading: heading,
+    poseAmt: poseAmt,
+    thump: thump
   });
-
-  // legs — waddling stomp
-  let footStruck=false;
-  ud.legs.forEach(a=>{
-    const s=a.side;
-    const p = ph + (s>0?Math.PI:0);
-    a.hip.rotation.x = Math.sin(p)*0.78 - 0.12 + duckAmt*0.55;
-    a.hip.rotation.z = s*0.16;
-    a.knee.rotation.x = Math.max(0, -Math.sin(p-0.7))*1.15;
-    if(!S.jumping && Math.sin(p)<-0.95) footStruck=true;
-  });
-  if(footStruck && running && S.intro<=0 && Math.random()<0.4) emitDust(S.laneX, 0.4);
-
-  /* ---- shiko stance: feet planted wide, glaring down the lens, then a chest thump ---- */
-  if(poseAmt>0.001){
-    const P=poseAmt;
-    const beat = clamp((introK-0.16)/0.16,0,1);            // the thump, ~0.4s in
-    const thump = Math.sin(beat*Math.PI)*(beat<1?1:0);
-    ud.legs.forEach(a=>{
-      a.hip.rotation.x  = lerp(a.hip.rotation.x, 0.10, P);
-      a.hip.rotation.z  = lerp(a.hip.rotation.z, a.side*0.66, P);
-      a.knee.rotation.x = lerp(a.knee.rotation.x, 0.66, P);
-    });
-    ud.arms.forEach(a=>{
-      a.pivot.rotation.x = lerp(a.pivot.rotation.x, -0.10 - thump*0.55, P);
-      a.pivot.rotation.z = lerp(a.pivot.rotation.z, a.side*(1.02 - thump*0.42), P);
-      a.fore.rotation.x  = lerp(a.fore.rotation.x, -0.5 - thump*0.85, P);
-    });
-    ud.body.rotation.x  = lerp(ud.body.rotation.x, 0.03 + thump*0.14, P);
-    ud.body.rotation.z  = lerp(ud.body.rotation.z, 0, P);
-    ud.body.position.y  = lerp(ud.body.position.y, -0.30 + thump*0.06, P);
-    ud.head.rotation.x  = lerp(ud.head.rotation.x, 0.04, P);
-    ud.head.rotation.z  = lerp(ud.head.rotation.z, 0, P);
-    ud.mouth.scale.set(0.14, 0.10+thump*0.12, 0.06);
-  }
+  if(rig.footStruck && running && S.intro<=0 && Math.random()<0.4) emitDust(S.laneX, 0.4);
 
   // blob shadow
   blob.position.set(S.laneX, groundY+0.03, 0.2);
@@ -1917,10 +2651,15 @@ function frame(now){
       g.scored=true;
       if(!running){ /* menu drift: gates are scenery */ } else {
       if(g.open.indexOf(S.lane)>=0){
-        S.gatesCleared++; S.totalGates++; S.score += 120*S.mult; restore(10);
-        S.gateFlash=1;
-        const msgs=['⛩ 通 過','⛩ 良 し','⛩ 見 事','⛩ 通 過'];
-        if(S.gatesCleared%3===0) toast(pick(msgs),'#D9A441');
+        if(g.narrow && S.weight > 0.62){
+          drain(20,'太 す ぎ る'); S.invuln=0.6;      // wouldn't fit
+        } else {
+          S.gatesCleared++; S.totalGates++; S.score += 120*S.mult; restore(13);
+          S.stomp = Math.min(1, S.stomp + (S.bless.salt?0.48:0.34));
+          S.gateFlash=1;
+          const msgs=['⛩ 通 過','⛩ 良 し','⛩ 見 事','⛩ 通 過'];
+          if(S.gatesCleared%3===0) toast(pick(msgs),'#D9A441');
+        }
       } else {
         // slipped past outside the open lane
         if(S.invuln<=0) drain(9,'外 れ た');
@@ -1948,12 +2687,18 @@ function frame(now){
     o.z += dz;
     placeOnHill(o.obj, o.z, 0, o.type==='high'?0.35:0.5);
     if(running && S.invuln<=0 && Math.abs(o.z)<1.25 && (o.type==='high' || o.lane===S.lane)){
+      // enough weight behind enough speed and you go straight through it
+      const canSmash = o.smash && S.mom >= smashNeedNow(o) && (!o.heavy || S.weight >= 0.5);
       if(o.type==='low'){
-        if(S.y < 1.15){ drain(17,'つ ま づ き'); o.hit=true; }
+        if(S.y < 1.15){
+          if(canSmash){ smashOut(obstacles, i, 0x8A8378); continue; }
+          drain(17,'つ ま づ き'); o.hit=true;
+        }
       } else if(o.type==='high'){
         if(!S.ducking && S.y < 2.6){ drain(16,'頭 打 ち'); o.hit=true; }
       } else {
-        drain(24,'塞 が れ た'); o.hit=true;
+        if(canSmash){ smashOut(obstacles, i, 0xB0A894); continue; }
+        drain(20,'塞 が れ た'); o.hit=true;
       }
       if(o.hit) S.invuln=0.6;
     }
@@ -1979,8 +2724,14 @@ function frame(now){
     if(running && S.invuln<=0 && Math.abs(a.z)<1.3 && Math.abs(a.obj.position.x - S.laneX)<1.25){
       if(a.fly){
         if(!S.ducking && S.y<2.6){ drain(15,'鶴 に 衝 突'); S.invuln=0.6; }
-      } else {
-        if(S.y < 1.25){ drain(19,'獣 に 衝 突'); S.invuln=0.6; }
+      } else if(S.y < 1.25){
+        if(S.mom >= smashNeed(S.weight)+0.06 && S.weight > 0.45){
+          burst(a.obj.position.x, 0.8, a.z, 0x7C6450, 8);
+          a.pool.release(a.ref); animals.splice(i,1);
+          S.mom=Math.max(0,S.mom-0.2); S.score+=70*S.mult; S.shake=0.45;
+          continue;
+        }
+        drain(19,'獣 に 衝 突'); S.invuln=0.6;
       }
     }
     if(a.z > 14 || Math.abs(a.obj.position.x)>16){ a.pool.release(a.ref); animals.splice(i,1); }
@@ -1991,12 +2742,12 @@ function frame(now){
     const c=chasms[i];
     c.z += dz;
     placeOnHill(c.obj, c.z, 0, 1);
-    if(running && !c.fallen && Math.abs(c.z) < CHASM_LEN/2 + 0.4 && S.y < 0.55){
+    if(running && !c.fallen && !c.bridged && Math.abs(c.z) < CHASM_LEN/2 + 0.4 && S.y < 0.55){
       c.fallen=true;
       drain(24,'落 と し 穴');
       S.stumble=0.5; S.invuln=1.0; S.shake=1.0;
     }
-    if(c.z > 14){ chasmPool.release(c.ref); chasms.splice(i,1); }
+    if(c.z > 14){ c.bridged=false; chasmPool.release(c.ref); chasms.splice(i,1); }
   }
 
   /* ---- sushi: the chain ---- */
@@ -2011,7 +2762,7 @@ function frame(now){
       const ok = p.req==='air' ? airborne : p.req==='duck' ? (S.ducking && !airborne) : (!S.ducking && !airborne);
       if(ok){
         p.taken=true; S.sushiGot++; addChain();
-        S.score += 25*S.mult; restore(1.1);
+        S.score += 25*S.mult; restore(1.75*(S.bless.food?1.6:1));
         if(S.combo>0 && S.combo%8===0) toast('連 鎖 ×'+S.mult);
         sushiPool.release(p.ref); sushi.splice(i,1); continue;
       }
@@ -2021,6 +2772,54 @@ function frame(now){
       sushiPool.release(p.ref); sushi.splice(i,1); continue;
     }
   }
+
+  /* ---- chanko: the pot that makes him bigger ---- */
+  for(let i=chanko.length-1;i>=0;i--){
+    const c=chanko[i];
+    c.z += dz; c.spin += dt*1.9;
+    placeOnHill(c.obj, c.z, 1.05 + Math.sin(c.spin*1.3)*0.1, 0);
+    c.obj.rotation.y = c.spin*0.6;
+    if(c.obj.userData.steam){
+      const st2=c.obj.userData.steam;
+      st2.material.opacity = 0.4 + Math.sin(c.spin*3)*0.18;
+      st2.scale.setScalar(1.3 + Math.sin(c.spin*2)*0.25);
+    }
+    if(running && !c.taken && Math.abs(c.z)<1.5 && c.lane===S.lane && S.y<2.0){
+      c.taken=true;
+      S.weight = Math.min(1, S.weight + CHANKO_W);
+      restore(13); S.score += 140*S.mult;
+      burst(LANES[c.lane], 1.2, 0, 0xD9A05B, 8);
+      toast('ち ゃ ん こ');
+      chankoPool.release(c.ref); chanko.splice(i,1); continue;
+    }
+    if(c.z > 14){ chankoPool.release(c.ref); chanko.splice(i,1); }
+  }
+
+  /* ---- smash debris ---- */
+  for(let i=0;i<DEBRIS_N;i++){
+    const d=debris[i];
+    if(d.life>0){
+      d.life-=dt; d.vy-=26*dt;
+      d.m.position.x+=d.vx*dt;
+      d.m.position.y+=d.vy*dt;
+      d.m.position.z+=(d.vz + (running?S.speed*0.7:0))*dt;
+      d.m.rotation.x+=d.rx*dt; d.m.rotation.y+=d.ry*dt;
+      if(d.life<=0){ d.m.visible=false; d.m.position.y=-99; }
+    }
+  }
+
+  /* ---- shiko shockwave ---- */
+  if(S.stompFx>0){
+    S.stompFx-=dt*1.5;
+    const k=1-S.stompFx;
+    shock.position.set(S.laneX, groundY+0.1, 0.5 - k*10);
+    shock.scale.setScalar(1.5 + k*26);
+    shock.material.opacity = Math.max(0, S.stompFx*0.85);
+    if(S.stompFx<=0) shock.visible=false;
+  }
+
+  /* ---- the rival ---- */
+  updateRival(dt, running);
 
   /* ---- pickups ---- */
   for(let i=pickups.length-1;i>=0;i--){
@@ -2040,9 +2839,8 @@ function frame(now){
     S.collapse=Math.min(1,S.collapse+dt*1.7);
     const c=S.collapse;
     player.rotation.x = hillTilt*0.5 - c*1.42;
-    player.position.y = groundY - c*0.5;
-    ud.body.rotation.x = lerp(lean,0.2,c);
-    ud.arms.forEach(a=>{ a.pivot.rotation.x=lerp(a.pivot.rotation.x,-0.9,c*0.2); });
+    player.position.y = groundY + sumo.restOffset*wScale(S.weight) - c*0.5;
+    SumoModel.collapse(sumo, c, lean);
     if(c<1 && Math.random()<0.4) emitSweat(S.laneX+rand(-.6,.6), groundY+rand(1,2.2), 0, 1);
   }
 
@@ -2050,18 +2848,23 @@ function frame(now){
   const camShake = S.shake>0 ? S.shake : 0;
   if(S.shake>0) S.shake=Math.max(0,S.shake-dt*2.4);
   const camTargetX = S.laneX*0.42;
+  // during the tachiai, drop to his eyeline and frame the face —
+  // pointing up the hill meant you only ever saw the top of his head
+  const faceOn = inIntro ? clamp(Math.min((introK-0.30)/0.10, (0.72-introK)/0.10), 0, 1) : 0;
   camera.position.x = lerp(camera.position.x, camTargetX, 1-Math.pow(0.002,dt));
   const speedPull = running ? (S.speed-13)/22 : 0;
-  camera.position.y = lerp(camera.position.y, groundY + 3.55 + S.y*0.32 + (S.ducking?-0.3:0), 1-Math.pow(0.01,dt));
-  camera.position.z = lerp(camera.position.z, 7.6 + speedPull*0.9 + (S.mode==='dead'?1.6:0) + (S.intro>0?-1.0:0), 1-Math.pow(0.05,dt));
+  const camYrun = groundY + 3.95 + S.y*0.32 + (S.ducking?0.25:0);
+  const camZrun = 7.6 + speedPull*0.9 + (S.mode==='dead'?1.6:0);
+  camera.position.y = lerp(camera.position.y, lerp(camYrun, groundY+3.15, faceOn), 1-Math.pow(0.01,dt));
+  camera.position.z = lerp(camera.position.z, lerp(camZrun, 6.1, faceOn), 1-Math.pow(0.05,dt));
   if(camShake>0){
     camera.position.x += rand(-1,1)*camShake*0.22;
     camera.position.y += rand(-1,1)*camShake*0.18;
   }
-  const lookZ=-13;
-  camera.lookAt(camTargetX*0.6, bendY(lookZ)+2.6, lookZ);
+  const lookZ = lerp(-13, 0.3, faceOn);
+  camera.lookAt(camTargetX*0.6*(1-faceOn), lerp(bendY(-13)+2.6, groundY+2.95, faceOn), lookZ);
 
-  camera.fov = lerp(camera.fov, 62 + speedPull*7, 1-Math.pow(0.05,dt));
+  camera.fov = lerp(camera.fov, lerp(62 + speedPull*7, 47, faceOn), 1-Math.pow(0.05,dt));
   camera.updateProjectionMatrix();
 
   sky.position.copy(camera.position);
@@ -2084,12 +2887,34 @@ function frame(now){
     el.stageK.textContent = st.k;
     el.stageN.textContent = st.name;
     el.alt.textContent = Math.round(lerp(st.alt[0],st.alt[1],prog)).toLocaleString()+' m';
-    el.sushiPct.textContent = '寿司 '+(S.sushiTotal>0?Math.round(S.sushiGot/S.sushiTotal*100):100)+'%';
+    el.sushiPct.textContent = '寿司 '+(S.sushiMax>0?Math.min(100,Math.round(S.sushiGot/S.sushiMax*100)):0)+'%';
     if(el.mult.textContent!=='×'+S.mult){
       el.mult.textContent='×'+S.mult;
       el.mult.classList.remove('up'); void el.mult.offsetWidth; el.mult.classList.add('up');
     }
     el.chain.style.width = ((S.combo%8)/8*100)+'%';
+
+    // weight
+    el.wtFill.style.width = (S.weight*100)+'%';
+    el.wtVal.textContent = S.weight>0.62 ? '大 —  no narrow gates'
+                         : S.weight>0.42 ? '中' : '小 — nimble';
+    // momentum
+    const hot = S.mom >= smashNeed(S.weight);
+    el.momFill.style.width = (S.mom*100)+'%';
+    el.mom.className = hot ? 'hot' : '';
+    el.momHint.textContent = hot ? 'SMASH THROUGH' : 'build it up';
+    // stomp
+    el.stompBtn.className = S.stomp>=1 ? 'ready' : '';
+    el.stompBtn.style.opacity = 0.35 + S.stomp*0.65;
+    // faltering
+    el.falter.className = S.faltering ? 'on' : '';
+    // rival, on the same thread as your climb
+    if(rival.root.visible && S.mode==='run'){
+      const rProg = clamp(prog + (-R.z)/st.dist, 0, 1);
+      el.rivalPip.style.display='block'; el.youPip.style.display='block';
+      el.rivalPip.style.bottom = 'calc(50% - 90px + '+(rProg*180)+'px)';
+      el.youPip.style.bottom   = 'calc(50% - 90px + '+(prog*180)+'px)';
+    } else { el.rivalPip.style.display='none'; el.youPip.style.display='none'; }
     if(S.multFlash>0){ S.multFlash-=dt*2.2; el.mult.classList.add('brk'); }
     else el.mult.classList.remove('brk');
     el.temp.textContent = Math.round(lerp(st.temp[0],st.temp[1],prog))+'°C';
@@ -2099,8 +2924,8 @@ function frame(now){
   /* ---- gate pass flash ---- */
   if(S.gateFlash>0){
     S.gateFlash-=dt*3;
-    renderer.toneMappingExposure = 1.06 + S.gateFlash*0.22;
-  } else renderer.toneMappingExposure = lerp(renderer.toneMappingExposure,1.06,0.1);
+    renderer.toneMappingExposure = 0.94 + S.gateFlash*0.20;
+  } else renderer.toneMappingExposure = lerp(renderer.toneMappingExposure,0.94,0.1);
 
   renderer.render(scene,camera);
 }
