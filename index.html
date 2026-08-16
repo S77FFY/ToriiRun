@@ -329,27 +329,27 @@ const DRAW_Z = -TILE_LEN * TILE_COUNT + TILE_LEN;
 /* ---------- Stage definitions ---------- */
 const STAGES = [
   { k:'麓', name:'Foothill Path', dist:820, alt:[240,620], temp:[24,17],
-    speed:13.5, speedGain:2.6, slope:0.085, curve:0.00055, cold:0.00, eventGap:20, gateEvery:3,
+    speed:15.0, speedGain:3.0, slope:0.085, curve:0.00055, cold:0.00, eventGap:7.0, gateEvery:3,
     sky:[0x67B4F2,0xDCEEFF], sun:0xFFF0CE, fog:0xBBD9F2, fogD:0.0100,
     ground:0x54803A, tree:0x2F6B36, gateGap:34, obsRate:1.0, animalRate:0.55 },
 
   { k:'杉', name:'Cedar Rise', dist:960, alt:[620,1080], temp:[17,10],
-    speed:15.5, speedGain:3.0, slope:0.105, curve:0.00070, cold:0.18, eventGap:21, gateEvery:3,
+    speed:17.0, speedGain:3.4, slope:0.105, curve:0.00070, cold:0.18, eventGap:6.5, gateEvery:3,
     sky:[0x4E96D8,0xCBE4F7], sun:0xFFE7C0, fog:0xA8C6DC, fogD:0.0115,
     ground:0x466B33, tree:0x22512C, gateGap:31, obsRate:1.35, animalRate:0.8 },
 
   { k:'雲', name:'Cloud Terrace', dist:1080, alt:[1080,1720], temp:[10,3],
-    speed:17.5, speedGain:3.4, slope:0.125, curve:0.00088, cold:0.42, eventGap:22, gateEvery:3,
+    speed:19.0, speedGain:3.8, slope:0.125, curve:0.00088, cold:0.42, eventGap:6.0, gateEvery:3,
     sky:[0x3D7CC0,0xF2C79A], sun:0xFFC98A, fog:0xC9CBD6, fogD:0.0132,
     ground:0x5A6B48, tree:0x2A4A31, gateGap:28, obsRate:1.7, animalRate:1.0 },
 
   { k:'霜', name:'Frost Steps', dist:1180, alt:[1720,2480], temp:[3,-8],
-    speed:19.5, speedGain:3.8, slope:0.145, curve:0.00105, cold:0.72, eventGap:23, gateEvery:2,
+    speed:21.0, speedGain:4.2, slope:0.145, curve:0.00105, cold:0.72, eventGap:5.5, gateEvery:3,
     sky:[0x2E4F76,0xA9BCCB], sun:0xD8E4F0, fog:0xA9B6C4, fogD:0.0152,
     ground:0x8FA0A6, tree:0x2C4038, gateGap:26, obsRate:2.05, animalRate:1.2 },
 
   { k:'頂', name:'Summit Shrine', dist:1300, alt:[2480,3340], temp:[-8,-24],
-    speed:21.5, speedGain:4.4, slope:0.165, curve:0.00125, cold:1.00, eventGap:24, gateEvery:2,
+    speed:23.5, speedGain:4.8, slope:0.165, curve:0.00125, cold:1.00, eventGap:5.0, gateEvery:3,
     sky:[0x1B2E4A,0x7E93AC], sun:0xC6D9F0, fog:0x8FA0B2, fogD:0.0172,
     ground:0xC6D2D8, tree:0x243430, gateGap:24, obsRate:2.4, animalRate:1.45 }
 ];
@@ -1117,7 +1117,7 @@ const S = {
   runPhase:0,
   hitFlash:0, gateFlash:0,
   spawnZ:-60, nextGateZ:-70, nextPropZ:-20,
-  route:1, eventIdx:0, lastEvent:'',
+  route:1, eventIdx:0, lastEvent:'', sinceSwitch:0, prevTail:6, jg:26,
   sushiGot:0, sushiTotal:0, combo:0, mult:1, bestMult:1, multFlash:0,
   stumble:0,
   shake:0, collapse:0,
@@ -1263,19 +1263,27 @@ function sushiLine(z, lane, req, n, spread){
 
 /* events ------------------------------------------------------- */
 function evGate(z){
-  const open=[S.route];
-  if(Math.random()<0.45){
-    const extra=pick([0,1,2].filter(l=>l!==S.route));
-    open.push(extra);
+  // most gates open somewhere other than where you're standing
+  if(Math.random() < 0.62 || S.sinceSwitch>=2){
+    const from=S.route;
+    const to=pick([0,1,2].filter(l=>Math.abs(l-from)===1));
+    sushiLine(z+8, from, 'ground', 3, 2.0);      // trail runs out short of the gate
+    S.route=to; S.sinceSwitch=0;
+    makeGate(z, [to]);                            // one way through, two lanes bricked up
+    sushiLine(z-0.5, to, 'ground', 4, 3.0);
+  } else {
+    const open=[S.route];
+    if(Math.random()<0.4) open.push(pick([0,1,2].filter(l=>l!==S.route)));
+    makeGate(z, open);
+    sushiLine(z, S.route, 'ground', 4, 3.6);
   }
-  makeGate(z, open);
-  sushiLine(z, S.route, 'ground', 4, 3.6);
+  return 0;
 }
 function evPlain(z){
   sushiLine(z, S.route, 'ground', 5, 5.0);
   const others=[0,1,2].filter(l=>l!==S.route);
   if(Math.random()<0.4) lowObstacle(z+rand(-3,3), pick(others));
-  if(Math.random()<0.24) addOnigiri(z+rand(-4,4), S.route);
+  if(Math.random()<0.32) addOnigiri(z+rand(-4,4), S.route);
 }
 function evWeave(z){
   [0,1,2].filter(l=>l!==S.route).forEach(l=>{
@@ -1305,24 +1313,63 @@ function evSwitch(z){
   const from=S.route;
   const to=pick([0,1,2].filter(l=>Math.abs(l-from)===1));
   sushiLine(z+9, from, 'ground', 3, 2.0);     // trail runs out here...
-  S.route=to;
+  S.route=to; S.sinceSwitch=0;
   sushiLine(z-1, to, 'ground', 4, 3.0);       // ...and picks up over there
   lowObstacle(z-1.5, from);                   // and the old lane is closed off
+  return 0;
 }
 
-function spawnEvent(z){
+/* three hops across the path, each lane sealed behind you */
+function evSlalom(z){
+  let cur=S.route;
+  const zs=[z+12, z+1, z-10];
+  for(let i=0;i<3;i++){
+    sushiLine(zs[i], cur, 'ground', 2, 1.6);
+    if(i<2){
+      const nxt=pick([0,1,2].filter(l=>Math.abs(l-cur)===1));
+      // seal the lane you just left, three quarters of the way to the next hop —
+      // late enough that you've long gone, early enough that you can hop back later
+      lowObstacle(zs[i] - 0.75*(zs[i]-zs[i+1]), cur);
+      cur=nxt;
+    }
+  }
+  S.route=cur; S.sinceSwitch=0;
+}
+
+/* lead = how far the event reaches back toward you,
+   tail = how far it reaches on PLUS the room needed to recover from it
+          (landing from a jump, standing up out of a crouch).
+   Spacing is then prevTail + thisLead + the stage's margin, so demanding
+   beats get room and easy ones pack in tight. */
+const EV = {
+  plain:   {lead: 5.5, tail: 5.5, fn:()=>evPlain},
+  weave:   {lead: 5.5, tail: 5.5, fn:()=>evWeave},
+  hurdle:  {lead: 4.0, tail: 7.0, fn:()=>evHurdle},
+  duck:    {lead: 3.0, tail: 9.5, fn:()=>evDuck},
+  chasm:   {lead: 4.0, tail: 7.0, fn:()=>evChasm},
+  animal:  {lead: 4.0, tail: 7.0, fn:()=>evAnimal},
+  'switch':{lead:11.5, tail: 4.5, fn:()=>evSwitch},
+  slalom:  {lead:14.0, tail:12.0, fn:()=>evSlalom},
+  gate:    {lead:10.5, tail: 4.0, fn:()=>evGate}
+};
+
+function chooseEvent(){
   const st=stageData();
-  S.eventIdx++;
-  if(S.eventIdx % st.gateEvery === 0){ evGate(z); S.lastEvent='gate'; return; }
-  const bag=['plain','plain','weave','hurdle','duck','switch','animal','chasm'];
-  if(S.stage>=1) bag.push('chasm','animal');
-  if(S.stage>=2) bag.push('hurdle','duck','animal');
-  if(S.stage>=3) bag.push('chasm','weave','duck');
-  let t=pick(bag);
-  if(t===S.lastEvent && (t==='chasm'||t==='duck'||t==='switch')) t='plain';
+  S.eventIdx++; S.sinceSwitch++;
+  if(S.eventIdx % st.gateEvery === 0){ S.lastEvent='gate'; return 'gate'; }
+  let t;
+  if(S.sinceSwitch >= 2){                       // never let him sit in one lane for long
+    t = Math.random()<0.55 ? 'switch' : 'slalom';
+  } else {
+    const bag=['plain','weave','hurdle','duck','switch','slalom','animal','chasm'];
+    if(S.stage>=1) bag.push('chasm','animal','switch');
+    if(S.stage>=2) bag.push('hurdle','duck','slalom');
+    if(S.stage>=3) bag.push('chasm','weave','duck','switch');
+    t=pick(bag);
+    if(t===S.lastEvent && (t==='chasm'||t==='duck'||t==='switch'||t==='slalom')) t='weave';
+  }
   S.lastEvent=t;
-  ({plain:evPlain, weave:evWeave, hurdle:evHurdle, duck:evDuck,
-    chasm:evChasm, animal:evAnimal, 'switch':evSwitch})[t](z);
+  return t;
 }
 
 function spawnProps(z){
@@ -1356,14 +1403,18 @@ function moveLane(d){
   const n=clamp(S.lane+d,0,2);
   if(n!==S.lane){ S.lane=n; }
 }
+const JUMP_DIST=12, JUMP_APEX=1.9, DUCK_DIST=7.0;
 function jump(){
   if(S.mode!=='run'||S.jumping) return;
-  S.jumping=true; S.vy=9.2; S.ducking=false; S.duckT=0;
+  const T = JUMP_DIST/Math.max(S.speed,8);      // same ground covered at any speed
+  S.jg = 8*JUMP_APEX/(T*T);
+  S.vy = 4*JUMP_APEX/T;
+  S.jumping=true; S.ducking=false; S.duckT=0;
 }
 function duck(){
   if(S.mode!=='run') return;
   if(S.jumping){ S.vy=Math.min(S.vy,-4); }
-  S.ducking=true; S.duckT=0.55;
+  S.ducking=true; S.duckT = DUCK_DIST/Math.max(S.speed,8);
 }
 
 addEventListener('keydown',e=>{
@@ -1493,7 +1544,7 @@ function startStage(){
   S.dist=0; S.speed=st.speed;
   S.stamina=100;
   S.score=S.totalScore; S.gatesCleared=0;
-  S.route=1; S.eventIdx=0; S.lastEvent='';
+  S.route=1; S.eventIdx=0; S.lastEvent=''; S.sinceSwitch=0; S.prevTail=6;
   S.sushiGot=0; S.sushiTotal=0; S.combo=0; S.mult=1; S.bestMult=1; S.multFlash=0;
   S.stumble=0;
   S.lane=1; S.laneX=LANES[1];
@@ -1640,7 +1691,7 @@ function frame(now){
     } else {
       S.speed = st.speed + st.speedGain*prog;
       /* ---- stamina drain: steeper + colder + faster = harder ---- */
-      const drainRate = 4.2 + st.slope*14 + st.cold*2.4 + prog*1.8;
+      const drainRate = 4.8 + st.slope*15 + st.cold*2.8 + prog*2.0;
       S.stamina -= drainRate*dt;
       if(S.stamina<=0){ S.stamina=0; die('Legs gave out on the slope.'); }
     }
@@ -1653,16 +1704,20 @@ function frame(now){
     if(S.stumble>0){ S.stumble-=dt; S.speed*=0.42; }
     S.laneX = lerp(S.laneX, LANES[S.lane], 1-Math.pow(0.0009,dt));
     if(S.jumping){
-      S.vy -= 26*dt; S.y += S.vy*dt;
+      S.vy -= (S.jg||26)*dt; S.y += S.vy*dt;
       if(S.y<=0){ S.y=0; S.vy=0; S.jumping=false; emitDust(S.laneX,0); emitDust(S.laneX,0); }
     }
     if(S.duckT>0){ S.duckT-=dt; if(S.duckT<=0) S.ducking=false; }
 
     /* ---- event frontier ---- */
     if(S.intro<=0){
-      while(S.spawnZ > -175){
-        spawnEvent(S.spawnZ);
-        S.spawnZ -= st.eventGap;
+      while(S.spawnZ > -195){
+        const t  = chooseEvent();
+        const ev = EV[t];
+        const z  = S.spawnZ - (S.prevTail + ev.lead + st.eventGap);
+        ev.fn()(z);
+        S.prevTail = ev.tail;
+        S.spawnZ = z;
       }
     }
     S.spawnZ += S.speed*dt;
@@ -1862,7 +1917,7 @@ function frame(now){
       g.scored=true;
       if(!running){ /* menu drift: gates are scenery */ } else {
       if(g.open.indexOf(S.lane)>=0){
-        S.gatesCleared++; S.totalGates++; S.score += 120*S.mult; restore(12);
+        S.gatesCleared++; S.totalGates++; S.score += 120*S.mult; restore(10);
         S.gateFlash=1;
         const msgs=['⛩ 通 過','⛩ 良 し','⛩ 見 事','⛩ 通 過'];
         if(S.gatesCleared%3===0) toast(pick(msgs),'#D9A441');
@@ -1956,7 +2011,7 @@ function frame(now){
       const ok = p.req==='air' ? airborne : p.req==='duck' ? (S.ducking && !airborne) : (!S.ducking && !airborne);
       if(ok){
         p.taken=true; S.sushiGot++; addChain();
-        S.score += 25*S.mult; restore(1.5);
+        S.score += 25*S.mult; restore(1.1);
         if(S.combo>0 && S.combo%8===0) toast('連 鎖 ×'+S.mult);
         sushiPool.release(p.ref); sushi.splice(i,1); continue;
       }
