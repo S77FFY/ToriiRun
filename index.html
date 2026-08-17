@@ -49,11 +49,14 @@
 
   #score{position:absolute;top:calc(var(--safe-t) + 12px);right:14px;text-align:right}
   #score .n{font-family:'Shippori Mincho',serif;font-size:30px;font-weight:800;line-height:.9;
-    text-shadow:0 2px 10px rgba(0,0,0,.7)}
-  #score .l{font-size:9px;letter-spacing:.28em;opacity:.6;margin-top:4px}
-  #gates{font-size:11px;letter-spacing:.14em;opacity:.8;margin-top:8px;color:var(--gold)}
+    text-shadow:0 2px 10px rgba(0,0,0,.85),0 0 3px rgba(0,0,0,.9)}
+  #score .l{font-size:9px;letter-spacing:.28em;opacity:.85;margin-top:4px;
+    text-shadow:0 1px 4px rgba(0,0,0,.9)}
+  #gates{font-size:11px;letter-spacing:.14em;opacity:1;margin-top:8px;color:var(--gold);
+    text-shadow:0 1px 5px rgba(0,0,0,.9)}
   #mult{font-family:'Shippori Mincho',serif;font-size:26px;font-weight:800;line-height:1;
-    margin-top:10px;color:var(--gold);text-shadow:0 0 14px rgba(217,164,65,.55);
+    margin-top:10px;color:var(--gold);
+    text-shadow:0 0 14px rgba(217,164,65,.55),0 2px 6px rgba(0,0,0,.9);
     transition:transform .12s,color .2s}
   #mult.up{transform:scale(1.3);color:#fff}
   #mult.brk{color:#D9401F;text-shadow:0 0 14px rgba(217,64,31,.7)}
@@ -79,51 +82,17 @@
 
   /* climb progress: thin vertical thread beside the ladder */
   #climb{position:absolute;right:46px;top:50%;transform:translateY(-50%);
-    width:2px;height:180px;background:rgba(242,233,216,.16);border-radius:2px;overflow:hidden}
+    width:3px;height:180px;background:rgba(0,0,0,.35);border-radius:2px;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,0,0,.25)}
   #climbFill{position:absolute;bottom:0;left:0;right:0;height:0%;
     background:linear-gradient(#F2E9D8,var(--gold));transition:height .12s linear}
 
   /* stamina = mawashi belt */
-  #belt{position:absolute;left:14px;right:14px;bottom:calc(var(--safe-b) + 16px)}
-  #beltTrack{height:16px;border-radius:3px;background:rgba(10,8,7,.62);
-    border:1px solid rgba(242,233,216,.22);overflow:hidden;position:relative;
-    box-shadow:0 4px 14px rgba(0,0,0,.45)}
-  #beltFill{height:100%;width:100%;transform-origin:left;
-    background:repeating-linear-gradient(115deg,#EDE3CE 0 9px,#DCCFB4 9px 18px);
-    transition:width .1s linear}
-  #belt.warn #beltFill{background:repeating-linear-gradient(115deg,#E8B23A 0 9px,#C88A1E 9px 18px)}
-  #belt.crit #beltFill{background:repeating-linear-gradient(115deg,#D9401F 0 9px,#8E2411 9px 18px);
-    animation:pulse .5s infinite}
   @keyframes pulse{50%{filter:brightness(1.6)}}
-  #beltLabel{display:flex;justify-content:space-between;align-items:baseline;
-    font-size:10px;letter-spacing:.24em;opacity:.7;margin-bottom:6px;text-transform:uppercase}
-  #ganbare{font-family:'Shippori Mincho',serif;color:var(--vermilion);letter-spacing:.1em;
-    opacity:0;transition:opacity .2s;font-size:12px}
-  #belt.crit #ganbare{opacity:1;animation:pulse .5s infinite}
 
-  /* weight — the dial everything hangs off */
-  #wt{position:absolute;left:14px;bottom:calc(var(--safe-b) + 108px);width:132px}
-  #wtLab{display:flex;justify-content:space-between;align-items:baseline;
-    font-size:9.5px;letter-spacing:.2em;opacity:.62;margin-bottom:5px;text-transform:uppercase}
-  #wtLab b{font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:0;
-    color:#F0C6A6;opacity:1}
-  #wtTrack{height:9px;border-radius:5px;background:rgba(10,8,7,.6);
-    border:1px solid rgba(240,198,166,.28);overflow:hidden;position:relative}
-  #wtFill{height:100%;width:34%;background:linear-gradient(90deg,#C98F6B,#F0C6A6);
-    transition:width .15s}
-  #wtTrack:after{content:"";position:absolute;left:62%;top:-3px;bottom:-3px;width:2px;
-    background:rgba(217,64,31,.85)}          /* the width a narrow gate allows */
+  /* weight — the dial everything hangs off */          /* the width a narrow gate allows */
 
   /* momentum — what you spend to smash */
-  #mom{position:absolute;left:14px;right:96px;bottom:calc(var(--safe-b) + 42px)}
-  #momTrack{height:5px;border-radius:3px;background:rgba(10,8,7,.55);overflow:hidden;
-    border:1px solid rgba(242,233,216,.16)}
-  #momFill{height:100%;width:0%;background:linear-gradient(90deg,#6EC5E8,#F2E9D8);
-    transition:width .09s}
-  #mom.hot #momFill{background:linear-gradient(90deg,#FFB03A,#FFF0C0);
-    box-shadow:0 0 12px rgba(255,176,58,.8)}
-  #momLab{font-size:9px;letter-spacing:.22em;opacity:.5;margin-bottom:4px;text-transform:uppercase}
-  #mom.hot #momLab{opacity:.95;color:#FFC96A}
 
   /* shiko stomp */
   #stompBtn{position:absolute;right:14px;bottom:calc(var(--safe-b) + 34px);
@@ -154,6 +123,10 @@
   #falter .k{font-family:'Shippori Mincho',serif;font-size:clamp(30px,10vw,56px);
     color:#FFD9C0;text-shadow:0 0 30px rgba(217,64,31,.9)}
   #falter .t{font-size:11px;letter-spacing:.3em;margin-top:12px;text-transform:uppercase;opacity:.85}
+  #falterBar{width:min(60vw,240px);height:7px;margin-top:16px;border-radius:4px;
+    background:rgba(0,0,0,.5);border:1px solid rgba(255,217,192,.35);overflow:hidden}
+  #falterFill{height:100%;width:0%;border-radius:4px;
+    background:linear-gradient(90deg,#D9401F,#FFD9A0);transition:width .07s}
 
   /* blessings on the scroll */
   .blessRow{display:flex;gap:10px;margin-top:16px}
@@ -208,8 +181,6 @@
     color:#FFD9C0;text-shadow:0 0 22px rgba(217,64,31,.9)}
   #blockMsg.on{display:block;animation:pulse .4s infinite}
 
-  #temp{position:absolute;left:14px;bottom:calc(var(--safe-b) + 56px);
-    font-size:11px;letter-spacing:.16em;color:var(--frost);opacity:.85}
 
   /* toast */
   #toast{position:absolute;left:50%;top:26%;transform:translate(-50%,0) scale(.9);
@@ -343,16 +314,40 @@
     font-family:'Shippori Mincho',serif;font-size:12px;letter-spacing:.18em;
     color:var(--gold);opacity:.72;pointer-events:none;text-align:left;line-height:1.5}
 
+  /* settings cog, bottom left where the bars used to be */
+  #cog{position:absolute;left:14px;bottom:calc(var(--safe-b) + 34px);
+    width:52px;height:52px;border-radius:50%;pointer-events:auto;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    color:rgba(242,233,216,.75);background:rgba(14,16,22,.55);
+    border:1px solid rgba(242,233,216,.22);transition:transform .15s,color .15s;z-index:12}
+  #cog:active{transform:scale(.92)}
+  #cog.open{color:var(--gold);border-color:var(--gold);transform:rotate(60deg)}
+
+  #opts{position:absolute;left:14px;bottom:calc(var(--safe-b) + 96px);
+    width:208px;padding:8px;border-radius:6px;pointer-events:auto;
+    background:linear-gradient(rgba(24,27,35,.97),rgba(14,16,22,.97));
+    border:1px solid rgba(217,164,65,.4);box-shadow:0 12px 34px rgba(0,0,0,.6);
+    display:none;z-index:12}
+  #opts.on{display:block}
+  .optRow{display:flex;align-items:center;justify-content:space-between;
+    padding:11px 10px;cursor:pointer;border-radius:4px}
+  .optRow:active{background:rgba(255,255,255,.06)}
+  .optRow span{font-family:'Shippori Mincho',serif;font-size:15px;letter-spacing:.1em}
+  .optRow span small{display:block;font-family:'Zen Kaku Gothic New',sans-serif;
+    font-size:8px;letter-spacing:.24em;opacity:.5;margin-top:3px}
+  .sw{width:38px;height:21px;border-radius:11px;background:rgba(242,233,216,.16);
+    position:relative;transition:background .18s;flex:none}
+  .sw:after{content:"";position:absolute;top:3px;left:3px;width:15px;height:15px;
+    border-radius:50%;background:#F2E9D8;transition:transform .18s}
+  .sw.on{background:var(--vermilion)}
+  .sw.on:after{transform:translateX(17px)}
+
   #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:#0b0f14;z-index:50;font-family:'Shippori Mincho',serif;letter-spacing:.4em;
     color:var(--vermilion);font-size:15px}
   #loading.hide{opacity:0;pointer-events:none;transition:opacity .6s}
 
   /* touch guides */
-  #hint{position:absolute;left:50%;bottom:calc(var(--safe-b) + 92px);transform:translateX(-50%);
-    font-size:11px;letter-spacing:.18em;opacity:0;text-align:center;line-height:1.9}
-  #hint.show{animation:hintFade 4.5s ease-out}
-  @keyframes hintFade{0%,60%{opacity:.75}100%{opacity:0}}
 
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important}}
 </style>
@@ -361,12 +356,19 @@
 <div id="loading">読 み 込 み 中</div>
 <div id="ui">
 
+  <div id="cog">⚙</div>
+  <div id="opts">
+    <div class="optRow" id="optMusic"><span>音 楽<small>MUSIC</small></span><i class="sw on" id="swMusic"></i></div>
+    <div class="optRow" id="optSfx"><span>効 果 音<small>SOUND</small></span><i class="sw on" id="swSfx"></i></div>
+  </div>
+
   <div id="hud">
     <div class="plaque">
       <div class="stage-kanji" id="hStageK">麓</div>
       <div class="stage-name" id="hStageN">Foothill Path</div>
       <div class="altitude" id="hAlt">240 m</div>
       <div class="sushiPct" id="hSushi">寿司 0%</div>
+      <div class="altitude" id="hTemp">24°C</div>
     </div>
 
     <div id="score">
@@ -380,18 +382,6 @@
     <div id="climb"><div id="climbFill"></div></div>
     <div id="ladder"></div>
 
-    <div id="temp">−0°C</div>
-
-    <div id="wt">
-      <div id="wtLab"><span>WEIGHT</span><b id="wtVal">体重</b></div>
-      <div id="wtTrack"><div id="wtFill"></div></div>
-    </div>
-
-    <div id="mom">
-      <div id="momLab">MOMENTUM — <span id="momHint">build it up</span></div>
-      <div id="momTrack"><div id="momFill"></div></div>
-    </div>
-
     <div id="stompBtn">四<div id="stompRing"></div></div>
     <div id="rivalPip"></div><div id="youPip"></div>
 
@@ -399,19 +389,17 @@
     <div id="hidBanner">一 本 道</div>
     <div id="blockMsg">回 り 込 め</div>
 
-    <div id="falter"><div class="k">こ ら え ろ</div><div class="t">tap anything to fight back up</div></div>
-
-    <div id="belt">
-      <div id="beltLabel"><span>STAMINA 力</span><span id="ganbare">が ん ば れ</span></div>
-      <div id="beltTrack"><div id="beltFill"></div></div>
+    <div id="falter">
+      <div class="k">こ ら え ろ</div>
+      <div class="t">TAP FAST TO CLIMB BACK</div>
+      <div id="falterBar"><div id="falterFill"></div></div>
     </div>
 
     <div id="toast"></div>
-    <div id="hint">swipe ← → lane &nbsp;·&nbsp; ↑ jump &nbsp;·&nbsp; ↓ lean back<br>tap 四 to stomp the mountain flat</div>
   </div>
 
   <div class="screen" id="title">
-    <div id="ver">v1.0.0</div>
+    <div id="ver">v1.3.0</div>
     <div class="brand">
       <div class="jp">鳥居駆</div>
       <div class="en">TORII RUN</div>
@@ -424,7 +412,8 @@
       There's a rival on this mountain, and he isn't waiting for you.
     </div>
     <button class="btn" id="btnStart">BEGIN THE CLIMB</button>
-    <div class="keys">TOUCH — swipe to steer &nbsp;·&nbsp; tap 四 for the shiko stomp<br>KEYS — arrows &nbsp;·&nbsp; F to stomp</div>
+    <div class="keys">swipe ← → to change lane &nbsp;·&nbsp; ↑ jump &nbsp;·&nbsp; ↓ lean back<br>
+      tap 四 for the shiko stomp &nbsp;·&nbsp; keys: arrows and F</div>
   </div>
 
   <div class="screen hide" id="scroll">
@@ -890,7 +879,24 @@
    TORII RUN — five shrine stages up one cold mountain
    ============================================================ */
 
-const GAME_VERSION = '1.0.0';
+/* ---------------------------------------------------------------
+   1.0.0  version stamp added to the title card
+   1.0.1  dropped the "build" label under it
+   1.3.0  sound and music, all synthesised in-browser — taiko pulse
+          under a hirajoshi koto line that shifts with each stage,
+          plus temple bells, smashes, footfalls and the rest.
+          Settings cog bottom-left toggles music and effects.
+   1.2.0  HUD moved onto the wrestler: three bottom bars removed,
+          stamina is now a dial of ticks at his feet, momentum an aura
+          that turns gold when he can smash, weight his size plus a
+          mawashi that reddens near the narrow-gate limit
+   1.1.0  the slide back down the mountain is properly escapable —
+          faster mash, tap registers on touch-down, real buffer on
+          recovery, progress bar while you're down; three-layered
+          escalation so it still costs you. Controls hint moved to
+          the title card only. Stamina economy eased to suit.
+   --------------------------------------------------------------- */
+const GAME_VERSION = '1.3.0';
 const LANES = [-2.45, 0, 2.45];
 const ROAD_HALF = 4.6;
 const TILE_LEN = 8;
@@ -931,6 +937,170 @@ const lerp  = (a,b,t)=>a+(b-a)*t;
 const rand  = (a,b)=>a+Math.random()*(b-a);
 const pick  = arr=>arr[(Math.random()*arr.length)|0];
 function lerpColor(a,b,t){ return new THREE.Color(a).lerp(new THREE.Color(b),t); }
+
+/* ============================================================
+   SOUND — all of it synthesised on the fly with Web Audio, so the
+   file stays standalone with nothing to download. Silent no-op if
+   the browser won't give us a context.
+   ============================================================ */
+const Snd = (function(){
+  let ctx=null, master=null, musicBus=null, sfxBus=null, noiseBuf=null;
+  let started=false, timer=null, step=0, nextNote=0, stage=0;
+  const opt = { music:true, sfx:true };
+
+  try{
+    const saved = JSON.parse(localStorage.getItem('toriiSound')||'null');
+    if(saved){ opt.music=!!saved.music; opt.sfx=!!saved.sfx; }
+  }catch(e){}
+  function save(){ try{ localStorage.setItem('toriiSound',JSON.stringify(opt)); }catch(e){} }
+
+  function init(){
+    if(ctx) return true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return false;
+    try{ ctx = new AC(); }catch(e){ return false; }
+    master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+    musicBus = ctx.createGain(); musicBus.gain.value = opt.music?0.30:0; musicBus.connect(master);
+    sfxBus   = ctx.createGain(); sfxBus.gain.value   = opt.sfx?0.55:0;  sfxBus.connect(master);
+    const n = ctx.sampleRate*1.2;
+    noiseBuf = ctx.createBuffer(1, n, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i] = Math.random()*2-1;
+    return true;
+  }
+  function resume(){ if(ctx && ctx.state==='suspended') ctx.resume(); }
+
+  /* ---- primitives ---- */
+  function tone(f, at, dur, type, vol, bus, f2){
+    if(!ctx) return;
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type||'sine';
+    o.frequency.setValueAtTime(f, at);
+    if(f2) o.frequency.exponentialRampToValueAtTime(Math.max(f2,1), at+dur);
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(Math.max(vol,0.0002), at+0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, at+dur);
+    o.connect(g); g.connect(bus||sfxBus);
+    o.start(at); o.stop(at+dur+0.03);
+  }
+  function hiss(at, dur, vol, cut, bus, q){
+    if(!ctx) return;
+    const src=ctx.createBufferSource(); src.buffer=noiseBuf;
+    const bp=ctx.createBiquadFilter(); bp.type='lowpass';
+    bp.frequency.setValueAtTime(cut, at);
+    bp.frequency.exponentialRampToValueAtTime(Math.max(cut*0.25,80), at+dur);
+    bp.Q.value=q||1;
+    const g=ctx.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(vol, at+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, at+dur);
+    src.connect(bp); bp.connect(g); g.connect(bus||sfxBus);
+    src.start(at, Math.random()*0.4); src.stop(at+dur+0.02);
+  }
+  const now = ()=> ctx ? ctx.currentTime : 0;
+
+  /* ---- one-shots ---- */
+  let lastStep=0;
+  const fx = {
+    step(){ if(!ctx||!opt.sfx) return; const t=now(); if(t-lastStep<0.09) return; lastStep=t;
+            tone(70,t,0.09,'sine',0.16,null,45); hiss(t,0.06,0.05,900); },
+    jump(){ if(!ctx||!opt.sfx) return; const t=now();
+            tone(200,t,0.16,'triangle',0.14,null,420); hiss(t,0.1,0.05,1800); },
+    duck(){ if(!ctx||!opt.sfx) return; const t=now();
+            hiss(t,0.2,0.09,2400,null,3); tone(320,t,0.16,'sine',0.07,null,120); },
+    pick(n){ if(!ctx||!opt.sfx) return; const t=now();
+            const f = 620 * Math.pow(1.0595, Math.min(n||0,14));
+            tone(f,t,0.1,'triangle',0.13); tone(f*2,t,0.07,'sine',0.05); },
+    chanko(){ if(!ctx||!opt.sfx) return; const t=now();
+            tone(180,t,0.4,'sine',0.2,null,120); tone(270,t+0.03,0.35,'triangle',0.1);
+            hiss(t,0.25,0.05,700); },
+    gate(){ if(!ctx||!opt.sfx) return; const t=now();      // a temple bell
+            [1,2.76,5.4].forEach((m,i)=> tone(220*m,t,1.6-i*0.35,'sine',0.16/(i+1)));
+            hiss(t,0.08,0.05,3000); },
+    smash(){ if(!ctx||!opt.sfx) return; const t=now();
+            hiss(t,0.3,0.30,2600,null,1); tone(90,t,0.24,'square',0.2,null,40);
+            tone(160,t+0.02,0.18,'sawtooth',0.09,null,60); },
+    hit(){ if(!ctx||!opt.sfx) return; const t=now();
+            tone(140,t,0.26,'sine',0.24,null,50); hiss(t,0.14,0.12,600); },
+    shove(){ if(!ctx||!opt.sfx) return; const t=now();
+            tone(110,t,0.3,'square',0.2,null,55); hiss(t,0.22,0.16,1200);
+            tone(300,t+0.04,0.14,'triangle',0.08,null,150); },
+    stomp(){ if(!ctx||!opt.sfx) return; const t=now();     // shiko: the floor moves
+            tone(55,t,0.9,'sine',0.42,null,28); tone(82,t,0.6,'triangle',0.18,null,40);
+            hiss(t,0.5,0.26,1600); hiss(t+0.05,0.7,0.12,400); },
+    great(){ if(!ctx||!opt.sfx) return; const t=now();
+            [0,4,7,12,16].forEach((sm,i)=> tone(330*Math.pow(2,sm/12), t+i*0.07, 0.5,'triangle',0.14));
+            hiss(t,0.5,0.08,4000); },
+    hidden(){ if(!ctx||!opt.sfx) return; const t=now();
+            [0,2,5,7,12,14].forEach((sm,i)=> tone(520*Math.pow(2,sm/12), t+i*0.06, 0.9,'sine',0.11)); },
+    falter(){ if(!ctx||!opt.sfx) return; const t=now();
+            tone(120,t,1.2,'sawtooth',0.16,null,45); hiss(t,1.0,0.1,500); },
+    save(){ if(!ctx||!opt.sfx) return; const t=now();
+            [0,5,12].forEach((sm,i)=> tone(300*Math.pow(2,sm/12), t+i*0.06,0.5,'triangle',0.14)); },
+    win(){ if(!ctx||!opt.sfx) return; const t=now();
+            [0,4,7,12].forEach((sm,i)=> tone(262*Math.pow(2,sm/12), t+i*0.12,1.2,'sine',0.16));
+            [1,2.76].forEach((m,i)=> tone(330*m,t,2.2,'sine',0.1)); },
+    lose(){ if(!ctx||!opt.sfx) return; const t=now();
+            tone(200,t,1.4,'sine',0.2,null,60); tone(150,t+0.1,1.6,'triangle',0.14,null,45);
+            hiss(t,0.9,0.08,700); }
+  };
+
+  /* ---- music: a taiko pulse under a hirajoshi koto line ---- */
+  const HIRAJOSHI = [0,1,5,7,8];                 // the scale that says "Japan"
+  const PATTERN = [0,2,3,2, 4,3,2,0, 1,2,4,3, 2,0,-1,2];
+  function noteAt(i, oct){
+    const p = PATTERN[i % PATTERN.length];
+    if(p < 0) return 0;
+    return 220 * Math.pow(2, (HIRAJOSHI[p % 5] + (oct||0)*12)/12);
+  }
+  function schedule(){
+    if(!ctx || !opt.music) return;
+    const bpm = [88,96,104,112,122][stage] || 96;
+    const spb = 60/bpm, sixteenth = spb/4;
+    while(nextNote < ctx.currentTime + 0.35){
+      const t = nextNote, b = step % 16;
+      // taiko
+      if(b===0 || b===8){ tone(58,t,0.42,'sine',0.5,musicBus,30); hiss(t,0.12,0.14,900,musicBus); }
+      else if(b===6 || b===14){ tone(64,t,0.22,'sine',0.26,musicBus,34); }
+      if(b===4 || b===12) hiss(t,0.09,0.10,3200,musicBus,2);      // a rim tap
+      // koto line — sparser and higher the colder it gets
+      const sparse = stage>=3 ? (b%4===0) : (b%2===0);
+      if(sparse){
+        const f = noteAt(step/1 | 0, stage>=3 ? 1 : 0);
+        if(f) { tone(f, t, 0.5, 'triangle', 0.16, musicBus);
+                tone(f*2, t, 0.24, 'sine', 0.05, musicBus); }
+      }
+      // wind over the summit
+      if(stage>=3 && b===0) hiss(t, spb*3.4, 0.05, 900, musicBus, 0.6);
+      // a drone underneath everything
+      if(b===0) tone(110*Math.pow(2,stage/24), t, spb*3.6, 'sine', 0.06, musicBus);
+      nextNote += sixteenth; step++;
+    }
+  }
+
+  return {
+    opt,
+    fx,
+    unlock(){ if(init()){ resume(); } },
+    startMusic(){
+      if(!init()) return;
+      resume();
+      if(started) return;
+      started = true;
+      nextNote = ctx.currentTime + 0.05;
+      timer = setInterval(schedule, 120);
+    },
+    stopMusic(){ if(timer){ clearInterval(timer); timer=null; } started=false; },
+    setStage(i){ stage = i|0; },
+    intensity(x){ if(musicBus && opt.music)
+      musicBus.gain.value = 0.30 * (1 + (x||0)*0.5); },
+    toggleMusic(on){ opt.music = on; save();
+      if(musicBus) musicBus.gain.value = on?0.30:0;
+      if(on) this.startMusic(); },
+    toggleSfx(on){ opt.sfx = on; save(); if(sfxBus) sfxBus.gain.value = on?0.55:0; }
+  };
+})();
+
 
 /* ---------- Renderer / scene ---------- */
 const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
@@ -1722,7 +1892,7 @@ function updateRival(dt, running){
       S.mom = Math.max(0, S.mom - 0.18);
       S.score += 200*sMul(); S.shoves++;
       S.shake = 0.9; burst(R.laneX, 1.5, R.z, 0xEDE6D2, 8);
-      toast('突 っ 張 り');
+      Snd.fx.shove(); toast('突 っ 張 り');
     } else {
       S.blocked = 0.2;                       // stuck in his wake
       R.z = Math.min(R.z, -2.4);
@@ -1738,6 +1908,68 @@ function updateRival(dt, running){
       R.z = Math.max(R.z, 2.4);
     }
   }
+}
+
+/* ============================================================
+   THE GAUGES LIVE ON HIM
+   Stamina is a ring of ticks on the ground at his feet. Momentum is
+   an aura that swells and turns gold the moment he can smash. Weight
+   is his actual size, plus a mawashi that reddens as he grows past
+   what a narrow gate will take.
+   ============================================================ */
+const STAM_SEG = 36;
+const stamMat = new THREE.MeshBasicMaterial({color:0xF2E9D8, transparent:true,
+  opacity:0.95, depthWrite:false, fog:false});
+const stamRing = new THREE.Group();
+stamRing.renderOrder = 3;
+const stamTicks = [];
+for(let i=0;i<STAM_SEG;i++){
+  const pivot = new THREE.Group();
+  pivot.rotation.y = (i/STAM_SEG)*Math.PI*2;
+  const tick = new THREE.Mesh(plane, stamMat);
+  tick.position.set(0,0,1.0);
+  tick.scale.set(0.11,1,0.34);
+  tick.renderOrder = 3;
+  pivot.add(tick);
+  stamRing.add(pivot);
+  stamTicks.push(pivot);
+}
+scene.add(stamRing);
+
+const aura = new THREE.Sprite(new THREE.SpriteMaterial({map:softTex, color:0x6EC5E8,
+  transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending}));
+aura.scale.set(6,6,1);
+scene.add(aura);
+
+function updateGauges(dt, groundY, wS){
+  /* ---- stamina: a dial of ticks at his feet ---- */
+  const show = Math.ceil(clamp(S.stamina,0,100)/100 * STAM_SEG);
+  for(let i=0;i<STAM_SEG;i++) stamTicks[i].visible = i < show;
+  const lowish = S.stamina < 45, crit = S.stamina < 22;
+  stamMat.color.set(crit ? 0xFF4A28 : lowish ? 0xF2B23A : 0xF7EFDC);
+  stamMat.opacity = crit ? 0.7 + Math.sin(ambientT*13)*0.3 : 0.92;
+  stamRing.visible = (S.mode==='run');
+  stamRing.position.set(S.laneX, groundY + 0.07, 0.25);
+  stamRing.scale.setScalar(1.28 * wS);
+
+  /* ---- momentum: he glows, and goes gold when he can smash ---- */
+  const need = smashNeed(S.weight) - (S.bless.strength?0.16:0);
+  const ready = S.mom >= need;
+  aura.visible = (S.mode==='run');
+  aura.position.set(S.laneX, groundY + (1.5 + S.y)*wS, 0);
+  aura.scale.setScalar((5.2 + S.mom*2.2) * wS);
+  aura.material.color.set(ready ? 0xFFC24A : 0x6EC5E8);
+  aura.material.opacity = ready
+    ? 0.42 + Math.sin(ambientT*9)*0.16
+    : S.mom * 0.18;
+  if(S.huge>0){
+    aura.material.color.set(0xFFE07A);
+    aura.material.opacity = 0.6 + Math.sin(ambientT*14)*0.2;
+  }
+
+  /* ---- weight: his size says it, his belt warns you ---- */
+  const over = clamp((S.weight-0.50)/0.15, 0, 1);      // 0.62 is the narrow-gate limit
+  sumo.mats.mawashi.color.set(lerpColor(0xEDE6D2, 0xD9401F, over));
 }
 
 /* shadow blob so he never looks unplanted */
@@ -1932,7 +2164,7 @@ const S = {
   laneCool:0, faltering:0, falterFrom:0, falterFlash:0,
   bless:{}, sushiMax:0, evLanes:null, evQueue:[],
   rival:null, rivalBeat:false, shoves:0,
-  huge:0, hugeRamp:0, hugeUsed:0, blocked:0, crash:0, falterCool:0, falterCount:0,
+  huge:0, hugeRamp:0, hugeUsed:0, blocked:0, crash:0, falterCool:0, falterCount:0, falterNeed:24,
   hidden:0, hidEnd:0, hidSpawn:0, hidFound:0, hidTotal:0, hidTriggers:[],
   hidMode:'ground', hidRun:3, hidCool:0, hidMarked:0, greatDrop:0, greatDone:false,
   sushiGot:0, sushiTotal:0, combo:0, mult:1, bestMult:1, multFlash:0,
@@ -2164,6 +2396,7 @@ function enterHidden(){
   S.greatDone = false;
   toast('一 本 道');
   S.gateFlash = 1;
+  Snd.fx.hidden();
 }
 function exitHidden(){
   S.hidden = 0;
@@ -2333,13 +2566,13 @@ function moveLane(d){
 }
 function falterPush(){
   if(!S.faltering || S.falterCool > 0) return;
-  S.falterCool = 0.19;                      // mashing at 60fps shouldn't be free
-  S.stamina = Math.min(100, S.stamina + 3.0);
+  S.falterCool = 0.11;                      // still capped, but a real mash gets you out
+  S.stamina = Math.min(100, S.stamina + 5.0);
   S.falterFlash = 1;
 }
 function doStomp(){
   if(S.mode!=='run' || S.intro>0 || S.stomp<1) return;
-  S.stomp=0; S.stompFx=1; S.shake=1.25; shock.visible=true;
+  S.stomp=0; S.stompFx=1; S.shake=1.25; shock.visible=true; Snd.fx.stomp();
   for(let i=obstacles.length-1;i>=0;i--){ const o=obstacles[i];
     if(o.z>-27 && o.z<7){ burst(o.obj.position.x,0.7,o.z,0x9A9184,7);
       o.pool.release(o.ref); obstacles.splice(i,1); } }
@@ -2348,7 +2581,7 @@ function doStomp(){
   chasms.forEach(c=>{ if(c.z>-27 && c.z<7) c.bridged=true; });
   for(let i=sushi.length-1;i>=0;i--){ const p=sushi[i];      // hoovers up the food
     if(p.z>-25 && p.z<5 && !p.taken){
-      S.sushiGot++; addChain(); S.score+=25*sMul();
+      S.sushiGot++; addChain(); Snd.fx.pick(S.combo); S.score+=25*sMul();
       restore(1.75*(S.bless.food?1.6:1));
       sushiPool.release(p.ref); sushi.splice(i,1); } }
   S.invuln=Math.max(S.invuln,0.5);
@@ -2364,17 +2597,19 @@ function jump(){
   S.jg = 8*apex/(T*T);
   S.vy = 4*apex/T;
   S.jumping=true; S.ducking=false; S.duckT=0;
+  Snd.fx.jump();
 }
 function duck(){
   if(S.mode!=='run') return;
   if(S.faltering){ falterPush(); return; }
   if(S.jumping){ S.vy=Math.min(S.vy,-4); }
-  S.ducking=true; S.duckT = DUCK_DIST/Math.max(S.speed,8);
+  S.ducking=true; S.duckT = DUCK_DIST/Math.max(S.speed,8); Snd.fx.duck();
 }
 
 addEventListener('keydown',e=>{
   if(e.repeat) return;
   const k=e.key;
+  if(S.faltering){ falterPush(); return; }
   if(k==='ArrowLeft'||k==='a'||k==='A') moveLane(-1);
   else if(k==='ArrowRight'||k==='d'||k==='D') moveLane(1);
   else if(k==='ArrowUp'||k==='w'||k==='W'||k===' ') { e.preventDefault(); jump(); }
@@ -2385,6 +2620,8 @@ addEventListener('keydown',e=>{
 let tX=0,tY=0,tT=0,swiped=false;
 const cv=renderer.domElement;
 cv.addEventListener('touchstart',e=>{
+  Snd.unlock();
+  if(S.faltering) falterPush();
   const t=e.changedTouches[0]; tX=t.clientX; tY=t.clientY; tT=performance.now(); swiped=false;
 },{passive:true});
 cv.addEventListener('touchmove',e=>{
@@ -2420,17 +2657,16 @@ addEventListener('resize',()=>{
 const $ = id=>document.getElementById(id);
 const el={
   hud:$('hud'), stageK:$('hStageK'), stageN:$('hStageN'), alt:$('hAlt'),
-  score:$('hScore'), gates:$('hGates'), belt:$('belt'), beltFill:$('beltFill'),
-  temp:$('temp'), climb:$('climbFill'), toast:$('toast'), ladder:$('ladder'),
+  score:$('hScore'), gates:$('hGates'),
+  temp:$('hTemp'), climb:$('climbFill'), toast:$('toast'), ladder:$('ladder'),
   title:$('title'), card:$('scroll'), end:$('end'),
   scroll:$('scroll'), pcontent:$('pcontent'),
   mult:$('mult'), chain:$('chainFill'), sushiPct:$('hSushi'),
-  wtFill:$('wtFill'), wtVal:$('wtVal'), mom:$('mom'), momFill:$('momFill'),
-  momHint:$('momHint'), stompBtn:$('stompBtn'), falter:$('falter'),
+  stompBtn:$('stompBtn'), falter:$('falter'),
   rivalPip:$('rivalPip'), youPip:$('youPip'),
   hugeWrap:$('hugeWrap'), hugeFill:$('hugeFill'),
-  hidBanner:$('hidBanner'), blockMsg:$('blockMsg'),
-  endTitle:$('endTitle'), endStat:$('endStat'), hint:$('hint')
+  hidBanner:$('hidBanner'), blockMsg:$('blockMsg'), falterFill:$('falterFill'),
+  endTitle:$('endTitle'), endStat:$('endStat')
 };
 // build ladder rungs
 for(let i=0;i<5;i++){
@@ -2562,6 +2798,7 @@ function closeScroll(){
 function goStage(i, resultsHtml){
   S.stage=i; S.mode='stagecard';
   applyStage(i);
+  Snd.setStage(i);
   updateLadder();
   const head = resultsHtml
     ? ''
@@ -2579,13 +2816,14 @@ function startStage(){
   S.mode='run';
   S.dist=0; S.speed=st.speed;
   S.stamina=100;
+  if(S.falterCount>0) S.falterCount--;   // a fresh stage forgives one collapse
   S.score=S.totalScore; S.gatesCleared=0;
   S.route=1; S.eventIdx=0; S.lastEvent=''; S.sinceSwitch=0; S.prevTail=6;
   S.weight=W_START; S.peakW=W_START; S.mom=0; S.stomp=0; S.stompFx=0;
   S.smashes=0; S.shoves=0; S.laneCool=0; S.faltering=0; S.falterFlash=0;
   S.sushiMax=0; S.evQueue=[]; S.rivalBeat=false;
   S.huge=0; S.hugeRamp=0; S.hugeUsed=0; S.blocked=0; S.crash=0;
-  S.falterCool=0; S.falterCount=0;
+  S.falterCool=0;
   S.hidden=0; S.hidEnd=0; S.hidFound=0;
   const L=stageData().dist;
   S.hidTotal = 1 + (Math.random()<0.55?1:0);        // one or two per climb
@@ -2603,7 +2841,6 @@ function startStage(){
   player.rotation.z=0; player.scale.set(1,1,1);
   sumo.yaw.rotation.y=Math.PI;          // he arrives already facing uphill
   show(null);
-  el.hint.classList.remove('show'); void el.hint.offsetWidth; el.hint.classList.add('show');
   // prewarm scenery
   for(let z=-30;z>-200;z-=14) spawnProps(z);
 }
@@ -2653,13 +2890,14 @@ function stageComplete(){
     statRow('倍率','BEST CHAIN', '×'+S.bestMult, '', S.bestMult>=5)+
     statRow('得点','STAGE SCORE', stageScore.toLocaleString(), '');
 
-  toast(perfect ? '完 全 制 覇' : '登 頂');
+  Snd.fx.win(); toast(perfect ? '完 全 制 覇' : '登 頂');
   if(S.stage>=STAGES.length-1){ setTimeout(()=>win(results), 700); return; }
   setTimeout(()=>goStage(S.stage+1, results), 700);
 }
 
 function die(reason){
   if(S.mode!=='run') return;
+  Snd.fx.lose();
   S.mode='dead';
   S.collapse=0;
   setTimeout(()=>{
@@ -2697,14 +2935,39 @@ function win(results){
              + '<div class="seal">頂</div>', ()=>show(el.end));
 }
 
-function newRun(){ S.totalScore=0; S.totalGates=0; S.lifeSushiGot=0; S.lifeSushiTot=0;
+function newRun(){ Snd.unlock(); Snd.startMusic(); S.totalScore=0; S.totalGates=0; S.lifeSushiGot=0; S.lifeSushiTot=0;
+  S.falterCount=0;
   S.gradeSum=0; S.gradeN=0; S.bless={}; goStage(0,null); }
 $('btnStart').onclick=newRun;
-$('btnRetry').onclick=()=>{ if(S.mode==='won') newRun(); else goStage(S.stage,null); };
+$('btnRetry').onclick=()=>{ if(S.mode==='won') newRun(); else { S.falterCount=Math.max(0,S.falterCount-2); goStage(S.stage,null); } };
 $('btnMenu').onclick=()=>{ S.mode='title'; S.totalScore=0; clearWorld(); show(el.title); };
 el.scroll.addEventListener('click',()=>{ if(scrollNext && !pendingBless) closeScroll(); });
-el.stompBtn.addEventListener('click',e=>{ e.stopPropagation(); doStomp(); });
-el.stompBtn.addEventListener('touchstart',e=>{ e.stopPropagation(); doStomp(); },{passive:true});
+/* ---------- the cog ---------- */
+(function(){
+  const cog=$('cog'), panel=$('opts');
+  const rowM=$('optMusic'), rowS=$('optSfx');
+  const swM=$('swMusic'), swS=$('swSfx');
+  function paint(){
+    swM.className = 'sw' + (Snd.opt.music ? ' on' : '');
+    swS.className = 'sw' + (Snd.opt.sfx   ? ' on' : '');
+  }
+  paint();
+  function toggle(e){
+    if(e) e.stopPropagation();
+    const open = !panel.classList.contains('on');
+    panel.classList.toggle('on', open);
+    cog.classList.toggle('open', open);
+    Snd.unlock();
+  }
+  cog.addEventListener('click', toggle);
+  rowM.addEventListener('click', e=>{ e.stopPropagation();
+    Snd.unlock(); Snd.toggleMusic(!Snd.opt.music); paint(); });
+  rowS.addEventListener('click', e=>{ e.stopPropagation();
+    Snd.unlock(); Snd.toggleSfx(!Snd.opt.sfx); if(Snd.opt.sfx) Snd.fx.pick(4); paint(); });
+})();
+
+el.stompBtn.addEventListener('click',e=>{ e.stopPropagation(); if(S.faltering) falterPush(); else doStomp(); });
+el.stompBtn.addEventListener('touchstart',e=>{ e.stopPropagation(); if(S.faltering) falterPush(); else doStomp(); },{passive:true});
 
 /* ============================================================
    COLLISION + STAMINA
@@ -2712,6 +2975,7 @@ el.stompBtn.addEventListener('touchstart',e=>{ e.stopPropagation(); doStomp(); }
 function drain(amount,label,color){
   breakChain();
   S.mom = 0;
+  Snd.fx.hit();
   S.stamina -= amount;
   S.shake = Math.max(S.shake, 0.5);
   S.invuln = 0.55;
@@ -2720,7 +2984,8 @@ function drain(amount,label,color){
     // a hit never kills outright — it drops him into the slide, same as
     // running dry does, and he can fight his way back out of it
     S.stamina=0;
-    if(!S.faltering){ S.faltering=1; S.falterFrom=S.dist; S.mom=0; S.falterCount++; toast('こ ら え ろ'); }
+    if(!S.faltering){ S.faltering=1; S.falterFrom=S.dist; S.mom=0; S.falterCount++;
+      Snd.fx.falter(); toast('こ ら え ろ'); }
   }
 }
 function sMul(){ return S.mult * (S.huge>0 ? 2 : 1); }
@@ -2736,7 +3001,7 @@ function smashOut(list, i, colour){
   o.pool.release(o.ref); list.splice(i,1);
   S.mom = Math.max(0, S.mom - MOM_SMASH);
   S.smashes++; S.score += 90*sMul();
-  S.shake = Math.max(S.shake, 0.6);
+  S.shake = Math.max(S.shake, 0.6); Snd.fx.smash();
   if(S.smashes%6===0) toast('突 破');
 }
 function breakChain(){
@@ -2786,23 +3051,38 @@ function frame(now){
     } else {
       S.speed = (st.speed + st.speedGain*prog) * wSpeed(S.weight) * (1 + S.mom*0.15);
       /* ---- stamina drain: steeper, colder, faster — and heavier ---- */
-      const drainRate = (4.2 + st.slope*12.5 + st.cold*2.0 + prog*1.3)
+      const drainRate = (3.6 + st.slope*11 + st.cold*1.7 + prog*1.0)
                       * wDrain(S.weight) * (S.bless.belt?0.76:1);
       if(!S.faltering) S.stamina -= drainRate*dt;
       if(S.stamina<=0 && !S.faltering){
         S.stamina=0; S.faltering=1; S.falterFrom=S.dist; S.mom=0; S.falterCount++;
-        toast('こ ら え ろ');
+        Snd.fx.falter(); toast('こ ら え ろ');
       }
       if(S.faltering){
         /* Losing his legs doesn't kill him — it sends him sliding back down
            the mountain, and you can fight your way out of it. */
-        S.speed = -6.2;
+        // he slides faster every time he goes down, so however hard you
+        // mash, the ground you lose grows and the rope keeps shortening
+        S.speed = -Math.min(15, 5.5 + S.falterCount*1.1);
         S.invuln = 0.4;
-        S.stamina = Math.max(0, S.stamina - 7.0*dt);
-        // each collapse takes more out of him than the last
-        const back = Math.min(58, 25 + S.falterCount*7);
-        if(S.stamina >= back){ S.faltering=0; S.mom=0.25; toast('持 ち 直 し た'); }
-        else if(S.falterFrom - S.dist > 34){ die('滑 り 落 ち た'); }
+        S.stamina = Math.max(0, S.stamina - 5.5*dt);
+        // each collapse takes a little more out of him than the last
+        const back = Math.min(46, 24 + S.falterCount*5);
+        S.falterNeed = back;
+        if(S.stamina >= back){
+          // come back up with a real buffer and a moment's grace, or you
+          // simply drop straight back into it and it never ends
+          S.faltering = 0;
+          S.stamina = Math.max(S.stamina, 38);
+          S.invuln = 1.2; S.mom = 0.3; S.falterCool = 0;
+          Snd.fx.save(); toast('持 ち 直 し た');
+        }
+        else {
+          // the ground you're allowed to lose shrinks with every collapse —
+          // fighting back up is always possible, but never free
+          const rope = Math.max(9, 40 - S.falterCount*5);
+          if(S.falterFrom - S.dist > rope) die('滑 り 落 ち た');
+        }
       }
     }
     S.dist += S.speed*dt;
@@ -2819,11 +3099,13 @@ function frame(now){
     if(S.laneCool>0) S.laneCool -= dt;
     if(S.huge>0){
       S.huge -= dt;
+      Snd.intensity(0.6);
       S.hugeRamp = Math.min(1, S.hugeRamp + dt*4);
       S.mom = 1; S.invuln = Math.max(S.invuln, 0.2);
       chasms.forEach(c=>{ if(c.z>-30 && c.z<8) c.bridged=true; });
       if(S.huge<=0){ S.huge=0; toast('元 に 戻 る'); }
-    } else if(S.hugeRamp>0){
+    } else { Snd.intensity(0); }
+    if(S.hugeRamp>0 && S.huge<=0){
       S.hugeRamp = Math.max(0, S.hugeRamp - dt*1.6);
     }
     if(S.crash>0){ S.crash-=dt; S.speed *= 0.2; }
@@ -2976,7 +3258,9 @@ function frame(now){
     poseAmt: poseAmt,
     thump: thump
   });
-  if(rig.footStruck && running && S.intro<=0 && Math.random()<0.4) emitDust(S.laneX, 0.4);
+  if(rig.footStruck && running && S.intro<=0){ Snd.fx.step(); if(Math.random()<0.4) emitDust(S.laneX, 0.4); }
+
+  updateGauges(dt, groundY, wS);
 
   // blob shadow
   blob.position.set(S.laneX, groundY+0.03, 0.2);
@@ -3068,7 +3352,7 @@ function frame(now){
         } else {
           S.gatesCleared++; S.totalGates++; S.score += 120*sMul(); restore(13);
           S.stomp = Math.min(1, S.stomp + (S.bless.salt?0.48:0.34));
-          S.gateFlash=1;
+          S.gateFlash=1; Snd.fx.gate();
           const msgs=['⛩ 通 過','⛩ 良 し','⛩ 見 事','⛩ 通 過'];
           if(S.gatesCleared%3===0) toast(pick(msgs),'#D9A441');
         }
@@ -3177,7 +3461,7 @@ function frame(now){
       const airborne = S.y > 0.35;
       const ok = p.req==='air' ? airborne : p.req==='duck' ? (S.ducking && !airborne) : (!S.ducking && !airborne);
       if(ok){
-        p.taken=true; S.sushiGot++; addChain();
+        p.taken=true; S.sushiGot++; addChain(); Snd.fx.pick(S.combo);
         S.score += 25*sMul(); restore(1.75*(S.bless.food?1.6:1));
         if(S.combo>0 && S.combo%8===0) toast('連 鎖 ×'+S.mult);
         sushiPool.release(p.ref); sushi.splice(i,1); continue;
@@ -3226,7 +3510,7 @@ function frame(now){
     if(running && !g.taken && Math.abs(g.z)<1.7 && g.lane===S.lane && S.y<2.4){
       g.taken=true;
       S.huge = 9.0; S.hugeUsed++;
-      S.stomp = 1; restore(20);
+      S.stomp = 1; restore(20); Snd.fx.great();
       S.score += 500*sMul(); S.shake=1.4; S.gateFlash=1;
       burst(LANES[g.lane], 1.4, 0, 0xF2C43C, 14);
       toast('大 相 撲');
@@ -3249,7 +3533,7 @@ function frame(now){
     if(running && !c.taken && Math.abs(c.z)<1.5 && c.lane===S.lane && S.y<2.0){
       c.taken=true;
       S.weight = Math.min(1, S.weight + CHANKO_W);
-      restore(13); S.score += 140*sMul();
+      restore(13); S.score += 140*sMul(); Snd.fx.chanko();
       burst(LANES[c.lane], 1.2, 0, 0xD9A05B, 8);
       toast('ち ゃ ん こ');
       chankoPool.release(c.ref); chanko.splice(i,1); continue;
@@ -3341,8 +3625,6 @@ function frame(now){
   /* ---- HUD ---- */
   if(running || S.mode==='dead'){
     const prog=clamp(S.dist/st.dist,0,1);
-    el.beltFill.style.width = clamp(S.stamina,0,100)+'%';
-    el.belt.className = S.stamina<22?'crit':(S.stamina<45?'warn':'');
     el.score.textContent = Math.round(S.score);
     el.gates.textContent = S.gatesCleared;
     el.climb.style.height = (prog*100)+'%';
@@ -3356,20 +3638,13 @@ function frame(now){
     }
     el.chain.style.width = ((S.combo%8)/8*100)+'%';
 
-    // weight
-    el.wtFill.style.width = (S.weight*100)+'%';
-    el.wtVal.textContent = S.weight>0.62 ? '大 —  no narrow gates'
-                         : S.weight>0.42 ? '中' : '小 — nimble';
-    // momentum
-    const hot = S.mom >= smashNeed(S.weight);
-    el.momFill.style.width = (S.mom*100)+'%';
-    el.mom.className = hot ? 'hot' : '';
-    el.momHint.textContent = hot ? 'SMASH THROUGH' : 'build it up';
     // stomp
     el.stompBtn.className = S.stomp>=1 ? 'ready' : '';
     el.stompBtn.style.opacity = 0.35 + S.stomp*0.65;
     // faltering
     el.falter.className = S.faltering ? 'on' : '';
+    if(S.faltering) el.falterFill.style.width =
+      clamp(S.stamina/Math.max(S.falterNeed||24,1),0,1)*100 + '%';
     el.hugeWrap.className = S.huge>0 ? 'on' : '';
     if(S.huge>0) el.hugeFill.style.width = (S.huge/9*100)+'%';
     el.hidBanner.className = S.hidden ? 'on' : '';
@@ -3423,6 +3698,7 @@ try{
   const v=document.getElementById('ver');
   if(v) v.textContent = 'v'+GAME_VERSION;
 })();
+
 
 /* ---------- boot ---------- */
 applyStage(0);
