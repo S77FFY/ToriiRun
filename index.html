@@ -168,6 +168,46 @@
   .blessHead{margin-top:16px;text-align:center;font-family:'Shippori Mincho',serif;
     font-size:13px;letter-spacing:.3em;color:#8E2411}
 
+  /* the grade stamp on the scroll */
+  .gradeBox{display:flex;align-items:center;gap:14px;justify-content:center;
+    margin:16px 0 6px;padding:12px 0;border-bottom:1px solid rgba(60,40,20,.28)}
+  .gLetter{font-family:'Shippori Mincho',serif;font-size:54px;font-weight:800;line-height:.9}
+  .gAAA{color:#8E2411;text-shadow:0 0 22px rgba(217,64,31,.45)}
+  .gAA{color:#A8541A} .gA{color:#B8801E} .gB{color:#4C6B3A}
+  .gC{color:#3F5A78} .gD{color:#5A5750} .gE{color:#6E6862} .gF{color:#8A2020}
+  .gRank{font-family:'Shippori Mincho',serif;font-size:19px;letter-spacing:.16em;text-align:left}
+  .gRank small{display:block;font-family:'Zen Kaku Gothic New',sans-serif;font-size:9px;
+    letter-spacing:.24em;text-transform:uppercase;opacity:.55;margin-top:4px}
+  .finalGrade{display:block;font-family:'Shippori Mincho',serif;font-size:76px;
+    font-weight:800;line-height:1;margin-bottom:2px}
+  .finalRank{display:block;font-family:'Shippori Mincho',serif;font-size:14px;
+    letter-spacing:.24em;opacity:.8;margin-bottom:16px}
+  #end .finalGrade.gAAA{color:#FFD36A;text-shadow:0 0 40px rgba(255,211,106,.6)}
+  #end .finalGrade.gAA{color:#F0B36A} #end .finalGrade.gA{color:#E8C98A}
+  #end .finalGrade.gB{color:#A8C48A} #end .finalGrade.gC{color:#8FB4D9}
+  #end .finalGrade.gD{color:#B9B4AC} #end .finalGrade.gE{color:#9A948C}
+  #end .finalGrade.gF{color:#D9401F}
+
+  /* the great charm timer */
+  #hugeWrap{position:absolute;left:50%;top:calc(var(--safe-t) + 96px);transform:translateX(-50%);
+    display:none;text-align:center}
+  #hugeWrap.on{display:block}
+  #hugeK{font-family:'Shippori Mincho',serif;font-size:34px;color:#FFD874;
+    text-shadow:0 0 26px rgba(255,200,60,.9);animation:pulse .5s infinite}
+  #hugeBar{width:150px;height:4px;margin-top:6px;border-radius:2px;
+    background:rgba(0,0,0,.45);overflow:hidden}
+  #hugeFill{height:100%;width:100%;background:linear-gradient(90deg,#FFD874,#FFF3C8)}
+
+  #hidBanner{position:absolute;left:0;right:0;top:calc(var(--safe-t) + 74px);text-align:center;
+    display:none;font-family:'Shippori Mincho',serif;font-size:15px;letter-spacing:.34em;
+    color:#FFC46A;text-shadow:0 0 20px rgba(217,64,31,.8)}
+  #hidBanner.on{display:block}
+
+  #blockMsg{position:absolute;left:0;right:0;top:44%;text-align:center;display:none;
+    font-family:'Shippori Mincho',serif;font-size:20px;letter-spacing:.2em;
+    color:#FFD9C0;text-shadow:0 0 22px rgba(217,64,31,.9)}
+  #blockMsg.on{display:block;animation:pulse .4s infinite}
+
   #temp{position:absolute;left:14px;bottom:calc(var(--safe-b) + 56px);
     font-size:11px;letter-spacing:.16em;color:var(--frost);opacity:.85}
 
@@ -349,6 +389,10 @@
 
     <div id="stompBtn">四<div id="stompRing"></div></div>
     <div id="rivalPip"></div><div id="youPip"></div>
+
+    <div id="hugeWrap"><div id="hugeK">大</div><div id="hugeBar"><div id="hugeFill"></div></div></div>
+    <div id="hidBanner">一 本 道</div>
+    <div id="blockMsg">回 り 込 め</div>
 
     <div id="falter"><div class="k">こ ら え ろ</div><div class="t">tap anything to fight back up</div></div>
 
@@ -848,27 +892,27 @@ const DRAW_Z = -TILE_LEN * TILE_COUNT + TILE_LEN;
 
 /* ---------- Stage definitions ---------- */
 const STAGES = [
-  { k:'麓', name:'Foothill Path', dist:820, alt:[240,620], temp:[24,17],
+  { k:'麓', name:'Foothill Path', dist:1020, alt:[240,620], temp:[24,17],
     speed:15.0, speedGain:3.0, slope:0.085, curve:0.00055, cold:0.00, eventGap:7.0, gateEvery:3,
     sky:[0x67B4F2,0xDCEEFF], sun:0xFFF0CE, fog:0xBBD9F2, fogD:0.0100,
     ground:0x54803A, tree:0x2F6B36, gateGap:34, obsRate:1.0, animalRate:0.55 },
 
-  { k:'杉', name:'Cedar Rise', dist:960, alt:[620,1080], temp:[17,10],
+  { k:'杉', name:'Cedar Rise', dist:1160, alt:[620,1080], temp:[17,10],
     speed:17.0, speedGain:3.4, slope:0.105, curve:0.00070, cold:0.18, eventGap:6.5, gateEvery:3,
     sky:[0x4E96D8,0xCBE4F7], sun:0xFFE7C0, fog:0xA8C6DC, fogD:0.0115,
     ground:0x466B33, tree:0x22512C, gateGap:31, obsRate:1.35, animalRate:0.8 },
 
-  { k:'雲', name:'Cloud Terrace', dist:1080, alt:[1080,1720], temp:[10,3],
+  { k:'雲', name:'Cloud Terrace', dist:1280, alt:[1080,1720], temp:[10,3],
     speed:19.0, speedGain:3.8, slope:0.125, curve:0.00088, cold:0.42, eventGap:6.0, gateEvery:3,
     sky:[0x3D7CC0,0xF2C79A], sun:0xFFC98A, fog:0xC9CBD6, fogD:0.0132,
     ground:0x5A6B48, tree:0x2A4A31, gateGap:28, obsRate:1.7, animalRate:1.0 },
 
-  { k:'霜', name:'Frost Steps', dist:1180, alt:[1720,2480], temp:[3,-8],
+  { k:'霜', name:'Frost Steps', dist:1420, alt:[1720,2480], temp:[3,-8],
     speed:21.0, speedGain:4.2, slope:0.145, curve:0.00105, cold:0.72, eventGap:5.5, gateEvery:3,
     sky:[0x2E4F76,0xA9BCCB], sun:0xD8E4F0, fog:0xA9B6C4, fogD:0.0152,
     ground:0x8FA0A6, tree:0x2C4038, gateGap:26, obsRate:2.05, animalRate:1.2 },
 
-  { k:'頂', name:'Summit Shrine', dist:1300, alt:[2480,3340], temp:[-8,-24],
+  { k:'頂', name:'Summit Shrine', dist:1560, alt:[2480,3340], temp:[-8,-24],
     speed:23.5, speedGain:4.8, slope:0.165, curve:0.00125, cold:1.00, eventGap:5.0, gateEvery:3,
     sky:[0x1B2E4A,0x7E93AC], sun:0xC6D9F0, fog:0x8FA0B2, fogD:0.0172,
     ground:0xC6D2D8, tree:0x243430, gateGap:24, obsRate:2.4, animalRate:1.45 }
@@ -1320,6 +1364,63 @@ function buildChanko(){
   return g;
 }
 
+/* ---------- 祠 — the little wayside shrine that opens a hidden path ---------- */
+function buildHidMarker(){
+  const g=new THREE.Group();
+  const stoneM=new THREE.MeshLambertMaterial({color:0x9A968C});
+  // a pair of fox statues flanking a small vermilion gate
+  [-1,1].forEach(sd=>{
+    const base=mesh(G.box,stoneM, 0.34,0.5,0.34, sd*0.85,0.25,0);
+    base.castShadow=true; g.add(base);
+    const fox=mesh(G.sphLo,new THREE.MeshLambertMaterial({color:0xF2EDE4}),
+      0.17,0.24,0.13, sd*0.85,0.66,0.02);
+    fox.castShadow=true; g.add(fox);
+    g.add(mesh(G.coneLo,new THREE.MeshLambertMaterial({color:0xF2EDE4}),0.08,0.16,0.07, sd*0.85,0.86,-0.02));
+    g.add(mesh(G.sphLo,new THREE.MeshLambertMaterial({color:0xC44A2E}),0.06,0.05,0.05, sd*0.85,0.63,0.14));
+  });
+  const gateM=new THREE.MeshLambertMaterial({color:0xD9401F,emissive:0x3A0A04});
+  [-1,1].forEach(sd=>g.add(mesh(G.cyl,gateM, 0.09,1.5,0.09, sd*0.6,0.75,0)));
+  g.add(mesh(G.box,gateM, 1.7,0.14,0.18, 0,1.52,0));
+  g.add(mesh(G.box,gateM, 1.3,0.1,0.14, 0,1.28,0));
+  // it glows, and it throws sparks, so a sharp eye finds it
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:0xFFC46A,
+    transparent:true,opacity:0.8,depthWrite:false,blending:THREE.AdditiveBlending}));
+  halo.scale.set(4.2,4.2,1); halo.position.y=1.0; g.add(halo);
+  g.userData.halo=halo;
+  return g;
+}
+
+/* ---------- the arcade of a thousand gates ---------- */
+function buildArch(){
+  const g=new THREE.Group();
+  const m1=new THREE.MeshLambertMaterial({color:0xD9401F});
+  const m2=new THREE.MeshLambertMaterial({color:0x8E2411});
+  [-1,1].forEach(sd=>{
+    const p2=mesh(G.cyl,m1, 0.2,4.4,0.2, sd*2.5,2.2,0);
+    p2.castShadow=true; g.add(p2);
+  });
+  g.add(mesh(G.box,m1, 6.4,0.26,0.5, 0,4.36,0));
+  g.add(mesh(G.box,m2, 5.6,0.2,0.4, 0,3.7,0));
+  return g;
+}
+
+/* ---------- 大 — the great charm. Nine seconds of being enormous. ---------- */
+function buildGreat(){
+  const g=new THREE.Group();
+  const goldM=new THREE.MeshPhongMaterial({color:0xF2C43C,emissive:0x6A4A05,
+    specular:0xFFF4C0,shininess:80});
+  const gem=mesh(G.dia||G.sphLo, goldM, 0.5,0.72,0.5, 0,0,0);
+  gem.castShadow=true; g.add(gem);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(0.62,0.055,8,26), goldM);
+  ring.rotation.x=Math.PI/2; g.add(ring);
+  g.userData.ring=ring;
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:0xFFE08A,
+    transparent:true,opacity:0.9,depthWrite:false,blending:THREE.AdditiveBlending}));
+  halo.scale.set(3.4,3.4,1); g.add(halo);
+  g.userData.halo=halo;
+  return g;
+}
+
 /* ---------- Chasm: a broken span of path ---------- */
 const pitTex=(function(){
   const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d');
@@ -1452,74 +1553,182 @@ rival.mats.mawashi.color.set(0x2B2F52);        // dark blue belt, so you can tel
 rival.mats.skin.color.set(0xE0B296);
 rival.root.visible=false;
 scene.add(rival.root);
-const R = { z:-30, lane:1, laneX:0, phase:0, pace:1, nextLane:0, stagger:0, out:0 };
+const R = { z:-30, lane:1, laneX:0, phase:0, pace:1, out:0, think:0,
+            y:0, vy:0, jg:26, jumping:false, ducking:false, duckT:0,
+            spd:14, weight:0.46, eaten:0, boost:0, stole:0 };
 function resetRival(){
-  R.z=-30; R.lane=1; R.laneX=LANES[1]; R.pace=1; R.nextLane=1.6; R.stagger=0; R.out=0;
+  R.z=-30; R.lane=1; R.laneX=LANES[1]; R.pace=1; R.out=0; R.think=0;
+  R.y=0; R.vy=0; R.jumping=false; R.ducking=false; R.duckT=0;
+  R.spd=14; R.weight=0.42+S.stage*0.05; R.eaten=0; R.boost=0; R.stole=0;
   rival.root.visible=true;
 }
+function rivalJump(){
+  if(R.jumping) return;
+  const T = JUMP_DIST/Math.max(R.spd,8);
+  R.jg = 8*1.85/(T*T); R.vy = 4*1.85/T;
+  R.jumping=true; R.ducking=false; R.duckT=0;
+}
+function rivalDuck(){ R.ducking=true; R.duckT = DUCK_DIST/Math.max(R.spd,8); }
 
 function updateRival(dt, running){
   const st=stageData();
   if(S.mode==='title'){ rival.root.visible=false; return; }
   const prog = clamp(S.dist/st.dist,0,1);
+  const active = running && S.intro<=0;
 
-  if(running && S.intro<=0 && !S.faltering){
-    // he paces himself — sometimes he pulls away, sometimes he blows up
-    // he eases when he's well clear and digs in when you pass him,
-    // so the two of you stay in each other's peripheral vision
-    const band = R.z < -32 ? -0.05 : R.z > 6 ? 0.075 : 0;
-    R.pace = 1.0 + band + Math.sin(ambientT*0.31 + S.stage)*0.045;
-    const rSpeed = (st.speed + st.speedGain*prog) * R.pace;
-    R.z += (S.speed - rSpeed)*dt;
-  } else if(running && S.faltering){
-    R.z -= 9*dt;                       // he leaves you behind while you scrabble
-  }
-  R.z = clamp(R.z, -110, 30);
+  /* ---- his own pace, plus whatever he's eaten lately ---- */
+  const band = R.z < -34 ? -0.09 : R.z > 6 ? 0.075 : 0;
+  R.pace = 1.0 + band + Math.sin(ambientT*0.31 + S.stage)*0.045;
+  R.spd  = (st.speed + st.speedGain*prog) * (R.pace + R.boost);
+  R.boost = Math.max(0, R.boost - 0.12*dt);
 
-  R.nextLane -= dt;
-  if(R.nextLane<=0 && R.out<=0){
-    R.nextLane = rand(1.3,3.0);
-    R.lane = clamp(R.lane + pick([-1,1]), 0, 2);
+  /* You took the secret path; he stayed on the main road. He's not in
+     here with you, and he can't touch what's in it. */
+  if(S.hidden){
+    rival.root.visible = false;
+    R.z += (S.speed - R.spd)*dt;
+    R.z = clamp(R.z, -120, 34);
+    R.phase += 11*dt;
+    return;
   }
+
+  if(active && !S.faltering)      R.z += (S.speed - R.spd)*dt;
+  else if(active && S.faltering)  R.z -= R.spd*0.55*dt;
+  R.z = clamp(R.z, -120, 34);
+
+  /* ================= HIS BRAIN =================
+     He reads the same track you do: counts food per lane, keeps out of
+     blocked gate lanes, jumps what needs jumping and ducks what needs
+     ducking. He is not on rails. */
+  if(active){
+    const LOOK = 30;
+    const ahead = o => o.z > R.z - LOOK && o.z < R.z + 1.5;
+    const val=[0,0,0];
+    sushi.forEach(p=>{ if(ahead(p)) val[p.lane] += 1.1; });
+    chanko.forEach(c=>{ if(ahead(c)) val[c.lane] += 3.5; });
+    pickups.forEach(p=>{ if(ahead(p)) val[p.lane] += 1.6; });
+    obstacles.forEach(o=>{
+      if(o.lane<0 || !ahead(o)) return;
+      val[o.lane] -= (o.type==='full' ? 9 : 2.6);
+    });
+    gates.forEach(g=>{
+      if(g.z > R.z-LOOK && g.z < R.z+1.5)
+        [0,1,2].forEach(l=>{ if(g.open.indexOf(l)<0) val[l] -= 9; });
+    });
+    R.think -= dt;
+    if(R.think<=0 && R.out<=0){
+      R.think = 0.2;
+      let best=R.lane, bs=val[R.lane]+0.7;              // hysteresis
+      [0,1,2].forEach(l=>{ if(Math.abs(l-R.lane)<=1 && val[l]>bs){ bs=val[l]; best=l; } });
+      R.lane = best;
+    }
+
+    // reflexes
+    const react = Math.max(R.spd,8);
+    obstacles.forEach(o=>{
+      const d = R.z - o.z;                               // >0 means it's ahead of him
+      if(d<=0 || d > react*0.20) return;
+      if(o.type==='high') rivalDuck();
+      else if(o.lane===R.lane) rivalJump();
+    });
+    chasms.forEach(c=>{ const d=R.z-c.z; if(d>0 && d<react*0.20) rivalJump(); });
+    animals.forEach(a=>{
+      const d=R.z-a.z;
+      if(d>0 && d<react*0.18 && Math.abs(a.obj.position.x-R.laneX)<1.6){
+        if(a.fly) rivalDuck(); else rivalJump();
+      }
+    });
+  }
+
+  /* ---- his physics ---- */
+  if(R.jumping){
+    R.vy -= R.jg*dt; R.y += R.vy*dt;
+    if(R.y<=0){ R.y=0; R.vy=0; R.jumping=false; }
+  }
+  if(R.duckT>0){ R.duckT-=dt; if(R.duckT<=0) R.ducking=false; }
   if(R.out>0) R.out -= dt;
   R.laneX = lerp(R.laneX, LANES[R.lane], 1-Math.pow(0.006,dt));
-  R.phase += (running?11:5)*dt;
+  R.phase += (active?11:5)*dt;
 
-  const vis = R.z > -95 && R.z < 26;
+  /* ================= HE EATS =================
+     Anything he reaches is gone. If he's in front, that's your dinner. */
+  if(active){
+    for(let i=sushi.length-1;i>=0;i--){
+      const p=sushi[i];
+      if(Math.abs(p.z - R.z) > 1.4 || p.lane !== R.lane) continue;
+      const air = R.y > 0.35;
+      const ok = p.req==='air' ? air : p.req==='duck' ? (R.ducking && !air) : (!R.ducking && !air);
+      if(!ok) continue;
+      /* Out in front he only picks off some of it — he's a big man in a
+         hurry, not a vacuum cleaner. Behind you he cleans up everything
+         you left. Otherwise eating makes him faster, which keeps him in
+         front, which lets him eat more: a spiral you can never break. */
+      if(p.z < -1 && Math.random() > 0.42) continue;
+      R.eaten++;
+      if(p.z < -1) R.stole++;                            // got there before you did
+      R.boost = Math.min(0.07, R.boost + 0.014);
+      sushiPool.release(p.ref); sushi.splice(i,1);
+    }
+    for(let i=chanko.length-1;i>=0;i--){
+      const c=chanko[i];
+      if(!c.taken && Math.abs(c.z - R.z) < 1.5 && c.lane===R.lane && R.y<2){
+        R.weight = Math.min(1, R.weight + 0.12);
+        R.boost = Math.min(0.09, R.boost + 0.03);
+        burst(LANES[c.lane], 1.2, c.z, 0xD9A05B, 6);
+        chankoPool.release(c.ref); chanko.splice(i,1);
+      }
+    }
+  }
+
+  const vis = R.z > -100 && R.z < 30;
   rival.root.visible = vis;
   if(!vis) return;
 
+  const rW = 0.9 + R.weight*0.4;
   SumoModel.pose(rival, {
-    phase: R.phase, duck: 0, jumping: false,
-    exhaustion: clamp(prog*0.7,0,1), cold: st.cold,
+    phase: R.phase, duck: R.ducking?1:0, jumping: R.jumping,
+    exhaustion: clamp(prog*0.6,0,1), cold: st.cold,
     lean: 0.24 + st.slope*1.5, heading: Math.PI, poseAmt: 0
   });
+  rival.root.scale.setScalar(rW);
   rival.root.position.x = R.laneX;
   rival.root.position.z = R.z;
-  rival.root.position.y = bendY(R.z) + rival.restOffset;
+  rival.root.position.y = bendY(R.z) + rival.restOffset*rW + R.y;
   rival.root.rotation.x = tiltAt(R.z)*0.5 + (R.out>0 ? Math.sin(R.out*9)*0.12 : 0);
-  rival.root.rotation.z = R.out>0 ? Math.sin(R.out*11)*0.2 : 0;
+  rival.root.rotation.z = R.out>0 ? Math.sin(R.out*11)*0.22 : 0;
 
-  /* ---- shoulder to shoulder: the shove ---- */
-  if(running && S.intro<=0 && R.out<=0 && S.invuln<=0 &&
-     Math.abs(R.z) < 1.8 && Math.abs(R.laneX - S.laneX) < 1.55){
-    const mine = S.weight + S.mom*0.5;
-    const his  = 0.54 + S.stage*0.055;
-    R.out = 1.0;
-    if(mine > his){
+  /* ================= HE IS SOLID =================
+     You do not pass through 180kg. Either you shift him, or you go round. */
+  if(!active || R.out>0) return;
+  const sameLane = Math.abs(R.laneX - S.laneX) < 1.5;
+  if(!sameLane) return;
+
+  const mine = S.weight + S.mom*0.55;
+  const his  = R.weight + 0.16 + S.stage*0.03;
+
+  if(R.z < 0 && R.z > -3.0){                 // you've run up his back
+    if(mine > his && S.invuln<=0){
       const push = S.laneX < R.laneX ? 1 : -1;
       R.lane = clamp(R.lane + push, 0, 2);
-      if(R.lane===S.lane) R.lane = clamp(R.lane + push, 0, 2);
-      S.mom = Math.max(0, S.mom - 0.16);
-      S.score += 200*S.mult; S.shoves++;
-      S.shake = 0.85; burst(R.laneX, 1.5, R.z, 0xEDE6D2, 7);
+      if(R.lane===S.lane) R.lane = clamp(R.lane - push*2, 0, 2);
+      R.out = 1.0; R.boost = Math.max(0, R.boost-0.06);
+      S.mom = Math.max(0, S.mom - 0.18);
+      S.score += 200*sMul(); S.shoves++;
+      S.shake = 0.9; burst(R.laneX, 1.5, R.z, 0xEDE6D2, 8);
       toast('突 っ 張 り');
     } else {
+      S.blocked = 0.2;                       // stuck in his wake
+      R.z = Math.min(R.z, -2.4);
+    }
+  } else if(R.z > 0 && R.z < 3.0){           // he's climbed onto your heels
+    if(his > mine && S.invuln<=0){
       const push = R.laneX < S.laneX ? 1 : -1;
       S.lane = clamp(S.lane + push, 0, 2);
-      S.laneCool = 0.25;
-      drain(13,'押 し 返 さ れ た'); S.invuln=0.9;
-      S.shake = 0.95;
+      S.laneCool = 0.3;
+      drain(13,'押 し 返 さ れ た'); S.invuln=0.9; S.shake=0.95;
+      R.out = 0.5;
+    } else {
+      R.z = Math.max(R.z, 2.4);
     }
   }
 }
@@ -1619,6 +1828,9 @@ const branchPool  = Pool(buildBranch, 6);
 const onigiriPool = Pool(buildOnigiri, 8);
 const sushiPool   = Pool(buildSushi, 64);
 const chankoPool  = Pool(buildChanko, 6);
+const hidPool     = Pool(buildHidMarker, 3);
+const archPool    = Pool(buildArch, MOBILE?18:26);
+const greatPool   = Pool(buildGreat, 3);
 const chasmPool   = Pool(buildChasm, 4);
 const cranePool   = Pool(buildCrane, 4);
 const animalPools = {
@@ -1653,7 +1865,8 @@ const shock=new THREE.Mesh(new THREE.TorusGeometry(1,0.08,6,40),
 shock.rotation.x=-Math.PI/2; shock.visible=false; scene.add(shock);
 
 /* live entity lists */
-let gates=[], props=[], obstacles=[], animals=[], pickups=[], sushi=[], chasms=[], chanko=[];
+let gates=[], props=[], obstacles=[], animals=[], pickups=[], sushi=[], chasms=[], chanko=[],
+    hidMarks=[], arches=[], greats=[];
 
 function clearWorld(){
   gates.forEach(g=>gatePool.release(g.ref)); gates=[];
@@ -1664,6 +1877,9 @@ function clearWorld(){
   sushi.forEach(p=>sushiPool.release(p.ref)); sushi=[];
   chasms.forEach(c=>chasmPool.release(c.ref)); chasms=[];
   chanko.forEach(c=>chankoPool.release(c.ref)); chanko=[];
+  hidMarks.forEach(h=>hidPool.release(h.ref)); hidMarks=[];
+  arches.forEach(a=>archPool.release(a.ref)); arches=[];
+  greats.forEach(g=>greatPool.release(g.ref)); greats=[];
 }
 
 /* ============================================================
@@ -1709,6 +1925,9 @@ const S = {
   laneCool:0, faltering:0, falterFrom:0, falterFlash:0,
   bless:{}, sushiMax:0, evLanes:null, evQueue:[],
   rival:null, rivalBeat:false, shoves:0,
+  huge:0, hugeRamp:0, hugeUsed:0, blocked:0, crash:0, falterCool:0, falterCount:0,
+  hidden:0, hidEnd:0, hidSpawn:0, hidFound:0, hidTotal:0, hidTriggers:[],
+  hidMode:'ground', hidRun:3, hidCool:0, hidMarked:0, greatDrop:0, greatDone:false,
   sushiGot:0, sushiTotal:0, combo:0, mult:1, bestMult:1, multFlash:0,
   stumble:0,
   shake:0, collapse:0,
@@ -1883,6 +2102,68 @@ function greedyLine(z, safeLane, kind){
   }
   return g;
 }
+/* ---------------------------------------------------------------
+   HIDDEN PATHS. A wayside shrine sits in one lane. Run through it and
+   the mountain opens a single track — a tunnel of a thousand gates
+   with nothing in it but food. Everything eaten in there counts
+   toward the same 100%, so a perfect climb means finding them.
+   --------------------------------------------------------------- */
+const HID_LEN = 230;
+
+function addHidMarker(z, lane){
+  const it=hidPool.get(); if(!it) return;
+  it.obj.position.x=LANES[lane];
+  placeOnHill(it.obj, z, 0, 0.5);
+  hidMarks.push({ref:it,obj:it.obj,z,lane,used:false,spin:0});
+}
+function addArch(z){
+  const it=archPool.get(); if(!it) return;
+  it.obj.position.x=0;
+  placeOnHill(it.obj, z, 0, 1);
+  arches.push({ref:it,obj:it.obj,z});
+}
+function addGreat(z, lane){
+  const it=greatPool.get(); if(!it) return;
+  it.obj.position.x=LANES[lane];
+  placeOnHill(it.obj, z, 1.35, 0);
+  greats.push({ref:it,obj:it.obj,z,lane,taken:false,spin:Math.random()*6});
+}
+function hiddenSushi(z, req, arc){
+  addSushi(z, 1, req, arc);
+  S.sushiMax++;                     // counts toward the same perfect rating
+}
+
+function enterHidden(){
+  if(S.hidden) return;
+  S.hidden = 1;
+  S.hidFound++;
+  S.hidEnd = S.dist + HID_LEN;
+  S.lane = 1; S.laneX = LANES[1];
+  obstacles.forEach(o=>{ if(o.z<2) o.pool.release(o.ref); });
+  obstacles = obstacles.filter(o=>o.z>=2);
+  animals.forEach(a=>{ if(a.z<2) a.pool.release(a.ref); });
+  animals = animals.filter(a=>a.z>=2);
+  chasms.forEach(c=>{ if(c.z<2) chasmPool.release(c.ref); });
+  chasms = chasms.filter(c=>c.z>=2);
+  // the beats you're skipping shouldn't count against your line
+  S.evQueue = S.evQueue.filter(e=>{
+    if(e.at > S.dist && e.at < S.hidEnd){ S.sushiMax -= e.best; return false; }
+    return true;
+  });
+  sushi.forEach(p=>{ if(p.z<2 && p.lane!==1) sushiPool.release(p.ref); });
+  sushi = sushi.filter(p=>!(p.z<2 && p.lane!==1));
+  S.hidSpawn = -40; S.hidMode='ground'; S.hidRun=3; S.hidCool=0;
+  S.greatDrop = S.dist + HID_LEN*rand(0.35,0.62);
+  S.greatDone = false;
+  toast('一 本 道');
+  S.gateFlash = 1;
+}
+function exitHidden(){
+  S.hidden = 0;
+  S.spawnZ = -80; S.prevTail = 8;
+  toast('合 流');
+}
+
 function evGate(z){
   // most gates open somewhere other than where you're standing
   if(Math.random() < 0.62 || S.sinceSwitch>=2){
@@ -1905,6 +2186,7 @@ function evPlain(z){
   sushiLine(z, S.route, 'ground', 2, 2.2);        // the safe trickle
   greedyLine(z, S.route, 'ground');               // the fat line
   if(Math.random()<0.3) addOnigiri(z+rand(-4,4), S.route);
+  if(Math.random()<0.035) addGreat(z+rand(-3,3), S.route);
 }
 function evWeave(z){
   const others=[0,1,2].filter(l=>l!==S.route);
@@ -2037,13 +2319,15 @@ function spawnProps(z){
 function moveLane(d){
   if(S.mode!=='run') return;
   if(S.faltering){ falterPush(); return; }
+  if(S.hidden) return;                           // single track — nowhere to go
   if(S.laneCool>0) return;                       // a heavy man doesn't dart
   const n=clamp(S.lane+d,0,2);
   if(n!==S.lane){ S.lane=n; S.laneCool=wAgility(S.weight); }
 }
 function falterPush(){
-  if(!S.faltering) return;
-  S.stamina = Math.min(100, S.stamina + 3.6);
+  if(!S.faltering || S.falterCool > 0) return;
+  S.falterCool = 0.19;                      // mashing at 60fps shouldn't be free
+  S.stamina = Math.min(100, S.stamina + 3.0);
   S.falterFlash = 1;
 }
 function doStomp(){
@@ -2057,7 +2341,7 @@ function doStomp(){
   chasms.forEach(c=>{ if(c.z>-27 && c.z<7) c.bridged=true; });
   for(let i=sushi.length-1;i>=0;i--){ const p=sushi[i];      // hoovers up the food
     if(p.z>-25 && p.z<5 && !p.taken){
-      S.sushiGot++; addChain(); S.score+=25*S.mult;
+      S.sushiGot++; addChain(); S.score+=25*sMul();
       restore(1.75*(S.bless.food?1.6:1));
       sushiPool.release(p.ref); sushi.splice(i,1); } }
   S.invuln=Math.max(S.invuln,0.5);
@@ -2137,6 +2421,8 @@ const el={
   wtFill:$('wtFill'), wtVal:$('wtVal'), mom:$('mom'), momFill:$('momFill'),
   momHint:$('momHint'), stompBtn:$('stompBtn'), falter:$('falter'),
   rivalPip:$('rivalPip'), youPip:$('youPip'),
+  hugeWrap:$('hugeWrap'), hugeFill:$('hugeFill'),
+  hidBanner:$('hidBanner'), blockMsg:$('blockMsg'),
   endTitle:$('endTitle'), endStat:$('endStat'), hint:$('hint')
 };
 // build ladder rungs
@@ -2204,6 +2490,36 @@ function wireBlessings(){
   });
 }
 
+/* ---------------------------------------------------------------
+   THE BANZUKE — how the climb is judged.
+   Line taken carries it, but stamina left, what you smashed, whether
+   you beat the man next to you and how long you held the chain all
+   count. Die and it's an F, whatever else you did.
+   --------------------------------------------------------------- */
+const GRADES = [
+  {g:'AAA', at:95, k:'横綱',   d:'Yokozuna'},
+  {g:'AA',  at:88, k:'大関',   d:'Ozeki'},
+  {g:'A',   at:78, k:'関脇',   d:'Sekiwake'},
+  {g:'B',   at:66, k:'小結',   d:'Komusubi'},
+  {g:'C',   at:53, k:'前頭',   d:'Maegashira'},
+  {g:'D',   at:40, k:'十両',   d:'Juryo'},
+  {g:'E',   at:24, k:'幕下',   d:'Makushita'},
+  {g:'F',   at:-1, k:'序ノ口', d:'Failed the climb'}
+];
+function gradePoints(pct, stam, smashes, rivalBeat, chain, hidFound, hidTotal){
+  return pct*0.50
+       + Math.min(stam,100)*0.13
+       + Math.min(smashes/16,1)*100*0.10
+       + (rivalBeat?100:0)*0.12
+       + Math.min(chain/8,1)*100*0.07
+       + (hidTotal? (hidFound/hidTotal)*100 : 100)*0.08;
+}
+function gradeFor(points, failed){
+  if(failed) return GRADES[GRADES.length-1];
+  for(const G of GRADES) if(points >= G.at) return G;
+  return GRADES[GRADES.length-1];
+}
+
 /* ---------- the hanging scroll ---------- */
 let scrollToken=0, scrollNext=null;
 function statRow(k,en,val,unit,perfect){
@@ -2261,6 +2577,14 @@ function startStage(){
   S.weight=W_START; S.peakW=W_START; S.mom=0; S.stomp=0; S.stompFx=0;
   S.smashes=0; S.shoves=0; S.laneCool=0; S.faltering=0; S.falterFlash=0;
   S.sushiMax=0; S.evQueue=[]; S.rivalBeat=false;
+  S.huge=0; S.hugeRamp=0; S.hugeUsed=0; S.blocked=0; S.crash=0;
+  S.falterCool=0; S.falterCount=0;
+  S.hidden=0; S.hidEnd=0; S.hidFound=0;
+  const L=stageData().dist;
+  S.hidTotal = 1 + (Math.random()<0.55?1:0);        // one or two per climb
+  S.hidTriggers = S.hidTotal===1 ? [rand(0.28,0.62)*L]
+                                 : [rand(0.16,0.34)*L, rand(0.58,0.78)*L];
+  S.hidMarked = 0;
   resetRival();
   S.sushiGot=0; S.sushiTotal=0; S.combo=0; S.mult=1; S.bestMult=1; S.multFlash=0;
   S.stumble=0;
@@ -2303,14 +2627,22 @@ function stageComplete(){
   S.lifeSushiTot = (S.lifeSushiTot||0) + denom;
 
   const st=STAGES[S.stage];
+  const gp = gradePoints(pct, stam, S.smashes, S.rivalBeat, S.bestMult, S.hidFound, S.hidTotal);
+  const GR = gradeFor(gp, false);
+  S.gradeSum = (S.gradeSum||0) + gp; S.gradeN = (S.gradeN||0) + 1;
+
   const results =
     `<div class="pHead"><div class="pk">${st.k}</div>`+
     `<div class="pn">${st.name}</div>`+
     `<div class="pt">${perfect?'完 全 制 覇':'登 頂'}</div></div>`+
+    `<div class="gradeBox"><div class="gLetter g${GR.g}">${GR.g}</div>`+
+    `<div class="gRank">${GR.k}<small>${GR.d}</small></div></div>`+
     statRow('寿司','BEST LINE TAKEN', pct+'%', S.sushiGot+' eaten', perfect)+
     statRow('突破','SMASHED THROUGH', S.smashes, '', S.smashes>=12)+
     statRow('体重','HEAVIEST', Math.round(S.peakW*100)+'貫', '', S.peakW>0.8)+
-    statRow('相手','THE RIVAL', S.rivalBeat?'BEATEN':'AHEAD', S.shoves?S.shoves+' shoves':'', S.rivalBeat)+
+    statRow('相手','THE RIVAL', S.rivalBeat?'BEATEN':'AHEAD',
+            (R.eaten?R.eaten+' eaten by him':''), S.rivalBeat)+
+    statRow('隠道','HIDDEN PATHS', S.hidFound+' / '+S.hidTotal, '', S.hidFound>=S.hidTotal)+
     statRow('倍率','BEST CHAIN', '×'+S.bestMult, '', S.bestMult>=5)+
     statRow('得点','STAGE SCORE', stageScore.toLocaleString(), '');
 
@@ -2326,7 +2658,9 @@ function die(reason){
   setTimeout(()=>{
     el.endTitle.textContent='力 尽 き た';
     el.endTitle.style.color='#D9401F';
+    const FG = gradeFor(0, true);
     el.endStat.innerHTML =
+      `<span class="finalGrade gF">F</span><span class="finalRank">${FG.k} · ${FG.d}</span>`+
       `${reason}<br>`+
       `STAGE <b>${S.stage+1}</b> &nbsp; ${STAGES[S.stage].name}<br>`+
       `CLIMBED <b>${Math.round(S.dist)}</b> m of ${stageData().dist} m<br>`+
@@ -2343,8 +2677,11 @@ function win(results){
   const pct = S.lifeSushiTot>0 ? Math.round(S.lifeSushiGot/S.lifeSushiTot*100) : 100;
   el.endTitle.textContent='頂 上';
   el.endTitle.style.color='#D9A441';
+  const avg = S.gradeN ? S.gradeSum/S.gradeN : 0;
+  const FG = gradeFor(avg, false);
   el.endStat.innerHTML =
-    `All five shrines behind you.<br>`+
+    `<span class="finalGrade g${FG.g}">${FG.g}</span>`+
+    `<span class="finalRank">${FG.k} · ${FG.d}</span>`+
     `FINAL SCORE <b>${Math.round(S.totalScore).toLocaleString()}</b><br>`+
     `SUSHI <b>${pct}%</b> &nbsp;·&nbsp; GATES <b>${S.totalGates}</b><br>`+
     `ALTITUDE <b>3,340</b> m`;
@@ -2353,7 +2690,8 @@ function win(results){
              + '<div class="seal">頂</div>', ()=>show(el.end));
 }
 
-function newRun(){ S.totalScore=0; S.totalGates=0; S.lifeSushiGot=0; S.lifeSushiTot=0; goStage(0,null); }
+function newRun(){ S.totalScore=0; S.totalGates=0; S.lifeSushiGot=0; S.lifeSushiTot=0;
+  S.gradeSum=0; S.gradeN=0; S.bless={}; goStage(0,null); }
 $('btnStart').onclick=newRun;
 $('btnRetry').onclick=()=>{ if(S.mode==='won') newRun(); else goStage(S.stage,null); };
 $('btnMenu').onclick=()=>{ S.mode='title'; S.totalScore=0; clearWorld(); show(el.title); };
@@ -2371,8 +2709,14 @@ function drain(amount,label,color){
   S.shake = Math.max(S.shake, 0.5);
   S.invuln = 0.55;
   if(label) toast(label,color||'#D9401F');
-  if(S.stamina<=0){ S.stamina=0; die(label||'The mountain won.'); }
+  if(S.stamina<=0){
+    // a hit never kills outright — it drops him into the slide, same as
+    // running dry does, and he can fight his way back out of it
+    S.stamina=0;
+    if(!S.faltering){ S.faltering=1; S.falterFrom=S.dist; S.mom=0; S.falterCount++; toast('こ ら え ろ'); }
+  }
 }
+function sMul(){ return S.mult * (S.huge>0 ? 2 : 1); }
 function restore(amount){ S.stamina=Math.min(100,S.stamina+amount); }
 function smashNeedNow(o){
   let n = smashNeed(S.weight) + (o && o.heavy ? 0.24 : 0);
@@ -2384,7 +2728,7 @@ function smashOut(list, i, colour){
   burst(o.obj.position.x, 0.75, o.z, colour||0x8A8378, 12);
   o.pool.release(o.ref); list.splice(i,1);
   S.mom = Math.max(0, S.mom - MOM_SMASH);
-  S.smashes++; S.score += 90*S.mult;
+  S.smashes++; S.score += 90*sMul();
   S.shake = Math.max(S.shake, 0.6);
   if(S.smashes%6===0) toast('突 破');
 }
@@ -2435,25 +2779,27 @@ function frame(now){
     } else {
       S.speed = (st.speed + st.speedGain*prog) * wSpeed(S.weight) * (1 + S.mom*0.15);
       /* ---- stamina drain: steeper, colder, faster — and heavier ---- */
-      const drainRate = (4.8 + st.slope*15 + st.cold*2.8 + prog*2.0)
+      const drainRate = (4.2 + st.slope*12.5 + st.cold*2.0 + prog*1.3)
                       * wDrain(S.weight) * (S.bless.belt?0.76:1);
       if(!S.faltering) S.stamina -= drainRate*dt;
       if(S.stamina<=0 && !S.faltering){
-        S.stamina=0; S.faltering=1; S.falterFrom=S.dist; S.mom=0;
+        S.stamina=0; S.faltering=1; S.falterFrom=S.dist; S.mom=0; S.falterCount++;
         toast('こ ら え ろ');
       }
       if(S.faltering){
         /* Losing his legs doesn't kill him — it sends him sliding back down
            the mountain, and you can fight your way out of it. */
-        S.speed = -3.6;
+        S.speed = -6.2;
         S.invuln = 0.4;
-        S.stamina = Math.max(0, S.stamina - 1.1*dt);
-        if(S.stamina >= 30){ S.faltering=0; S.mom=0.25; toast('持 ち 直 し た'); }
-        else if(S.falterFrom - S.dist > 62){ die('滑 り 落 ち た'); }
+        S.stamina = Math.max(0, S.stamina - 7.0*dt);
+        // each collapse takes more out of him than the last
+        const back = Math.min(58, 25 + S.falterCount*7);
+        if(S.stamina >= back){ S.faltering=0; S.mom=0.25; toast('持 ち 直 し た'); }
+        else if(S.falterFrom - S.dist > 34){ die('滑 り 落 ち た'); }
       }
     }
     S.dist += S.speed*dt;
-    S.score += S.speed*dt*0.9*S.mult;
+    S.score += S.speed*dt*0.9*sMul();
 
     if(S.invuln>0) S.invuln-=dt;
 
@@ -2464,7 +2810,21 @@ function frame(now){
     if(S.weight > S.peakW) S.peakW = S.weight;
     if(!S.faltering && S.invuln<=0) S.mom = Math.min(1, S.mom + MOM_GAIN*dt);
     if(S.laneCool>0) S.laneCool -= dt;
+    if(S.huge>0){
+      S.huge -= dt;
+      S.hugeRamp = Math.min(1, S.hugeRamp + dt*4);
+      S.mom = 1; S.invuln = Math.max(S.invuln, 0.2);
+      chasms.forEach(c=>{ if(c.z>-30 && c.z<8) c.bridged=true; });
+      if(S.huge<=0){ S.huge=0; toast('元 に 戻 る'); }
+    } else if(S.hugeRamp>0){
+      S.hugeRamp = Math.max(0, S.hugeRamp - dt*1.6);
+    }
+    if(S.crash>0){ S.crash-=dt; S.speed *= 0.2; }
+    if(S.blocked>0){ S.blocked-=dt; S.speed = Math.min(S.speed, R.spd*0.96);
+                     S.mom = Math.max(0, S.mom - 0.5*dt); }
+    if(S.huge>0) S.speed *= 1.12;
     if(S.falterFlash>0) S.falterFlash -= dt*3;
+    if(S.falterCool>0) S.falterCool -= dt;
     S.laneX = lerp(S.laneX, LANES[S.lane], 1-Math.pow(0.0009,dt));
     if(S.jumping){
       S.vy -= (S.jg||26)*dt; S.y += S.vy*dt;
@@ -2474,13 +2834,58 @@ function frame(now){
 
     /* ---- event frontier ---- */
     if(S.intro<=0){
-      while(S.spawnZ > -195){
-        const t  = chooseEvent();
-        const ev = EV[t];
-        const z  = S.spawnZ - (S.prevTail + ev.lead + st.eventGap);
-        runEvent(ev.fn(), z);
-        S.prevTail = ev.tail;
-        S.spawnZ = z;
+      if(S.hidden){
+        /* single track: gates overhead, food underfoot, nothing to hit */
+        while(S.hidSpawn > -190){
+          const z = S.hidSpawn;
+          if(S.dist + (-z) < S.hidEnd){
+            addArch(z);
+            /* A jump covers 12m and a crouch 7m, so a leaping run gets one
+               block and then two clear blocks to land in. Otherwise the
+               corridor would ask for jumps faster than he can make them,
+               and a perfect line would be impossible in here. */
+            let mode;
+            if(S.hidCool>0){ mode='ground'; S.hidCool--; }
+            else if(S.hidRun>0){ mode=S.hidMode; S.hidRun--; }
+            else {
+              const r=Math.random();
+              if(r<0.20){ S.hidMode='air';  S.hidCool=2; }
+              else if(r<0.36){ S.hidMode='duck'; S.hidCool=2; }
+              else { S.hidMode='ground'; S.hidRun=3; }
+              mode=S.hidMode;
+            }
+            if(mode==='air'){
+              hiddenSushi(z,'air',0.55); hiddenSushi(z-2,'air',1); hiddenSushi(z-4,'air',0.55);
+            } else if(mode==='duck'){
+              hiddenSushi(z,'duck'); hiddenSushi(z-2,'duck'); hiddenSushi(z-4,'duck');
+            } else {
+              hiddenSushi(z,'ground'); hiddenSushi(z-3.2,'ground');
+            }
+            if(mode==='ground' && Math.random()<0.15) addChanko(z-5.2, 1);
+            if(mode==='ground' && Math.random()<0.11) addOnigiri(z-5.2, 1);
+            if(!S.greatDone && S.dist + (-z) > S.greatDrop && mode==='ground'){
+              S.greatDone=true; addGreat(z-5, 1);
+            }
+          }
+          S.hidSpawn -= 6.5;
+        }
+        S.hidSpawn += S.speed*dt;
+        if(S.dist > S.hidEnd) exitHidden();
+      } else {
+        while(S.spawnZ > -195){
+          const t  = chooseEvent();
+          const ev = EV[t];
+          const z  = S.spawnZ - (S.prevTail + ev.lead + st.eventGap);
+          runEvent(ev.fn(), z);
+          S.prevTail = ev.tail;
+          S.spawnZ = z;
+        }
+        // drop a wayside shrine when the frontier reaches one
+        while(S.hidMarked < S.hidTriggers.length &&
+              S.dist + (-S.spawnZ) > S.hidTriggers[S.hidMarked]){
+          addHidMarker(S.spawnZ - 12, (Math.random()*3)|0);
+          S.hidMarked++;
+        }
       }
     }
     S.spawnZ += S.speed*dt;
@@ -2513,7 +2918,7 @@ function frame(now){
   const groundY = bendY(0);
   const duckAmt = S.ducking?1:0;
   player.position.x = S.laneX;
-  const wS = wScale(S.weight);
+  const wS = wScale(S.weight) * (1 + S.hugeRamp*1.05);   // the great charm
   player.scale.setScalar(wS);                            // chanko shows
   player.position.y = groundY + S.y + sumo.restOffset*wS;
   player.position.z = 0;
@@ -2651,10 +3056,10 @@ function frame(now){
       g.scored=true;
       if(!running){ /* menu drift: gates are scenery */ } else {
       if(g.open.indexOf(S.lane)>=0){
-        if(g.narrow && S.weight > 0.62){
+        if(g.narrow && S.weight > 0.62 && S.huge<=0){
           drain(20,'太 す ぎ る'); S.invuln=0.6;      // wouldn't fit
         } else {
-          S.gatesCleared++; S.totalGates++; S.score += 120*S.mult; restore(13);
+          S.gatesCleared++; S.totalGates++; S.score += 120*sMul(); restore(13);
           S.stomp = Math.min(1, S.stomp + (S.bless.salt?0.48:0.34));
           S.gateFlash=1;
           const msgs=['⛩ 通 過','⛩ 良 し','⛩ 見 事','⛩ 通 過'];
@@ -2688,6 +3093,7 @@ function frame(now){
     placeOnHill(o.obj, o.z, 0, o.type==='high'?0.35:0.5);
     if(running && S.invuln<=0 && Math.abs(o.z)<1.25 && (o.type==='high' || o.lane===S.lane)){
       // enough weight behind enough speed and you go straight through it
+      if(S.huge>0){ smashOut(obstacles, i, o.type==='high'?0x4A3626:0x8A8378); continue; }
       const canSmash = o.smash && S.mom >= smashNeedNow(o) && (!o.heavy || S.weight >= 0.5);
       if(o.type==='low'){
         if(S.y < 1.15){
@@ -2695,7 +3101,10 @@ function frame(now){
           drain(17,'つ ま づ き'); o.hit=true;
         }
       } else if(o.type==='high'){
-        if(!S.ducking && S.y < 2.6){ drain(16,'頭 打 ち'); o.hit=true; }
+        if(!S.ducking && S.y < 2.6){
+          // you don't get past a barrier standing up — you hit it
+          drain(22,'頭 打 ち'); o.hit=true; S.crash=0.55; S.shake=1.15;
+        }
       } else {
         if(canSmash){ smashOut(obstacles, i, 0xB0A894); continue; }
         drain(20,'塞 が れ た'); o.hit=true;
@@ -2728,7 +3137,7 @@ function frame(now){
         if(S.mom >= smashNeed(S.weight)+0.06 && S.weight > 0.45){
           burst(a.obj.position.x, 0.8, a.z, 0x7C6450, 8);
           a.pool.release(a.ref); animals.splice(i,1);
-          S.mom=Math.max(0,S.mom-0.2); S.score+=70*S.mult; S.shake=0.45;
+          S.mom=Math.max(0,S.mom-0.2); S.score+=70*sMul(); S.shake=0.45;
           continue;
         }
         drain(19,'獣 に 衝 突'); S.invuln=0.6;
@@ -2762,7 +3171,7 @@ function frame(now){
       const ok = p.req==='air' ? airborne : p.req==='duck' ? (S.ducking && !airborne) : (!S.ducking && !airborne);
       if(ok){
         p.taken=true; S.sushiGot++; addChain();
-        S.score += 25*S.mult; restore(1.75*(S.bless.food?1.6:1));
+        S.score += 25*sMul(); restore(1.75*(S.bless.food?1.6:1));
         if(S.combo>0 && S.combo%8===0) toast('連 鎖 ×'+S.mult);
         sushiPool.release(p.ref); sushi.splice(i,1); continue;
       }
@@ -2771,6 +3180,52 @@ function frame(now){
       if(!p.taken && running) breakChain();
       sushiPool.release(p.ref); sushi.splice(i,1); continue;
     }
+  }
+
+  /* ---- wayside shrines: run through one and the path opens ---- */
+  for(let i=hidMarks.length-1;i>=0;i--){
+    const h=hidMarks[i];
+    h.z += dz; h.spin += dt*2;
+    placeOnHill(h.obj, h.z, 0, 0.5);
+    if(h.obj.userData.halo){
+      h.obj.userData.halo.material.opacity = 0.55 + Math.sin(h.spin*3)*0.3;
+      h.obj.userData.halo.scale.setScalar(3.8 + Math.sin(h.spin*2)*0.7);
+    }
+    if(running && !h.used && !S.hidden && Math.abs(h.z)<1.6 && h.lane===S.lane){
+      h.used=true; enterHidden();
+    }
+    if(h.z > 14){ hidPool.release(h.ref); hidMarks.splice(i,1); }
+  }
+
+  /* ---- the arcade ---- */
+  for(let i=arches.length-1;i>=0;i--){
+    const a=arches[i];
+    a.z += dz;
+    placeOnHill(a.obj, a.z, 0, 1);
+    if(a.z > 14){ archPool.release(a.ref); arches.splice(i,1); }
+  }
+
+  /* ---- 大 — the great charm ---- */
+  for(let i=greats.length-1;i>=0;i--){
+    const g=greats[i];
+    g.z += dz; g.spin += dt*2.6;
+    placeOnHill(g.obj, g.z, 1.35 + Math.sin(g.spin)*0.18, 0);
+    g.obj.rotation.y = g.spin;
+    if(g.obj.userData.ring) g.obj.userData.ring.rotation.z = g.spin*1.7;
+    if(g.obj.userData.halo){
+      g.obj.userData.halo.material.opacity = 0.7 + Math.sin(g.spin*4)*0.25;
+      g.obj.userData.halo.scale.setScalar(3.2 + Math.sin(g.spin*3)*0.6);
+    }
+    if(running && !g.taken && Math.abs(g.z)<1.7 && g.lane===S.lane && S.y<2.4){
+      g.taken=true;
+      S.huge = 9.0; S.hugeUsed++;
+      S.stomp = 1; restore(20);
+      S.score += 500*sMul(); S.shake=1.4; S.gateFlash=1;
+      burst(LANES[g.lane], 1.4, 0, 0xF2C43C, 14);
+      toast('大 相 撲');
+      greatPool.release(g.ref); greats.splice(i,1); continue;
+    }
+    if(g.z > 14){ greatPool.release(g.ref); greats.splice(i,1); }
   }
 
   /* ---- chanko: the pot that makes him bigger ---- */
@@ -2787,7 +3242,7 @@ function frame(now){
     if(running && !c.taken && Math.abs(c.z)<1.5 && c.lane===S.lane && S.y<2.0){
       c.taken=true;
       S.weight = Math.min(1, S.weight + CHANKO_W);
-      restore(13); S.score += 140*S.mult;
+      restore(13); S.score += 140*sMul();
       burst(LANES[c.lane], 1.2, 0, 0xD9A05B, 8);
       toast('ち ゃ ん こ');
       chankoPool.release(c.ref); chanko.splice(i,1); continue;
@@ -2908,6 +3363,10 @@ function frame(now){
     el.stompBtn.style.opacity = 0.35 + S.stomp*0.65;
     // faltering
     el.falter.className = S.faltering ? 'on' : '';
+    el.hugeWrap.className = S.huge>0 ? 'on' : '';
+    if(S.huge>0) el.hugeFill.style.width = (S.huge/9*100)+'%';
+    el.hidBanner.className = S.hidden ? 'on' : '';
+    el.blockMsg.className = S.blocked>0 ? 'on' : '';
     // rival, on the same thread as your climb
     if(rival.root.visible && S.mode==='run'){
       const rProg = clamp(prog + (-R.z)/st.dist, 0, 1);
